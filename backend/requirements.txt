@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pydantic
+yfinance
+pandas
+numpy
+scipy
+reportlab
+matplotlib
+pytest
+httpx
+pytest-mock
+anthropic
+python-dotenv
