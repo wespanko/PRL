@@ -2,36 +2,13 @@ import { useState } from "react";
 import { generateThesis } from "../api/client";
 import { normalizeWeights } from "../utils/normalizeWeights";
 
-// Beginner-friendly goal cards. Tapping one fills the thesis textarea and auto-runs.
+// Beginner-friendly goal cards. preset_id matches a curated portfolio in
+// backend/data/preset_portfolios.py — those clicks skip the LLM entirely.
 const QUICK_START_GOALS = [
-  {
-    id: "long_term_growth",
-    icon: "▲",
-    label: "Grow my money long-term",
-    sub: "10+ year horizon. Compound through dips.",
-    thesis: "I'm investing for the long term — 10+ years. I want a portfolio focused on growth, with US and international equity, some technology exposure, and a small bond allocation as a stabilizer. I can tolerate short-term drops to capture long-run compounding.",
-  },
-  {
-    id: "avoid_losses",
-    icon: "◐",
-    label: "Avoid big losses",
-    sub: "Steady is fine. Cap drawdowns under 15%.",
-    thesis: "Capital preservation is my main goal. I want steady, modest growth and to cap drawdowns under 15%. I'll accept lower returns to avoid big losses. Bonds, defensive equity, and gold are welcome. I'm okay underperforming in good years if it means I can sleep through bad years.",
-  },
-  {
-    id: "tech_growth",
-    icon: "✦",
-    label: "Bet on tech and AI",
-    sub: "Tilt toward AI/semis, with hedges.",
-    thesis: "I'm bullish on AI infrastructure and US large-cap technology for the next 5-10 years — semis, cloud providers, and the megacaps building the rails. Tilt the portfolio toward this thematic bet but include some hedges (bonds, gold) to soften a tech correction or rate shock.",
-  },
-  {
-    id: "balanced_starter",
-    icon: "◎",
-    label: "Balanced starter",
-    sub: "First-time investor, sensible default.",
-    thesis: "I'm new to investing and want a balanced starter portfolio. Some growth potential from broad equity, some safety from bonds, some diversification from international and gold. Nothing too aggressive or too conservative — a sensible first portfolio that lets me learn how the metrics work.",
-  },
+  { id: "long_term_growth", icon: "▲", label: "Grow my money long-term", sub: "10+ year horizon. Compound through dips." },
+  { id: "avoid_losses",     icon: "◐", label: "Avoid big losses",         sub: "Steady is fine. Cap drawdowns under 15%." },
+  { id: "tech_growth",      icon: "✦", label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
+  { id: "balanced_starter", icon: "◎", label: "Balanced starter",         sub: "First-time investor, sensible default." },
 ];
 
 const DIAGNOSIS_PRESETS = [
@@ -89,14 +66,15 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
-  async function generateForThesis(thesisText, riskOverride) {
+  async function callBackend({ thesis: thesisText, presetId, riskOverride }) {
     setLoading(true);
     setError(null);
     setResult(null);
     try {
       const data = await generateThesis({
-        thesis: thesisText.trim(),
+        thesis: thesisText ?? "",
         risk_tolerance: riskOverride ?? risk,
+        ...(presetId ? { preset_id: presetId } : {}),
       });
       if (data.error) {
         setError(data.error === "no_api_key"
@@ -117,26 +95,41 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
       setError("Write your thesis first.");
       return;
     }
-    await generateForThesis(thesis);
+    await callBackend({ thesis });
   }
 
   function pickQuickStart(goal) {
-    setThesis(goal.thesis);
+    setThesis("");
     setError(null);
-    // Scroll the result into view after it loads
-    generateForThesis(goal.thesis);
+    callBackend({ presetId: goal.id });
   }
 
-  function buildEqualWeightHoldings() {
+  function pickDiagnosis(diag) {
+    setThesis(diag.text);
+    setError(null);
+    callBackend({ presetId: diag.id });
+  }
+
+  function buildHoldings() {
     if (!result?.suggestions?.length) return [];
+    // If the backend returned curated weights (preset path), use them.
+    // Otherwise (LLM path) fall back to equal-weight.
+    const hasCuratedWeights = result.suggestions.every(
+      (s) => typeof s.weight === "number" && s.weight > 0,
+    );
+    if (hasCuratedWeights) {
+      return normalizeWeights(
+        result.suggestions.map((s) => ({ ticker: s.ticker, weight: s.weight })),
+      );
+    }
     const n = result.suggestions.length;
-    // Equal-weight raw, then normalize so the total is exactly 1.0
-    const raw = result.suggestions.map((s) => ({ ticker: s.ticker, weight: 1 / n }));
-    return normalizeWeights(raw);
+    return normalizeWeights(
+      result.suggestions.map((s) => ({ ticker: s.ticker, weight: 1 / n })),
+    );
   }
 
   function handleAddToPortfolio() {
-    const holdings = buildEqualWeightHoldings();
+    const holdings = buildHoldings();
     if (!holdings.length) return;
     onUseInAnalyze?.(holdings);
   }
@@ -187,7 +180,8 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
               key={d.id}
               type="button"
               className="thesis-diagnosis-card"
-              onClick={() => { setThesis(d.text); setError(null); }}
+              onClick={() => pickDiagnosis(d)}
+              disabled={loading}
             >
               <span className="thesis-diagnosis-icon">{d.icon}</span>
               <div className="thesis-diagnosis-text">
@@ -277,6 +271,9 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
                 <div className="thesis-suggestion-head">
                   <span className="thesis-suggestion-ticker">{s.ticker}</span>
                   <span className="thesis-suggestion-name">{s.name}</span>
+                  {typeof s.weight === "number" && (
+                    <span className="thesis-suggestion-weight">{(s.weight * 100).toFixed(0)}%</span>
+                  )}
                   <span className="thesis-suggestion-theme">{s.theme}</span>
                 </div>
                 <div className="thesis-suggestion-reason">{s.reason}</div>

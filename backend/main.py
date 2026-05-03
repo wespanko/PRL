@@ -168,15 +168,56 @@ Worst Stress Scenario: {worst_stress[0]} ({worst_stress[1]:.1%})
 
 
 class ThesisRequest(BaseModel):
-    thesis: str
+    thesis: str = ""
     risk_tolerance: str | None = None  # "conservative" | "balanced" | "aggressive"
+    preset_id: str | None = None       # if set, serve curated portfolio without LLM
+
+
+def _build_suggestions_from_holdings(holdings: list[dict]) -> list[dict]:
+    """Join {ticker, weight, reason} entries with universe metadata to produce
+    the standard suggestion shape returned by /api/thesis."""
+    from data.universe import find_ticker
+    out = []
+    for h in holdings:
+        entry = find_ticker(h["ticker"])
+        if entry is None:
+            continue
+        out.append({
+            "ticker": entry["ticker"],
+            "name": entry["name"],
+            "theme": entry["theme"],
+            "reason": h.get("reason", ""),
+            "role": entry["role"],
+            "weight": h.get("weight"),  # curated weight hint (None if not preset)
+        })
+    return out
 
 
 @app.post("/api/thesis")
 def thesis(request: ThesisRequest):
-    """Map a user's investment thesis to specific ticker suggestions from the
-    curated universe. Uses Claude with a strict system prompt that locks the
-    LLM to the universe — it must pick from the list, not invent tickers."""
+    """Map a user's investment thesis to specific ticker suggestions.
+
+    Two paths:
+    1. If `preset_id` is provided and known → serve a pre-computed portfolio
+       from data.preset_portfolios. Zero LLM cost, sub-100ms response,
+       perfectly consistent results across users.
+    2. Otherwise → call Claude Haiku to map the free-form thesis to the
+       curated universe (strict prompt, hallucinated tickers filtered out).
+    """
+    # ── Path 1: pre-computed preset ────────────────────────────────────────
+    if request.preset_id:
+        from data.preset_portfolios import get_preset
+        preset = get_preset(request.preset_id, request.risk_tolerance)
+        if preset is not None:
+            return {
+                "themes": preset["themes"],
+                "summary": preset["summary"],
+                "suggestions": _build_suggestions_from_holdings(preset["holdings"]),
+                "source": "preset",
+            }
+        # unknown preset_id falls through to LLM with the user's thesis text
+
+    # ── Path 2: live LLM mapping ───────────────────────────────────────────
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return {
@@ -263,6 +304,7 @@ Return only the JSON. No prose. No markdown fences."""
         "themes": parsed.get("themes", []),
         "summary": parsed.get("summary", ""),
         "suggestions": suggestions_out,
+        "source": "llm",
     }
 
 
