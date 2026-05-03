@@ -18,6 +18,7 @@ import { analyzePortfolio } from "./api/client";
 import { findPriorSnapshot } from "./utils/snapshots";
 import { loadProfile, clearProfile } from "./utils/profile";
 import { loadSession, saveSession, clearSession } from "./utils/sessionState";
+import { DEMO_PORTFOLIO } from "./data/demoPortfolio";
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile());
@@ -47,6 +48,14 @@ export default function App() {
   function loadIntoAnalyze(holdings) {
     setAnalyzeInitialHoldings(holdings);
     setActiveTab("analyze");
+  }
+
+  async function runDemoPortfolio() {
+    const demoPayload = { ...DEMO_PORTFOLIO };
+    delete demoPayload.label;
+    delete demoPayload.description;
+    setActiveTab("dashboard");
+    await handleSubmit(demoPayload);
   }
 
   useEffect(() => {
@@ -114,6 +123,7 @@ export default function App() {
               profile={profile}
               setActiveTab={setActiveTab}
               onComplete={() => setProfile(loadProfile())}
+              onRunDemo={runDemoPortfolio}
             />
           )}
 
@@ -125,6 +135,8 @@ export default function App() {
               prevSnapshot={prevSnapshot}
               setActiveTab={setActiveTab}
               onLearnMore={openLearn}
+              onRunDemo={runDemoPortfolio}
+              loading={loading}
             />
           )}
 

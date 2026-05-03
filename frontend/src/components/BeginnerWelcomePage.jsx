@@ -27,7 +27,7 @@ const STEPS = [
   },
 ];
 
-export default function BeginnerWelcomePage({ profile, setActiveTab, onComplete }) {
+export default function BeginnerWelcomePage({ profile, setActiveTab, onComplete, onRunDemo }) {
   const firstName = profileFirstName(profile.name);
 
   function go(target) {
@@ -40,6 +40,12 @@ export default function BeginnerWelcomePage({ profile, setActiveTab, onComplete 
     updateProfile({ onboarded: true });
     onComplete?.();
     setActiveTab("dashboard");
+  }
+
+  function tryDemo() {
+    updateProfile({ onboarded: true });
+    onComplete?.();
+    onRunDemo?.();
   }
 
   return (
@@ -73,6 +79,16 @@ export default function BeginnerWelcomePage({ profile, setActiveTab, onComplete 
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="beginner-demo-cta">
+        <div className="beginner-demo-cta-text">
+          <strong>Not sure what any of this looks like?</strong>
+          <span> Load a sample portfolio and see all the screens populated.</span>
+        </div>
+        <button type="button" className="btn btn-secondary" onClick={tryDemo}>
+          Show me an example →
+        </button>
       </div>
 
       <div className="beginner-footer">

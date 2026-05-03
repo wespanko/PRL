@@ -31,7 +31,7 @@ function QuickStat({ label, value, color, metric, onLearnMore }) {
   );
 }
 
-export default function DashboardPage({ profile, results, payload, prevSnapshot, setActiveTab, onLearnMore }) {
+export default function DashboardPage({ profile, results, payload, prevSnapshot, setActiveTab, onLearnMore, onRunDemo, loading }) {
   const greeting = `Welcome back, ${profileFirstName(profile.name)}`;
   const hasResults = !!results;
 
@@ -52,12 +52,28 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
             Add your tickers and weights, pick a date range, and Panko will compute the
             full risk profile in seconds.
           </div>
-          <button
-            className="btn btn-primary dash-empty-cta-btn"
-            onClick={() => setActiveTab("analyze")}
-          >
-            Start an analysis →
-          </button>
+          <div className="dash-empty-cta-actions">
+            {onRunDemo && (
+              <button
+                className="btn btn-primary dash-empty-cta-btn"
+                onClick={onRunDemo}
+                disabled={loading}
+              >
+                {loading ? <><span className="spinner" /> Loading example…</> : "Try with example portfolio →"}
+              </button>
+            )}
+            <button
+              className="btn btn-secondary dash-empty-cta-btn"
+              onClick={() => setActiveTab("analyze")}
+              disabled={loading}
+            >
+              Or enter your own
+            </button>
+          </div>
+          <div className="dash-empty-cta-note">
+            The example is a tech-tilted balanced mix (NVDA, MSFT, AAPL, SPY, TLT, GLD…).
+            Useful for seeing what every screen looks like with real numbers.
+          </div>
         </div>
       </div>
     );
