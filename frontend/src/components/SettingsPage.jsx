@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { updateProfile } from "../utils/profile";
+import { clearAllLocalData } from "../utils/schemaVersion";
 
 const RISK_LEVELS = [
   { id: "conservative", label: "Conservative", body: "Capital preservation first" },
@@ -147,6 +148,28 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           Save changes
         </button>
         {savedFlash && <span className="settings-saved">✓ Saved</span>}
+      </div>
+
+      <div className="card" style={{ marginTop: 14 }}>
+        <div className="settings-section-label">Reset</div>
+        <p className="settings-section-help">
+          Wipes your profile, snapshots, and last analysis from this browser.
+          Useful for starting fresh or if you're handing the link to someone
+          else on the same device.
+        </p>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => {
+            if (!window.confirm(
+              "Erase your profile, snapshots, and last analysis from this browser? This cannot be undone."
+            )) return;
+            clearAllLocalData();
+            window.location.reload();
+          }}
+        >
+          Clear all my data
+        </button>
       </div>
 
       <div className="settings-meta">
