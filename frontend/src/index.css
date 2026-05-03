@@ -47,6 +47,234 @@ body {
   padding: 28px 20px 88px;
 }
 
+/* ── Beginner Portfolio Wizard ── */
+.wizard-hero { margin-bottom: 22px; }
+.wizard-step-pill {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 122, 255, 0.12);
+  color: var(--primary);
+  padding: 4px 11px;
+  border-radius: 99px;
+  margin-bottom: 14px;
+}
+.wizard-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--label);
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.wizard-sub {
+  font-size: 14.5px;
+  color: var(--label-2);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  max-width: 680px;
+}
+
+.wizard-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.wizard-goal-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(15, 23, 42, 0.03);
+}
+.wizard-goal-card:hover {
+  transform: translateY(-2px);
+  background: white;
+  border-color: rgba(0, 122, 255, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 12px 32px rgba(0, 122, 255, 0.12);
+}
+.wizard-goal-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 5px 14px rgba(0, 122, 255, 0.28);
+}
+.wizard-goal-text {
+  flex: 1;
+  min-width: 0;
+}
+.wizard-goal-label {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--label);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.wizard-goal-sub {
+  font-size: 13px;
+  color: var(--label-3);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+.wizard-goal-arrow {
+  font-size: 20px;
+  color: var(--label-4);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.wizard-goal-card:hover .wizard-goal-arrow {
+  color: var(--primary);
+  transform: translateX(4px);
+}
+
+.wizard-skip {
+  display: block;
+  margin: 4px auto 0;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -0.005em;
+  padding: 8px;
+}
+.wizard-skip:hover { text-decoration: underline; }
+
+.wizard-loading {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 64px 28px;
+  text-align: center;
+}
+.wizard-loading-spinner {
+  width: 28px; height: 28px;
+  border-width: 3px;
+  margin: 0 auto 18px;
+}
+.wizard-loading-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--label);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.wizard-loading-body {
+  font-size: 13.5px;
+  color: var(--label-3);
+  max-width: 360px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+.wizard-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.wizard-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 4px 0;
+}
+.wizard-holding {
+  padding: 14px 18px;
+  border-bottom: 0.5px solid var(--border-light);
+}
+.wizard-holding:last-child { border-bottom: none; }
+.wizard-holding-line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.wizard-holding-ticker {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+.wizard-holding-name {
+  font-size: 13px;
+  color: var(--label-2);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.wizard-holding-weight {
+  margin-left: auto;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.wizard-holding-reason {
+  font-size: 12.5px;
+  color: var(--label-3);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+.wizard-explain {
+  background: rgba(52, 199, 89, 0.07);
+  border: 0.5px solid rgba(52, 199, 89, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--label-2);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  margin-bottom: 18px;
+  margin-top: 14px;
+}
+.wizard-explain strong { color: var(--label); }
+
+.wizard-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.wizard-go-btn { flex: 1; }
+
+@media (max-width: 600px) {
+  .wizard-title { font-size: 1.5rem; }
+  .wizard-goal-card { padding: 14px 16px; gap: 12px; }
+  .wizard-goal-icon { width: 38px; height: 38px; font-size: 16px; }
+  .wizard-goal-label { font-size: 0.95rem; }
+  .wizard-goal-sub { font-size: 12px; }
+}
+
 /* ── Settings page ── */
 .settings-hero { margin-bottom: 18px; }
 .settings-hero-title {

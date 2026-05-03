@@ -11,12 +11,13 @@ import ImprovePage from "./components/ImprovePage";
 import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
 import BeginnerWelcomePage from "./components/BeginnerWelcomePage";
+import BeginnerPortfolioWizard from "./components/BeginnerPortfolioWizard";
 import SettingsPage from "./components/SettingsPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
 import { findPriorSnapshot } from "./utils/snapshots";
-import { loadProfile, clearProfile } from "./utils/profile";
+import { loadProfile, clearProfile, updateProfile } from "./utils/profile";
 import { loadSession, saveSession, clearSession } from "./utils/sessionState";
 import { DEMO_PORTFOLIO } from "./data/demoPortfolio";
 
@@ -119,6 +120,25 @@ export default function App() {
         <StatusBar results={results} payload={payload} />
         <div key={activeTab} className="page-transition">
           {activeTab === "beginner" && (
+            <BeginnerPortfolioWizard
+              profile={profile}
+              onComplete={() => {
+                updateProfile({ onboarded: true });
+                setProfile(loadProfile());
+              }}
+              onAnalyze={async (formPayload) => {
+                setActiveTab("dashboard");
+                await handleSubmit(formPayload);
+              }}
+              onSkip={() => {
+                updateProfile({ onboarded: true });
+                setProfile(loadProfile());
+                setActiveTab("beginner-explore");
+              }}
+            />
+          )}
+
+          {activeTab === "beginner-explore" && (
             <BeginnerWelcomePage
               profile={profile}
               setActiveTab={setActiveTab}
