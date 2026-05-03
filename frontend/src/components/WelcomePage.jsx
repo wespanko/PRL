@@ -63,6 +63,7 @@ export default function WelcomePage({ onSignIn }) {
   const [email, setEmail] = useState("");
   const [riskTolerance, setRiskTolerance] = useState("balanced");
   const [experience, setExperience] = useState("some");
+  const [acknowledged, setAcknowledged] = useState(false);
   const [error, setError] = useState(null);
 
   function handleNameStep(e) {
@@ -80,6 +81,11 @@ export default function WelcomePage({ onSignIn }) {
   }
 
   function handleFinish() {
+    if (!acknowledged) {
+      setError("Please confirm you understand this is educational only, not financial advice.");
+      return;
+    }
+    setError(null);
     const profile = saveProfile({ name, email, riskTolerance, experience });
     onSignIn(profile);
   }
@@ -299,6 +305,22 @@ export default function WelcomePage({ onSignIn }) {
                 </button>
               ))}
             </div>
+
+            <label className="welcome-acknowledge">
+              <input
+                type="checkbox"
+                checked={acknowledged}
+                onChange={(e) => { setAcknowledged(e.target.checked); setError(null); }}
+              />
+              <span>
+                I understand Panko is for <strong>educational purposes only</strong>, is{" "}
+                <strong>not financial advice</strong>, and that I am responsible for my own
+                investment decisions. Past performance does not guarantee future results.
+                Risk of loss is real.
+              </span>
+            </label>
+
+            {error && <div className="welcome-error">{error}</div>}
 
             <div className="welcome-form-actions" style={{ marginTop: 24 }}>
               <button

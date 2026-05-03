@@ -127,13 +127,13 @@ function DebtCalculator({ defaultExpectedReturn }) {
       <div className={`plan-verdict ${debtIsHigher ? "plan-verdict--bad" : "plan-verdict--neutral"}`}>
         <div className="plan-verdict-headline">
           {debtIsHigher
-            ? "Pay this off ASAP."
-            : "The math says you can invest instead — but only if you actually will."}
+            ? "The math suggests prioritizing this debt."
+            : "Mathematically, investing the difference has higher expected value — with caveats."}
         </div>
         <div className="plan-verdict-body">
           {debtIsHigher
-            ? `Your loan rate (${rate}%) is higher than what you'd realistically earn investing (${expectedReturn}%). Every dollar you put toward this loan beats every dollar you put in the market — guaranteed.`
-            : `Your loan rate (${rate}%) is lower than expected market return (${expectedReturn}%). Math favors investing the difference, but markets don't actually return their average every year — sometimes they crash. If you'll panic-sell during a downturn, paying down the loan is the safer play.`}
+            ? `Your loan rate (${rate}%) exceeds the assumed market return (${expectedReturn}%). On a pure expected-value basis, paying down the loan dominates investing the same dollars. This is not advice — your actual situation may involve tax effects, liquidity needs, employer match opportunities, or psychological factors not captured here.`
+            : `Your loan rate (${rate}%) is below the assumed market return (${expectedReturn}%). Math favors investing on a pure-expected-value basis, but markets don't return their average every year — they can crash 30%+ in a single year. The "only if you actually will" caveat matters: paying down debt is a guaranteed return; investing is not. This is a generic illustration, not a recommendation for your situation.`}
         </div>
       </div>
 
@@ -483,9 +483,24 @@ export default function PlanPage({ results, payload }) {
         </p>
       </div>
 
+      <div className="advisor-callout">
+        <strong>Reminder:</strong> the calculators below are educational illustrations using
+        generic assumptions. Your actual situation involves tax effects, liquidity needs, time
+        horizon, employer matches, and behavioral factors that aren't modeled here.{" "}
+        <strong>Consult a licensed financial advisor</strong> before acting on any of these numbers.
+      </div>
+
       <DebtCalculator
         defaultExpectedReturn={portfolioReturn != null ? +(portfolioReturn * 100).toFixed(1) : 10}
       />
+
+      <div className="risk-disclosure">
+        <strong>Forward-looking risk disclosure:</strong> the projection chart below is a
+        mathematical model based on a constant assumed return. <strong>Actual returns will differ
+        substantially</strong> — markets can lose 30%+ in a single year, can underperform their
+        long-run average for extended periods (sometimes decades), and have no guarantee of
+        positive returns over any specific horizon. This is <strong>not a forecast or recommendation</strong>.
+      </div>
 
       <FutureValueProjector
         portfolioReturn={portfolioReturn}

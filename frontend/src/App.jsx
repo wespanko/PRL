@@ -12,6 +12,8 @@ import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
 import PlanPage from "./components/PlanPage";
 import SettingsPage from "./components/SettingsPage";
+import TermsOfServicePage from "./components/TermsOfServicePage";
+import PrivacyPolicyPage from "./components/PrivacyPolicyPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
@@ -192,8 +194,11 @@ export default function App() {
               setActiveTab={setActiveTab}
             />
           )}
+
+          {activeTab === "terms" && <TermsOfServicePage setActiveTab={setActiveTab} />}
+          {activeTab === "privacy" && <PrivacyPolicyPage setActiveTab={setActiveTab} />}
         </div>
-        <DisclaimerFooter />
+        <DisclaimerFooter setActiveTab={setActiveTab} />
       </main>
 
       <button

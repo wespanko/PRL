@@ -352,6 +352,13 @@ export default function ImprovePage({
         </button>
       </div>
 
+      <div className="advisor-callout">
+        <strong>Reminder:</strong> the paths below are mechanical structural alternatives generated
+        from the math, <strong>not investment recommendations</strong>. They don't account for taxes,
+        transaction costs, your specific time horizon, or your liquidity needs.{" "}
+        <strong>Consult a licensed financial advisor</strong> before adjusting your portfolio.
+      </div>
+
       {/* Source toggle */}
       <div className="improve-source-row">
         <span className="improve-source-label">Improving:</span>
