@@ -17,6 +17,7 @@ import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
 import { findPriorSnapshot } from "./utils/snapshots";
 import { loadProfile, clearProfile } from "./utils/profile";
+import { loadSession, saveSession, clearSession } from "./utils/sessionState";
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile());
@@ -24,8 +25,10 @@ export default function App() {
     const p = loadProfile();
     return p?.experience === "beginner" && !p?.onboarded ? "beginner" : "dashboard";
   });
-  const [results, setResults] = useState(null);
-  const [payload, setPayload] = useState(null);
+  // Restore the most recent analysis if the user is signed in and has one.
+  // Lazy initializer so localStorage is read once at mount, not on every render.
+  const [results, setResults] = useState(() => loadProfile() ? (loadSession()?.results ?? null) : null);
+  const [payload, setPayload] = useState(() => loadProfile() ? (loadSession()?.payload ?? null) : null);
   const [prevSnapshot, setPrevSnapshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -68,6 +71,7 @@ export default function App() {
       setResults(data);
       setPayload(formPayload);
       setPrevSnapshot(prior);
+      saveSession(formPayload, data);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -78,7 +82,10 @@ export default function App() {
   function handleSignOut() {
     if (!window.confirm("Sign out of Panko? Your snapshots stay in this browser.")) return;
     clearProfile();
+    clearSession();
     setProfile(null);
+    setResults(null);
+    setPayload(null);
     setActiveTab("dashboard");
   }
 
