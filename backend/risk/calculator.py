@@ -219,6 +219,7 @@ def run_analysis(payload) -> dict:
         "actual_period": {"start": actual_start, "end": actual_end},
         "limited_history_tickers": [t for t in limited_history_tickers if t != benchmark],
         "benchmark": benchmark,
+        "total_value": payload.total_value,
     }
     benchmark_attribution = compute_benchmark_attribution(portfolio_returns, benchmark_returns, ann_return)
     risk_score = compute_risk_score(

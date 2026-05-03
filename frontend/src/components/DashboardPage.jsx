@@ -4,6 +4,19 @@ import InfoTip from "./InfoTip";
 import { profileFirstName } from "../utils/profile";
 import { pct, num } from "../utils/formatters";
 
+function fmtMoney(n) {
+  if (!Number.isFinite(n)) return "—";
+  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (Math.abs(n) >= 10_000) return `$${Math.round(n).toLocaleString("en-US")}`;
+  return `$${Math.round(n).toLocaleString("en-US")}`;
+}
+
+function fmtMoneySigned(n) {
+  if (!Number.isFinite(n)) return "—";
+  const sign = n < 0 ? "−" : "";
+  return sign + fmtMoney(Math.abs(n));
+}
+
 function QuickStat({ label, value, color, metric, onLearnMore }) {
   return (
     <div className="dash-quick-stat">
@@ -52,6 +65,7 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
 
   const tickers = results.tickers ?? [];
   const period = results.actual_period ?? results.period ?? {};
+  const totalValue = results.total_value;
 
   return (
     <div className="container">
@@ -64,6 +78,27 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
           {period.start} → {period.end}
         </p>
       </div>
+
+      {totalValue != null && totalValue > 0 && (
+        <div className="dash-portfolio-value">
+          <div className="dash-portfolio-value-label">Portfolio value</div>
+          <div className="dash-portfolio-value-amount">{fmtMoney(totalValue)}</div>
+          <div className="dash-portfolio-value-stress">
+            <span className="dash-portfolio-value-stress-item">
+              <span className="dash-portfolio-value-stress-label">Worst observed drawdown</span>
+              <span className="dash-portfolio-value-stress-value" style={{ color: "var(--negative)" }}>
+                {fmtMoneySigned(totalValue * (results.max_drawdown ?? 0))}
+              </span>
+            </span>
+            <span className="dash-portfolio-value-stress-item">
+              <span className="dash-portfolio-value-stress-label">VaR 95% (typical bad month)</span>
+              <span className="dash-portfolio-value-stress-value" style={{ color: "var(--negative)" }}>
+                {fmtMoneySigned(totalValue * (results.var_95 ?? 0))}
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
 
       <DashboardCard results={results} prevSnapshot={prevSnapshot} />
 

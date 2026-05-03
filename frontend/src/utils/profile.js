@@ -12,17 +12,29 @@ export function loadProfile() {
   }
 }
 
-export function saveProfile({ name, email, riskTolerance }) {
+export function saveProfile({ name, email, riskTolerance, experience }) {
   const cleaned = {
     name: String(name || "").trim().slice(0, 60),
     email: String(email || "").trim().slice(0, 120),
     riskTolerance: ["conservative", "balanced", "aggressive"].includes(riskTolerance)
       ? riskTolerance
       : "balanced",
+    experience: ["beginner", "some", "confident"].includes(experience)
+      ? experience
+      : "some",
+    onboarded: false,
     createdAt: new Date().toISOString(),
   };
   localStorage.setItem(KEY, JSON.stringify(cleaned));
   return cleaned;
+}
+
+export function updateProfile(updates) {
+  const current = loadProfile();
+  if (!current) return null;
+  const merged = { ...current, ...updates };
+  localStorage.setItem(KEY, JSON.stringify(merged));
+  return merged;
 }
 
 export function clearProfile() {

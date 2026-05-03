@@ -37,6 +37,62 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/prices")
+def latest_prices(tickers: str):
+    """Latest available close price per ticker, used by the Shares-mode form.
+
+    `tickers` is a comma-separated string. Returns:
+        {"prices": {"NVDA": 942.13, "AAPL": 218.4, ...},
+         "missing": ["BAD"], "asof": "2026-05-02"}
+    Skips silently over tickers that fail to fetch (returns them in `missing`).
+    Reuses the same fetch_prices cache as analysis, so it's free if those tickers
+    were already analyzed.
+    """
+    from datetime import datetime, timedelta
+    from data.fetcher import fetch_prices
+
+    ticker_list = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+    if not ticker_list:
+        return {"prices": {}, "missing": [], "asof": None}
+
+    # Pull last 7 days so weekends/holidays don't return empty.
+    end = datetime.now().date()
+    start = end - timedelta(days=7)
+
+    prices_out: dict[str, float] = {}
+    missing: list[str] = []
+    asof: str | None = None
+    try:
+        df, _ = fetch_prices(ticker_list, str(start), str(end))
+        if not df.empty:
+            asof = str(df.index[-1].date())
+            for t in ticker_list:
+                if t in df.columns:
+                    last = float(df[t].dropna().iloc[-1]) if df[t].dropna().size > 0 else None
+                    if last is not None and last > 0:
+                        prices_out[t] = round(last, 2)
+                    else:
+                        missing.append(t)
+                else:
+                    missing.append(t)
+    except Exception:
+        # Per-ticker fallback — try them one at a time so a single bad ticker
+        # doesn't kill the whole batch.
+        for t in ticker_list:
+            try:
+                df_one, _ = fetch_prices([t], str(start), str(end))
+                if not df_one.empty and t in df_one.columns:
+                    last = float(df_one[t].dropna().iloc[-1])
+                    prices_out[t] = round(last, 2)
+                    asof = str(df_one.index[-1].date())
+                else:
+                    missing.append(t)
+            except Exception:
+                missing.append(t)
+
+    return {"prices": prices_out, "missing": missing, "asof": asof}
+
+
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 def analyze(payload: PortfolioRequest):
     return run_analysis(payload)

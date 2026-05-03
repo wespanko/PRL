@@ -1,5 +1,6 @@
 /* ── reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { overflow-wrap: break-word; }
 
 /* ── design tokens ── */
 :root {
@@ -44,6 +45,279 @@ body {
   max-width: 880px;
   margin: 0 auto;
   padding: 28px 20px 88px;
+}
+
+/* ── Beginner welcome page ── */
+.beginner-hero { margin-bottom: 26px; }
+.beginner-hero-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  color: white;
+  padding: 4px 11px;
+  border-radius: 99px;
+  margin-bottom: 14px;
+}
+.beginner-hero-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--label);
+  margin-bottom: 10px;
+}
+.beginner-hero-sub {
+  font-size: 15px;
+  color: var(--label-2);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  max-width: 640px;
+}
+.beginner-hero-sub strong { color: var(--label); font-weight: 700; }
+
+.beginner-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.beginner-step {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 22px 24px;
+  display: flex;
+  gap: 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 6px 24px rgba(15, 23, 42, 0.05);
+}
+.beginner-step-icon-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.beginner-step-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.28);
+}
+.beginner-step-num {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: white;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+  letter-spacing: -0.02em;
+}
+.beginner-step-text { flex: 1; min-width: 0; }
+.beginner-step-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--label);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.beginner-step-body {
+  font-size: 14px;
+  color: var(--label-2);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  margin-bottom: 14px;
+}
+.beginner-step-cta {
+  font-size: 14px;
+  padding: 9px 18px;
+}
+
+.beginner-footer {
+  background: rgba(0, 122, 255, 0.05);
+  border: 0.5px solid rgba(0, 122, 255, 0.15);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.beginner-footer-tip {
+  font-size: 13px;
+  color: var(--label-2);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+.beginner-footer-tip strong { color: var(--label); font-weight: 700; }
+.beginner-q {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 800;
+  margin: 0 2px;
+}
+.beginner-skip {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  letter-spacing: -0.005em;
+}
+.beginner-skip:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .beginner-step { padding: 18px; gap: 14px; }
+  .beginner-step-icon { width: 40px; height: 40px; font-size: 17px; }
+  .beginner-step-title { font-size: 1rem; }
+  .beginner-step-body { font-size: 13px; }
+}
+
+/* ── PortfolioForm mode toggle ── */
+.form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .form-header-row .seg-control { width: 100%; }
+  .form-header-row .seg-btn { flex: 1; padding: 6px 8px; font-size: 12px; }
+  .holdings-table th, .holdings-table td { padding: 4px 4px; }
+  .holdings-table input { font-size: 14px; padding: 8px 10px; }
+  .form-computed-cell { font-size: 10.5px; }
+}
+.form-computed-pct {
+  font-size: 12px;
+  color: var(--label-3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+  font-weight: 500;
+}
+.form-computed-cell {
+  font-size: 11.5px;
+  color: var(--label-3);
+  letter-spacing: -0.005em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.form-computed-px { color: var(--label-4); }
+.form-computed-dollars {
+  color: var(--label);
+  font-weight: 600;
+}
+.form-computed-loading {
+  color: var(--label-4);
+  font-style: italic;
+}
+.form-computed-missing {
+  color: var(--negative);
+  font-weight: 500;
+}
+.form-asof {
+  color: var(--label-4);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: -0.005em;
+}
+
+/* ── Dashboard portfolio-value strip ── */
+.dash-portfolio-value {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.06), rgba(88, 86, 214, 0.04));
+  border: 0.5px solid rgba(0, 122, 255, 0.15);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 22px;
+  align-items: end;
+}
+.dash-portfolio-value-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+.dash-portfolio-value-amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  line-height: 1;
+}
+.dash-portfolio-value-stress {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-self: end;
+  align-items: flex-end;
+}
+.dash-portfolio-value-stress-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.dash-portfolio-value-stress-label {
+  font-size: 11px;
+  color: var(--label-3);
+  letter-spacing: -0.005em;
+}
+.dash-portfolio-value-stress-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 600px) {
+  .dash-portfolio-value {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .dash-portfolio-value-stress {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+    justify-self: start;
+    align-items: flex-start;
+  }
 }
 
 /* ── Thesis page ── */
@@ -1191,6 +1465,9 @@ body {
   line-height: 1.05;
   color: var(--label);
   margin-bottom: 20px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .welcome-headline-accent {
   background: linear-gradient(135deg, var(--primary), var(--purple));
@@ -1466,11 +1743,23 @@ body {
 .welcome-disclaimer strong { color: var(--label-2); font-weight: 600; }
 
 @media (max-width: 640px) {
+  .welcome-bg { padding: 24px 14px; }
   .welcome-trust-row { grid-template-columns: 1fr; }
-  .welcome-hero { padding: 36px 24px 28px; border-radius: 22px; }
-  .welcome-headline { font-size: 2.4rem; }
+  .welcome-hero { padding: 32px 22px 26px; border-radius: 20px; }
+  .welcome-headline { font-size: 2.2rem; line-height: 1.08; }
+  .welcome-subhead { font-size: 15px; }
+  .welcome-cta { padding: 12px 22px; font-size: 14px; margin-bottom: 36px; }
   .welcome-feature-grid { grid-template-columns: 1fr; }
-  .welcome-signin { padding: 32px 24px 24px; }
+  .welcome-signin { padding: 28px 22px 22px; }
+  .welcome-signin-title { font-size: 1.4rem; }
+  .welcome-form-actions { flex-direction: column-reverse; }
+  .welcome-form-submit, .welcome-form-actions .btn { width: 100%; }
+  .welcome-stepbar { font-size: 10px; flex-wrap: wrap; gap: 4px; }
+}
+@media (max-width: 380px) {
+  .welcome-headline { font-size: 1.85rem; }
+  .welcome-trust-row { gap: 8px; }
+  .welcome-trust-item { padding: 10px 12px; }
 }
 
 /* ── dashboard page ── */
@@ -1483,12 +1772,18 @@ body {
   letter-spacing: -0.035em;
   color: var(--label);
   margin-bottom: 4px;
+  word-break: break-word;
 }
 .dash-greeting-sub {
   font-size: 13px;
   color: var(--label-3);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
+  overflow-wrap: break-word;
+}
+@media (max-width: 480px) {
+  .dash-greeting-headline { font-size: 1.4rem; }
+  .dash-greeting-sub { font-size: 12px; }
 }
 
 .dash-empty-cta { padding: 64px 24px; }
@@ -3007,12 +3302,21 @@ th.improve-metric-val { text-align: right; }
 .dashboard-tile--watch { background: rgba(255, 159, 10, 0.04); }
 
 @media (max-width: 720px) {
-  .dashboard-hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 22px 18px; }
-  .dashboard-hero-right { text-align: left; max-width: 100%; }
+  .dashboard-hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 18px 18px; }
+  .dashboard-hero-right { text-align: left; max-width: 100%; align-self: stretch; }
+  .dashboard-dna-drivers { justify-content: flex-start; }
   .dashboard-tiles { grid-template-columns: 1fr; }
-  .dashboard-tile { border-right: none; border-bottom: 0.5px solid var(--border-light); }
+  .dashboard-tile { border-right: none; border-bottom: 0.5px solid var(--border-light); padding: 16px 18px; }
   .dashboard-tile:last-child { border-bottom: none; }
   .dashboard-hero-num { font-size: 2.8rem; }
+  .dashboard-hero-band-pill { margin-left: 0; margin-top: 6px; }
+  .dashboard-hero-score { flex-wrap: wrap; gap: 4px; }
+}
+@media (max-width: 420px) {
+  .dashboard-hero-num { font-size: 2.4rem; }
+  .dashboard-hero-denom { font-size: 1.2rem; }
+  .dashboard-dna-type { font-size: 1.05rem; }
+  .container { padding: 22px 14px 88px; }
 }
 
 /* ── shared empty state & page header ── */

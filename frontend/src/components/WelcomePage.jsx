@@ -36,11 +36,33 @@ const RISK_LEVELS = [
   { id: "aggressive",   label: "Aggressive",   icon: "▲", body: "Growth-tilted. Higher volatility tolerance for higher upside." },
 ];
 
+const EXPERIENCE_LEVELS = [
+  {
+    id: "beginner",
+    label: "I'm new to investing",
+    icon: "✦",
+    body: "I'll get a guided tour, plain-English explanations, and help building a starter portfolio.",
+  },
+  {
+    id: "some",
+    label: "I know the basics",
+    icon: "◐",
+    body: "I understand stocks vs bonds and have invested before. I want help making smarter decisions.",
+  },
+  {
+    id: "confident",
+    label: "I know what I'm doing",
+    icon: "▲",
+    body: "Skip the tour. Drop me into the full app — Sharpe, drawdown, beta, the works.",
+  },
+];
+
 export default function WelcomePage({ onSignIn }) {
   const [step, setStep] = useState("hero");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [riskTolerance, setRiskTolerance] = useState("balanced");
+  const [experience, setExperience] = useState("some");
   const [error, setError] = useState(null);
 
   function handleNameStep(e) {
@@ -58,7 +80,7 @@ export default function WelcomePage({ onSignIn }) {
   }
 
   function handleFinish() {
-    const profile = saveProfile({ name, email, riskTolerance });
+    const profile = saveProfile({ name, email, riskTolerance, experience });
     onSignIn(profile);
   }
 
@@ -124,6 +146,8 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-step welcome-step--active">1 — Profile</span>
               <span className="welcome-step-divider">·</span>
               <span className="welcome-step">2 — Risk style</span>
+              <span className="welcome-step-divider">·</span>
+              <span className="welcome-step">3 — Experience</span>
             </div>
             <div className="welcome-brand welcome-brand--small">
               <span className="welcome-brand-mark">P</span>
@@ -189,6 +213,8 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-step">1 — Profile</span>
               <span className="welcome-step-divider">·</span>
               <span className="welcome-step welcome-step--active">2 — Risk style</span>
+              <span className="welcome-step-divider">·</span>
+              <span className="welcome-step">3 — Experience</span>
             </div>
             <div className="welcome-brand welcome-brand--small">
               <span className="welcome-brand-mark">P</span>
@@ -227,6 +253,64 @@ export default function WelcomePage({ onSignIn }) {
               <button
                 type="button"
                 className="btn btn-primary welcome-form-submit"
+                onClick={() => setStep("experience")}
+              >
+                Next →
+              </button>
+            </div>
+
+            <div className="welcome-disclaimer welcome-disclaimer--signin">
+              <strong>Reminder:</strong> Panko is educational. It is not your financial
+              advisor. Risk style helps tune the engine — it does not constitute advice.
+            </div>
+          </div>
+        )}
+
+        {step === "experience" && (
+          <div className="welcome-signin">
+            <div className="welcome-stepbar">
+              <span className="welcome-step">1 — Profile</span>
+              <span className="welcome-step-divider">·</span>
+              <span className="welcome-step">2 — Risk style</span>
+              <span className="welcome-step-divider">·</span>
+              <span className="welcome-step welcome-step--active">3 — Experience</span>
+            </div>
+            <div className="welcome-brand welcome-brand--small">
+              <span className="welcome-brand-mark">P</span>
+              <span className="welcome-brand-name">Panko</span>
+            </div>
+
+            <h2 className="welcome-signin-title">How familiar are you with investing?</h2>
+            <p className="welcome-signin-subtitle">
+              Be honest — there's no wrong answer. We'll tailor what you see in the app.
+            </p>
+
+            <div className="welcome-risk-grid">
+              {EXPERIENCE_LEVELS.map((e) => (
+                <button
+                  key={e.id}
+                  type="button"
+                  className={`welcome-risk-card ${experience === e.id ? "welcome-risk-card--active" : ""}`}
+                  onClick={() => setExperience(e.id)}
+                >
+                  <span className="welcome-risk-icon">{e.icon}</span>
+                  <div className="welcome-risk-label">{e.label}</div>
+                  <div className="welcome-risk-body">{e.body}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="welcome-form-actions" style={{ marginTop: 24 }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setStep("risk")}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary welcome-form-submit"
                 onClick={handleFinish}
               >
                 Enter Panko →
@@ -234,8 +318,7 @@ export default function WelcomePage({ onSignIn }) {
             </div>
 
             <div className="welcome-disclaimer welcome-disclaimer--signin">
-              <strong>Reminder:</strong> Panko is educational. It is not your financial
-              advisor. Risk style helps tune the engine — it does not constitute advice.
+              You can change this anytime in your profile.
             </div>
           </div>
         )}

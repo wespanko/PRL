@@ -10,6 +10,7 @@ import MonitorPage from "./components/MonitorPage";
 import ImprovePage from "./components/ImprovePage";
 import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
+import BeginnerWelcomePage from "./components/BeginnerWelcomePage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
@@ -18,7 +19,10 @@ import { loadProfile, clearProfile } from "./utils/profile";
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile());
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    const p = loadProfile();
+    return p?.experience === "beginner" && !p?.onboarded ? "beginner" : "dashboard";
+  });
   const [results, setResults] = useState(null);
   const [payload, setPayload] = useState(null);
   const [prevSnapshot, setPrevSnapshot] = useState(null);
@@ -78,7 +82,10 @@ export default function App() {
   }
 
   if (!profile) {
-    return <WelcomePage onSignIn={(p) => { setProfile(p); setActiveTab("dashboard"); }} />;
+    return <WelcomePage onSignIn={(p) => {
+      setProfile(p);
+      setActiveTab(p.experience === "beginner" ? "beginner" : "dashboard");
+    }} />;
   }
 
   return (
@@ -94,6 +101,14 @@ export default function App() {
       <main className="app-main">
         <StatusBar results={results} payload={payload} />
         <div key={activeTab} className="page-transition">
+          {activeTab === "beginner" && (
+            <BeginnerWelcomePage
+              profile={profile}
+              setActiveTab={setActiveTab}
+              onComplete={() => setProfile(loadProfile())}
+            />
+          )}
+
           {activeTab === "dashboard" && (
             <DashboardPage
               profile={profile}

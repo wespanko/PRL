@@ -36,6 +36,15 @@ export async function improvePortfolio(payload) {
   return res.json();
 }
 
+export async function fetchLatestPrices(tickers) {
+  const list = (tickers || []).map((t) => t.trim().toUpperCase()).filter(Boolean);
+  if (list.length === 0) return { prices: {}, missing: [], asof: null };
+  const q = encodeURIComponent(list.join(","));
+  const res = await fetch(`${BASE}/api/prices?tickers=${q}`);
+  if (!res.ok) throw new Error("Could not fetch prices");
+  return res.json();
+}
+
 export async function generateThesis(payload) {
   const res = await fetch(`${BASE}/api/thesis`, {
     method: "POST",

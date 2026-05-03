@@ -13,6 +13,7 @@ class PortfolioRequest(BaseModel):
     end_date: str
     benchmark: str = "SPY"
     risk_free_rate: float = 0.045
+    total_value: float | None = None  # optional dollar value of portfolio
 
     @field_validator("holdings")
     @classmethod
