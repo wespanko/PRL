@@ -207,6 +207,24 @@ _DB: dict[str, dict] = {
     "GDXJ":  {"sector": "Materials", "theme": "Gold", "asset_class": "equity", "description": "Junior gold miners ETF"},
     "SLV":   {"sector": "Commodities", "theme": "Gold", "asset_class": "commodity", "description": "Silver ETF"},
     "USO":   {"sector": "Commodities", "theme": "Energy", "asset_class": "commodity", "description": "Oil ETF"},
+    "DBC":   {"sector": "Commodities", "theme": "Commodities", "asset_class": "commodity", "description": "Broad commodities ETF (Invesco DB)"},
+    "PDBC":  {"sector": "Commodities", "theme": "Commodities", "asset_class": "commodity", "description": "Optimum yield diversified commodity ETF"},
+    "GSG":   {"sector": "Commodities", "theme": "Commodities", "asset_class": "commodity", "description": "GSCI commodity index ETF"},
+
+    # ── Inflation-Protected Bonds ────────────────────────────────────────────
+    "TIP":   {"sector": "Fixed Income", "theme": "Inflation Hedge", "asset_class": "bond", "description": "TIPS — inflation-protected treasuries"},
+    "VTIP":  {"sector": "Fixed Income", "theme": "Inflation Hedge", "asset_class": "bond", "description": "Short-term TIPS"},
+    "SCHP":  {"sector": "Fixed Income", "theme": "Inflation Hedge", "asset_class": "bond", "description": "TIPS ETF (Schwab)"},
+
+    # ── Real Estate ETFs ─────────────────────────────────────────────────────
+    "VNQ":   {"sector": "Real Estate", "theme": "Real Estate", "asset_class": "equity", "description": "US REIT ETF (Vanguard)"},
+    "IYR":   {"sector": "Real Estate", "theme": "Real Estate", "asset_class": "equity", "description": "US real estate ETF (iShares)"},
+    "VNQI":  {"sector": "Real Estate", "theme": "Real Estate", "asset_class": "equity", "description": "International real estate ETF"},
+
+    # ── Defense / Aerospace ETF ──────────────────────────────────────────────
+    "ITA":   {"sector": "Industrials", "theme": "Defense", "asset_class": "equity", "description": "Aerospace & defense ETF (iShares)"},
+    "PPA":   {"sector": "Industrials", "theme": "Defense", "asset_class": "equity", "description": "Aerospace & defense ETF (Invesco)"},
+    "XAR":   {"sector": "Industrials", "theme": "Defense", "asset_class": "equity", "description": "Aerospace & defense ETF (SPDR)"},
 
     # ── Bonds / Fixed Income ─────────────────────────────────────────────────
     "TLT":   {"sector": "Fixed Income", "theme": "Long-Duration Bonds", "asset_class": "bond", "description": "20+ year Treasury ETF"},
@@ -244,6 +262,34 @@ _DB: dict[str, dict] = {
     "MARA":  {"sector": "Technology", "theme": "Crypto", "asset_class": "equity", "description": "Bitcoin mining"},
     "RIOT":  {"sector": "Technology", "theme": "Crypto", "asset_class": "equity", "description": "Bitcoin mining"},
     "MSTR":  {"sector": "Technology", "theme": "Crypto", "asset_class": "equity", "description": "Bitcoin treasury company (MicroStrategy)"},
+    "BITO":  {"sector": "Crypto", "theme": "Crypto", "asset_class": "crypto", "description": "Bitcoin Strategy ETF (futures-based)"},
+    "ETHE":  {"sector": "Crypto", "theme": "Crypto", "asset_class": "crypto", "description": "Ethereum trust (Grayscale)"},
+    "BITX":  {"sector": "Crypto", "theme": "Crypto", "asset_class": "crypto", "description": "2x Bitcoin Strategy ETF"},
+
+    # ── Factor / Smart-Beta ETFs ─────────────────────────────────────────────
+    "MTUM":  {"sector": "Broad Market", "theme": "Momentum Factor", "asset_class": "equity", "description": "US momentum factor ETF (iShares)"},
+    "VLUE":  {"sector": "Broad Market", "theme": "Value Factor", "asset_class": "equity", "description": "US value factor ETF (iShares)"},
+    "QUAL":  {"sector": "Broad Market", "theme": "Quality Factor", "asset_class": "equity", "description": "US quality factor ETF (iShares)"},
+    "USMV":  {"sector": "Broad Market", "theme": "Low Volatility", "asset_class": "equity", "description": "US min-volatility ETF (iShares)"},
+    "SPLV":  {"sector": "Broad Market", "theme": "Low Volatility", "asset_class": "equity", "description": "S&P 500 low-volatility ETF (Invesco)"},
+    "DVY":   {"sector": "Broad Market", "theme": "Dividend", "asset_class": "equity", "description": "High dividend yield ETF (iShares)"},
+    "VYM":   {"sector": "Broad Market", "theme": "Dividend", "asset_class": "equity", "description": "High dividend yield ETF (Vanguard)"},
+    "SCHD":  {"sector": "Broad Market", "theme": "Dividend", "asset_class": "equity", "description": "Dividend equity ETF (Schwab)"},
+
+    # ── Thematic ETFs ────────────────────────────────────────────────────────
+    "ICLN":  {"sector": "Energy", "theme": "Clean Energy", "asset_class": "equity", "description": "Global clean energy ETF (iShares)"},
+    "TAN":   {"sector": "Energy", "theme": "Clean Energy", "asset_class": "equity", "description": "Solar energy ETF"},
+    "QCLN":  {"sector": "Energy", "theme": "Clean Energy", "asset_class": "equity", "description": "Clean energy ETF (First Trust)"},
+    "ROBO":  {"sector": "Technology", "theme": "Robotics / AI", "asset_class": "equity", "description": "Robotics & AI ETF (Robo Global)"},
+    "BOTZ":  {"sector": "Technology", "theme": "Robotics / AI", "asset_class": "equity", "description": "Robotics & AI ETF (Global X)"},
+    "LIT":   {"sector": "Materials", "theme": "Battery / EV Supply", "asset_class": "equity", "description": "Lithium & battery tech ETF"},
+    "URA":   {"sector": "Energy", "theme": "Uranium", "asset_class": "equity", "description": "Uranium / nuclear ETF (Global X)"},
+    "URNM":  {"sector": "Energy", "theme": "Uranium", "asset_class": "equity", "description": "Uranium miners ETF"},
+
+    # ── Diversified Holding ──────────────────────────────────────────────────
+    "BRK.B": {"sector": "Financials", "theme": "Diversified Holding", "asset_class": "equity", "description": "Berkshire Hathaway B shares"},
+    "BRK-B": {"sector": "Financials", "theme": "Diversified Holding", "asset_class": "equity", "description": "Berkshire Hathaway B shares"},
+    "BRKB":  {"sector": "Financials", "theme": "Diversified Holding", "asset_class": "equity", "description": "Berkshire Hathaway B shares"},
 
     # ── Broad Market ETFs ────────────────────────────────────────────────────
     "SPY":   {"sector": "Broad Market", "theme": "US Broad Market", "asset_class": "equity", "description": "S&P 500 ETF"},

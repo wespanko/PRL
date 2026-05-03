@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import { normalizeWeights } from "../utils/normalizeWeights";
+import { normalizeWeights, balancedPercents } from "../utils/normalizeWeights";
 import { useTickerPrices } from "../utils/useTickerPrices";
+
+const DEFAULT_TOTAL_VALUE = 100000;
 
 const emptyRow = () => ({ ticker: "", value: "" });
 
@@ -39,9 +41,11 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
 
   useEffect(() => {
     if (initialHoldings && initialHoldings.length > 0) {
-      setRows(initialHoldings.map((h) => ({
+      // balancedPercents distributes rounding so the displayed sum is exactly 100.0
+      const pcts = balancedPercents(initialHoldings.map((h) => h.weight), 100, 1);
+      setRows(initialHoldings.map((h, i) => ({
         ticker: h.ticker,
-        value: (h.weight * 100).toFixed(1),
+        value: pcts[i],
       })));
       setMode("percent");
       onInitialConsumed?.();
@@ -93,27 +97,74 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
   const dateError = startDate && endDate && startDate >= endDate;
   const canSubmit = !loading && sumOk && !dateError;
 
+  // Convert any row's current value to its underlying dollar amount.
+  function rowToDollars(r, fromMode, totalForPercent) {
+    if (!r.value) return null;
+    const v = parseFloat(r.value);
+    if (!Number.isFinite(v)) return null;
+    if (fromMode === "percent") return (v / 100) * totalForPercent;
+    if (fromMode === "dollars") return v;
+    if (fromMode === "shares") {
+      const px = prices[r.ticker.trim().toUpperCase()];
+      return px ? v * px : null;
+    }
+    return null;
+  }
+
   function handleModeSwitch(newMode) {
     if (newMode === mode) return;
-    // Best-effort conversion so the user doesn't lose their inputs
-    if (mode === "percent" && newMode === "dollars") {
-      setRows(rows.map((r) => ({
-        ...r,
-        value: r.value === "" ? "" : ((parseFloat(r.value) / 100) * 100000).toFixed(0),
-      })));
-    } else if (mode === "dollars" && newMode === "percent") {
-      const total = rows.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
-      if (total > 0) {
-        setRows(rows.map((r) => ({
-          ...r,
-          value: r.value === "" ? "" : ((parseFloat(r.value) / total) * 100).toFixed(1),
-        })));
+
+    // Step 1: figure out the current total dollar value of the portfolio.
+    // For percent mode we use a synthetic baseline so users have a
+    // reasonable dollar starting point.
+    let totalDollars = 0;
+    if (mode === "percent") {
+      totalDollars = DEFAULT_TOTAL_VALUE;
+    } else if (mode === "dollars") {
+      totalDollars = rows.reduce((s, r) => s + (parseFloat(r.value) || 0), 0);
+      if (totalDollars <= 0) totalDollars = DEFAULT_TOTAL_VALUE;
+    } else {
+      // shares — only count rows whose price we know
+      totalDollars = rows.reduce((s, r) => {
+        const v = rowToDollars(r, "shares", null);
+        return v != null ? s + v : s;
+      }, 0);
+      if (totalDollars <= 0) totalDollars = DEFAULT_TOTAL_VALUE;
+    }
+
+    // Step 2: convert each row to dollars first (canonical), then to the new mode.
+    const dollarsByRow = rows.map((r) => rowToDollars(r, mode, totalDollars));
+
+    // For percent mode targeting, we need the (possibly recalculated) total
+    // so percentages sum to 100. Use balancedPercents so the displayed sum
+    // is exactly 100.0 (no 99.9 / 100.1 drift).
+    let percentStrings = [];
+    if (newMode === "percent") {
+      const dollars = dollarsByRow.map((d) => (d ?? 0));
+      percentStrings = balancedPercents(dollars, 100, 1);
+    }
+
+    setRows(rows.map((r, i) => {
+      const dollars = dollarsByRow[i];
+      if (newMode === "percent") {
+        const pct = percentStrings[i];
+        // If row had no value originally, keep it blank
+        return { ...r, value: dollars == null ? "" : pct };
       }
-    }
-    // Switching to/from shares — clear the value column since the unit changes
-    else if (newMode === "shares" || mode === "shares") {
-      setRows(rows.map((r) => ({ ...r, value: "" })));
-    }
+      if (newMode === "dollars") {
+        return { ...r, value: dollars == null ? "" : Math.round(dollars).toString() };
+      }
+      // shares
+      const px = prices[r.ticker.trim().toUpperCase()];
+      if (dollars == null) return { ...r, value: "" };
+      if (!px) return { ...r, value: "" }; // price unknown — let useTickerPrices fetch
+      const shares = dollars / px;
+      // If shares > 1, round to integer; otherwise allow fractional
+      return {
+        ...r,
+        value: shares >= 1 ? Math.round(shares).toString() : shares.toFixed(2),
+      };
+    }));
     setMode(newMode);
     setFormError(null);
   }
