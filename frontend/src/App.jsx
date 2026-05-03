@@ -10,8 +10,6 @@ import MonitorPage from "./components/MonitorPage";
 import ImprovePage from "./components/ImprovePage";
 import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
-import BeginnerWelcomePage from "./components/BeginnerWelcomePage";
-import BeginnerPortfolioWizard from "./components/BeginnerPortfolioWizard";
 import SettingsPage from "./components/SettingsPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
@@ -25,7 +23,7 @@ export default function App() {
   const [profile, setProfile] = useState(loadProfile());
   const [activeTab, setActiveTab] = useState(() => {
     const p = loadProfile();
-    return p?.experience === "beginner" && !p?.onboarded ? "beginner" : "dashboard";
+    return p?.experience === "beginner" && !p?.onboarded ? "build" : "dashboard";
   });
   // Restore the most recent analysis if the user is signed in and has one.
   // Lazy initializer so localStorage is read once at mount, not on every render.
@@ -102,7 +100,7 @@ export default function App() {
   if (!profile) {
     return <WelcomePage onSignIn={(p) => {
       setProfile(p);
-      setActiveTab(p.experience === "beginner" ? "beginner" : "dashboard");
+      setActiveTab(p.experience === "beginner" ? "build" : "dashboard");
     }} />;
   }
 
@@ -119,33 +117,6 @@ export default function App() {
       <main className="app-main">
         <StatusBar results={results} payload={payload} />
         <div key={activeTab} className="page-transition">
-          {activeTab === "beginner" && (
-            <BeginnerPortfolioWizard
-              profile={profile}
-              onComplete={() => {
-                updateProfile({ onboarded: true });
-                setProfile(loadProfile());
-              }}
-              onAnalyze={async (formPayload) => {
-                setActiveTab("dashboard");
-                await handleSubmit(formPayload);
-              }}
-              onSkip={() => {
-                updateProfile({ onboarded: true });
-                setProfile(loadProfile());
-                setActiveTab("beginner-explore");
-              }}
-            />
-          )}
-
-          {activeTab === "beginner-explore" && (
-            <BeginnerWelcomePage
-              profile={profile}
-              setActiveTab={setActiveTab}
-              onComplete={() => setProfile(loadProfile())}
-              onRunDemo={runDemoPortfolio}
-            />
-          )}
 
           {activeTab === "dashboard" && (
             <DashboardPage
@@ -175,8 +146,8 @@ export default function App() {
             </div>
           )}
 
-          {activeTab === "thesis" && (
-            <ThesisPage onUseInAnalyze={loadIntoAnalyze} />
+          {activeTab === "build" && (
+            <ThesisPage onUseInAnalyze={loadIntoAnalyze} profile={profile} />
           )}
 
           {activeTab === "simulate" && (

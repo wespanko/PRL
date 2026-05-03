@@ -2,6 +2,38 @@ import { useState } from "react";
 import { generateThesis } from "../api/client";
 import { normalizeWeights } from "../utils/normalizeWeights";
 
+// Beginner-friendly goal cards. Tapping one fills the thesis textarea and auto-runs.
+const QUICK_START_GOALS = [
+  {
+    id: "long_term_growth",
+    icon: "▲",
+    label: "Grow my money long-term",
+    sub: "10+ year horizon. Compound through dips.",
+    thesis: "I'm investing for the long term — 10+ years. I want a portfolio focused on growth, with US and international equity, some technology exposure, and a small bond allocation as a stabilizer. I can tolerate short-term drops to capture long-run compounding.",
+  },
+  {
+    id: "avoid_losses",
+    icon: "◐",
+    label: "Avoid big losses",
+    sub: "Steady is fine. Cap drawdowns under 15%.",
+    thesis: "Capital preservation is my main goal. I want steady, modest growth and to cap drawdowns under 15%. I'll accept lower returns to avoid big losses. Bonds, defensive equity, and gold are welcome. I'm okay underperforming in good years if it means I can sleep through bad years.",
+  },
+  {
+    id: "tech_growth",
+    icon: "✦",
+    label: "Bet on tech and AI",
+    sub: "Tilt toward AI/semis, with hedges.",
+    thesis: "I'm bullish on AI infrastructure and US large-cap technology for the next 5-10 years — semis, cloud providers, and the megacaps building the rails. Tilt the portfolio toward this thematic bet but include some hedges (bonds, gold) to soften a tech correction or rate shock.",
+  },
+  {
+    id: "balanced_starter",
+    icon: "◎",
+    label: "Balanced starter",
+    sub: "First-time investor, sensible default.",
+    thesis: "I'm new to investing and want a balanced starter portfolio. Some growth potential from broad equity, some safety from bonds, some diversification from international and gold. Nothing too aggressive or too conservative — a sensible first portfolio that lets me learn how the metrics work.",
+  },
+];
+
 const DIAGNOSIS_PRESETS = [
   {
     id: "retirement_safety",
@@ -50,23 +82,22 @@ const RISK_LEVELS = [
   { id: "aggressive",   label: "Aggressive",   body: "Growth-tilted, higher volatility tolerance" },
 ];
 
-export default function ThesisPage({ onUseInAnalyze }) {
+export default function ThesisPage({ onUseInAnalyze, profile }) {
   const [thesis, setThesis] = useState("");
-  const [risk, setRisk] = useState("balanced");
+  const [risk, setRisk] = useState(profile?.riskTolerance ?? "balanced");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
-  async function handleGenerate() {
-    if (!thesis.trim()) {
-      setError("Write your thesis first.");
-      return;
-    }
+  async function generateForThesis(thesisText, riskOverride) {
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const data = await generateThesis({ thesis: thesis.trim(), risk_tolerance: risk });
+      const data = await generateThesis({
+        thesis: thesisText.trim(),
+        risk_tolerance: riskOverride ?? risk,
+      });
       if (data.error) {
         setError(data.error === "no_api_key"
           ? "ANTHROPIC_API_KEY not set in backend/.env."
@@ -79,6 +110,21 @@ export default function ThesisPage({ onUseInAnalyze }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleGenerate() {
+    if (!thesis.trim()) {
+      setError("Write your thesis first.");
+      return;
+    }
+    await generateForThesis(thesis);
+  }
+
+  function pickQuickStart(goal) {
+    setThesis(goal.thesis);
+    setError(null);
+    // Scroll the result into view after it loads
+    generateForThesis(goal.thesis);
   }
 
   function buildEqualWeightHoldings() {
@@ -98,22 +144,43 @@ export default function ThesisPage({ onUseInAnalyze }) {
   return (
     <div className="container">
       <div className="thesis-hero">
-        <h1 className="thesis-hero-title">Thesis → Portfolio</h1>
+        <h1 className="thesis-hero-title">Build a Portfolio</h1>
         <p className="thesis-hero-sub">
-          Write what you believe — your view, your concerns, your timeline. We'll map it to
-          specific tickers from a curated universe with reasoning. <strong>Educational, not advice.</strong>
+          Pick a goal and we'll suggest specific tickers — or write a custom thesis below.
+          <strong> Educational, not advice.</strong>
         </p>
       </div>
 
       <div className="thesis-disclaimer">
-        Suggestions are mechanical mappings from your thesis to a curated universe of broad
-        ETFs and well-known names. They are <strong>not financial advice</strong>. They have
-        not been vetted for your individual situation, taxes, or liquidity needs. Run any idea
+        Suggestions are mechanical mappings from your goal/thesis to a curated universe of broad
+        ETFs and well-known names. They are <strong>not financial advice</strong>. Run any idea
         through the Analyze tab to see real risk numbers before acting.
       </div>
 
       <div className="card">
-        <div className="thesis-section-label">Pick a diagnosis</div>
+        <div className="thesis-section-label">Quick start — pick a goal</div>
+        <div className="quick-start-grid">
+          {QUICK_START_GOALS.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              className="quick-start-card"
+              onClick={() => pickQuickStart(g)}
+              disabled={loading}
+            >
+              <span className="quick-start-icon">{g.icon}</span>
+              <div className="quick-start-text">
+                <div className="quick-start-label">{g.label}</div>
+                <div className="quick-start-sub">{g.sub}</div>
+              </div>
+              <span className="quick-start-arrow">→</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="thesis-section-label">Or pick a diagnosis</div>
         <div className="thesis-diagnosis-grid">
           {DIAGNOSIS_PRESETS.map((d) => (
             <button

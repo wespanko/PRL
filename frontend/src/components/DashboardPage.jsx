@@ -120,55 +120,12 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
 
       <CumulativeReturnsChart series={results.cumulative_return_series} benchmark={results.benchmark} />
 
-      <div className="dash-quick-stats">
-        <QuickStat label="Sharpe" value={num(results.sharpe_ratio, 2)} metric="sharpe_ratio" onLearnMore={onLearnMore} />
-        <QuickStat label="Volatility" value={pct(results.annualized_volatility)} metric="annualized_volatility" onLearnMore={onLearnMore} />
-        <QuickStat
-          label="Max Drawdown"
-          value={pct(results.max_drawdown)}
-          color="var(--negative)"
-          metric="max_drawdown"
-          onLearnMore={onLearnMore}
-        />
-        <QuickStat label="Beta" value={num(results.beta, 2)} metric="beta" onLearnMore={onLearnMore} />
-        <QuickStat
-          label="Real Diversification"
-          value={results.concentration?.enp_risk != null ? `${results.concentration.enp_risk.toFixed(1)} pos` : "—"}
-          metric="enp_risk"
-          onLearnMore={onLearnMore}
-        />
-      </div>
-
-      <div className="dash-actions">
-        <button className="dash-action-card" onClick={() => setActiveTab("analyze")}>
-          <span className="dash-action-icon">▷</span>
-          <span className="dash-action-text">
-            <span className="dash-action-title">Re-analyze</span>
-            <span className="dash-action-sub">Update tickers, weights, or date range</span>
-          </span>
-        </button>
-        <button className="dash-action-card" onClick={() => setActiveTab("simulate")}>
-          <span className="dash-action-icon">◇</span>
-          <span className="dash-action-text">
-            <span className="dash-action-title">Simulate trades</span>
-            <span className="dash-action-sub">See impact before you commit</span>
-          </span>
-        </button>
-        <button className="dash-action-card" onClick={() => setActiveTab("improve")}>
-          <span className="dash-action-icon">✦</span>
-          <span className="dash-action-text">
-            <span className="dash-action-title">Improve</span>
-            <span className="dash-action-sub">Optimizer-driven trade ideas</span>
-          </span>
-        </button>
-        <button className="dash-action-card" onClick={() => setActiveTab("monitor")}>
-          <span className="dash-action-icon">↻</span>
-          <span className="dash-action-text">
-            <span className="dash-action-title">Monitor</span>
-            <span className="dash-action-sub">Track drift over time</span>
-          </span>
-        </button>
-      </div>
+      <button
+        className="dash-deepdive-link"
+        onClick={() => setActiveTab("analyze")}
+      >
+        See full breakdown — DNA, risk contributions, stress tests, correlations →
+      </button>
     </div>
   );
 }

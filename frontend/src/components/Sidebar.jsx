@@ -3,8 +3,8 @@ import { profileInitials, profileFirstName } from "../utils/profile";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: "◎" },
+  { id: "build",     label: "Build",     icon: "✎" },
   { id: "analyze",   label: "Analyze",   icon: "▷" },
-  { id: "thesis",    label: "Thesis",    icon: "✎" },
   { id: "simulate",  label: "Simulate",  icon: "◇" },
   { id: "improve",   label: "Improve",   icon: "✦" },
   { id: "monitor",   label: "Monitor",   icon: "↻" },
