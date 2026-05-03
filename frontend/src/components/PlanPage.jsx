@@ -37,7 +37,7 @@ function DebtCalculator({ defaultExpectedReturn }) {
   const [balance, setBalance] = useState(30000);
   const [rate, setRate] = useState(6.5);
   const [years, setYears] = useState(10);
-  const [expectedReturn, setExpectedReturn] = useState(defaultExpectedReturn ?? 7);
+  const [expectedReturn, setExpectedReturn] = useState(defaultExpectedReturn ?? 10);
 
   const debtRate = rate / 100;
   const portRate = expectedReturn / 100;
@@ -115,6 +115,13 @@ function DebtCalculator({ defaultExpectedReturn }) {
             <span>%</span>
           </div>
         </label>
+      </div>
+
+      <div className="plan-default-note">
+        Loan rates are <strong>nominal</strong> (the actual rate on your statement). The expected
+        market return here is also nominal — <strong>10%</strong> is the S&P 500's long-run
+        average (1928–2024). Lower it if you expect markets to underperform; raise it if you think
+        the next decade will look like the last.
       </div>
 
       <div className={`plan-verdict ${debtIsHigher ? "plan-verdict--bad" : "plan-verdict--neutral"}`}>
@@ -195,8 +202,8 @@ function FutureValueProjector({ portfolioReturn, portfolioVol, totalValue }) {
 
   const annualReturn = useMyPortfolio && portfolioReturn != null
     ? portfolioReturn
-    : 0.07;
-  const vol = useMyPortfolio && portfolioVol != null ? portfolioVol : 0.15;
+    : 0.10;  // S&P 500 long-run nominal historical average (10.1% over 1928-2024)
+  const vol = useMyPortfolio && portfolioVol != null ? portfolioVol : 0.16;
 
   const data = useMemo(
     () => projectFuture(start, monthly, annualReturn, years),
@@ -287,9 +294,15 @@ function FutureValueProjector({ portfolioReturn, portfolioVol, totalValue }) {
           />
           <span>
             Use my portfolio's actual numbers ({(portfolioReturn * 100).toFixed(1)}% return,
-            {" "}{(portfolioVol * 100).toFixed(1)}% volatility) instead of S&P 500 defaults (7%, 15%)
+            {" "}{(portfolioVol * 100).toFixed(1)}% volatility) instead of S&P 500 defaults (10%, 16%)
           </span>
         </label>
+      )}
+      {!portfolioReturn && (
+        <div className="plan-default-note">
+          Default <strong>10%</strong> = S&P 500 nominal historical average (1928–2024).
+          Going forward, big firms (Vanguard, Goldman) model 4–7% nominal for US equities — edit if you want a more conservative projection.
+        </div>
       )}
 
       <div className="plan-projection-headline">
@@ -471,7 +484,7 @@ export default function PlanPage({ results, payload }) {
       </div>
 
       <DebtCalculator
-        defaultExpectedReturn={portfolioReturn != null ? +(portfolioReturn * 100).toFixed(1) : 7}
+        defaultExpectedReturn={portfolioReturn != null ? +(portfolioReturn * 100).toFixed(1) : 10}
       />
 
       <FutureValueProjector
