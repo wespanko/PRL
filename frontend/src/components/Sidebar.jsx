@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { id: "analyze",   label: "Analyze",   icon: "▷" },
   { id: "simulate",  label: "Simulate",  icon: "◇" },
   { id: "improve",   label: "Improve",   icon: "✦" },
+  { id: "plan",      label: "Plan",      icon: "$" },
   { id: "monitor",   label: "Monitor",   icon: "↻" },
   { id: "learn",     label: "Learn",     icon: "?" },
 ];

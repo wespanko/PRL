@@ -10,6 +10,7 @@ import MonitorPage from "./components/MonitorPage";
 import ImprovePage from "./components/ImprovePage";
 import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
+import PlanPage from "./components/PlanPage";
 import SettingsPage from "./components/SettingsPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
@@ -174,6 +175,10 @@ export default function App() {
               onLearnMore={openLearn}
               profile={profile}
             />
+          )}
+
+          {activeTab === "plan" && (
+            <PlanPage results={results} payload={payload} />
           )}
 
           {activeTab === "monitor" && <MonitorPage />}
