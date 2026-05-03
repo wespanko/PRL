@@ -64,6 +64,12 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
               <div className="sidebar-profile-menu-email">{profile.email}</div>
             )}
             <button
+              className="sidebar-profile-menu-item sidebar-profile-menu-item--neutral"
+              onClick={() => { setMenuOpen(false); setActiveTab("settings"); }}
+            >
+              Settings
+            </button>
+            <button
               className="sidebar-profile-menu-item"
               onClick={() => { setMenuOpen(false); onSignOut(); }}
             >

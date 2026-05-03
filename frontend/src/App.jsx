@@ -11,6 +11,7 @@ import ImprovePage from "./components/ImprovePage";
 import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
 import BeginnerWelcomePage from "./components/BeginnerWelcomePage";
+import SettingsPage from "./components/SettingsPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
@@ -168,6 +169,14 @@ export default function App() {
           {activeTab === "monitor" && <MonitorPage />}
 
           {activeTab === "learn" && <LearnPage initialMetricId={learnTarget} />}
+
+          {activeTab === "settings" && (
+            <SettingsPage
+              profile={profile}
+              onProfileUpdated={setProfile}
+              setActiveTab={setActiveTab}
+            />
+          )}
         </div>
         <DisclaimerFooter />
       </main>
