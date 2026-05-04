@@ -185,10 +185,12 @@ def _build_suggestions_from_holdings(holdings: list[dict]) -> list[dict]:
         out.append({
             "ticker": entry["ticker"],
             "name": entry["name"],
+            "kind": entry.get("kind", "etf"),       # "stock" | "etf" | "trust"
             "theme": entry["theme"],
             "reason": h.get("reason", ""),
             "role": entry["role"],
-            "weight": h.get("weight"),  # curated weight hint (None if not preset)
+            "blurb": entry.get("blurb", ""),         # plain-English explanation
+            "weight": h.get("weight"),
         })
     return out
 
@@ -295,9 +297,11 @@ Return only the JSON. No prose. No markdown fences."""
         suggestions_out.append({
             "ticker": entry["ticker"],
             "name": entry["name"],
+            "kind": entry.get("kind", "etf"),
             "theme": s.get("theme") or entry["theme"],
             "reason": s.get("reason", ""),
             "role": entry["role"],
+            "blurb": entry.get("blurb", ""),
         })
 
     return {

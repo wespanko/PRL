@@ -366,6 +366,70 @@ PRESETS = {
         },
     },
 
+    # ── Diagnosis: "Stock Picker" — concentrated individual names ──────────
+    "stock_picker": {
+        "themes": ["Individual stock conviction", "Cross-sector mega-caps", "High concentration"],
+        "summary_by_risk": {
+            "conservative": (
+                "Quality blue-chip tilt: defensive megacaps with the steadiest businesses "
+                "(JNJ, PG, KO, COST, BRK.B). Real bond and gold sleeves. Stock-picking flavor "
+                "with controlled drawdowns."
+            ),
+            "balanced": (
+                "Mega-cap quality across sectors: financials (V, JPM), healthcare (LLY, UNH), "
+                "consumer (COST, BRK.B), tech (MSFT, GOOGL). Modest hedges. Diversified individual "
+                "stock conviction, not ETF-led."
+            ),
+            "aggressive": (
+                "High-conviction stock picks across sectors with minimal ETF anchoring. Bet on "
+                "individual companies — LLY, NVDA, MSFT, V, COST, BRK.B. Concentrated, high "
+                "volatility, high upside if picks work."
+            ),
+        },
+        "holdings_by_risk": {
+            "conservative": [
+                {"ticker": "JNJ",   "weight": 0.10, "reason": "Defensive healthcare blue-chip with 60+ years of dividend hikes."},
+                {"ticker": "PG",    "weight": 0.10, "reason": "Consumer staples — Tide, Pampers, Gillette. Recession-proof."},
+                {"ticker": "KO",    "weight": 0.08, "reason": "Coca-Cola — Buffett-favorite slow-growth dividend stock."},
+                {"ticker": "COST",  "weight": 0.08, "reason": "Costco — durable membership-retail moat."},
+                {"ticker": "BRK.B", "weight": 0.10, "reason": "Berkshire Hathaway — Buffett conglomerate with $300B+ stock book."},
+                {"ticker": "MSFT",  "weight": 0.08, "reason": "Mega-cap tech quality with cloud + AI exposure."},
+                {"ticker": "AGG",   "weight": 0.20, "reason": "Bond stabilizer — primary downside cushion."},
+                {"ticker": "TLT",   "weight": 0.10, "reason": "Long treasuries — strong recession hedge."},
+                {"ticker": "GLD",   "weight": 0.10, "reason": "Crisis hedge."},
+                {"ticker": "TIP",   "weight": 0.06, "reason": "Inflation-protected bonds for real return safety."},
+            ],
+            "balanced": [
+                {"ticker": "MSFT",  "weight": 0.10, "reason": "Mega-cap quality + AI exposure."},
+                {"ticker": "GOOGL", "weight": 0.08, "reason": "Search + AI, strong free cash flow."},
+                {"ticker": "V",     "weight": 0.08, "reason": "Visa — toll-booth payment network with monster margins."},
+                {"ticker": "JPM",   "weight": 0.08, "reason": "Largest US bank, best-in-class management."},
+                {"ticker": "LLY",   "weight": 0.08, "reason": "Eli Lilly — GLP-1 / obesity drug leader."},
+                {"ticker": "UNH",   "weight": 0.06, "reason": "Largest US health insurer — defensive growth."},
+                {"ticker": "COST",  "weight": 0.08, "reason": "Costco — durable retail moat."},
+                {"ticker": "BRK.B", "weight": 0.08, "reason": "Berkshire — diversified conglomerate."},
+                {"ticker": "JNJ",   "weight": 0.06, "reason": "Healthcare blue-chip dividend stalwart."},
+                {"ticker": "AGG",   "weight": 0.15, "reason": "Bond stabilizer."},
+                {"ticker": "GLD",   "weight": 0.10, "reason": "Crisis hedge."},
+                {"ticker": "TLT",   "weight": 0.05, "reason": "Long-duration recession hedge."},
+            ],
+            "aggressive": [
+                {"ticker": "NVDA",  "weight": 0.12, "reason": "AI infrastructure leader — highest-conviction tech bet."},
+                {"ticker": "MSFT",  "weight": 0.10, "reason": "Mega-cap quality + AI."},
+                {"ticker": "LLY",   "weight": 0.10, "reason": "GLP-1 / obesity drug leader — biggest healthcare winner of decade."},
+                {"ticker": "V",     "weight": 0.08, "reason": "Payment network monopoly with monster margins."},
+                {"ticker": "GOOGL", "weight": 0.08, "reason": "Search + AI mega-cap."},
+                {"ticker": "META",  "weight": 0.08, "reason": "Social ads + AI infrastructure."},
+                {"ticker": "AVGO",  "weight": 0.08, "reason": "Custom AI silicon for hyperscalers — quieter AI winner than NVDA."},
+                {"ticker": "COST",  "weight": 0.08, "reason": "Durable retail moat."},
+                {"ticker": "BRK.B", "weight": 0.08, "reason": "Berkshire — diversified quality conglomerate."},
+                {"ticker": "TSM",   "weight": 0.08, "reason": "World's largest chip foundry — manufactures everyone's advanced silicon."},
+                {"ticker": "AGG",   "weight": 0.07, "reason": "Light bond hedge for tail risk."},
+                {"ticker": "GLD",   "weight": 0.05, "reason": "Small crisis hedge."},
+            ],
+        },
+    },
+
     # ── Diagnosis: "Recession Shock" ────────────────────────────────────────
     "recession_shock": {
         "themes": ["Long-duration treasuries", "Defensive sectors", "Gold", "Cyclical-light"],

@@ -1390,6 +1390,64 @@ body {
   letter-spacing: -0.01em;
   font-family: ui-monospace, "SF Mono", "Menlo", monospace;
 }
+.thesis-kind-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+}
+.thesis-kind-badge--stock {
+  background: rgba(255, 59, 48, 0.12);
+  color: #c0392b;
+}
+.thesis-kind-badge--etf {
+  background: rgba(0, 122, 255, 0.12);
+  color: var(--primary);
+}
+.thesis-kind-badge--trust {
+  background: rgba(88, 86, 214, 0.12);
+  color: var(--purple);
+}
+.thesis-suggestion-row-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 4px;
+}
+.thesis-suggestion-explain-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  letter-spacing: -0.005em;
+  flex-shrink: 0;
+}
+.thesis-suggestion-explain-btn:hover { text-decoration: underline; }
+.thesis-suggestion-blurb {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(0, 122, 255, 0.05);
+  border: 0.5px solid rgba(0, 122, 255, 0.15);
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--label-2);
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+}
+.thesis-suggestion--expanded {
+  border-color: rgba(0, 122, 255, 0.25);
+  background: rgba(255, 255, 255, 0.65);
+}
 .thesis-suggestion-reason {
   font-size: 13px;
   color: var(--label-2);

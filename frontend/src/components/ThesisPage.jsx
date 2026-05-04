@@ -9,6 +9,7 @@ const QUICK_START_GOALS = [
   { id: "avoid_losses",     icon: "◐", label: "Avoid big losses",         sub: "Steady is fine. Cap drawdowns under 15%." },
   { id: "tech_growth",      icon: "✦", label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
   { id: "balanced_starter", icon: "◎", label: "Balanced starter",         sub: "First-time investor, sensible default." },
+  { id: "stock_picker",     icon: "★", label: "Pick individual stocks",  sub: "High-conviction names, not ETF-led." },
 ];
 
 const DIAGNOSIS_PRESETS = [
@@ -58,6 +59,42 @@ const RISK_LEVELS = [
   { id: "balanced",     label: "Balanced",     body: "Growth with risk control" },
   { id: "aggressive",   label: "Aggressive",   body: "Growth-tilted, higher volatility tolerance" },
 ];
+
+function SuggestionRow({ s }) {
+  const [expanded, setExpanded] = useState(false);
+  const kindLabel = (s.kind || "etf").toUpperCase();
+  const isStock = s.kind === "stock";
+
+  return (
+    <div className={`thesis-suggestion ${expanded ? "thesis-suggestion--expanded" : ""}`}>
+      <div className="thesis-suggestion-head">
+        <span className="thesis-suggestion-ticker">{s.ticker}</span>
+        <span className={`thesis-kind-badge thesis-kind-badge--${s.kind || "etf"}`}>{kindLabel}</span>
+        <span className="thesis-suggestion-name">{s.name}</span>
+        {typeof s.weight === "number" && (
+          <span className="thesis-suggestion-weight">{(s.weight * 100).toFixed(0)}%</span>
+        )}
+        <span className="thesis-suggestion-theme">{s.theme}</span>
+      </div>
+      <div className="thesis-suggestion-reason">{s.reason}</div>
+      <div className="thesis-suggestion-row-actions">
+        <span className="thesis-suggestion-role">{s.role}</span>
+        {s.blurb && (
+          <button
+            type="button"
+            className="thesis-suggestion-explain-btn"
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? "Hide" : `What is ${isStock ? "this company" : "this fund"}?`}
+          </button>
+        )}
+      </div>
+      {expanded && s.blurb && (
+        <div className="thesis-suggestion-blurb">{s.blurb}</div>
+      )}
+    </div>
+  );
+}
 
 export default function ThesisPage({ onUseInAnalyze, profile }) {
   const [thesis, setThesis] = useState("");
@@ -267,18 +304,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           </div>
           <div className="thesis-suggestions">
             {result.suggestions.map((s) => (
-              <div key={s.ticker} className="thesis-suggestion">
-                <div className="thesis-suggestion-head">
-                  <span className="thesis-suggestion-ticker">{s.ticker}</span>
-                  <span className="thesis-suggestion-name">{s.name}</span>
-                  {typeof s.weight === "number" && (
-                    <span className="thesis-suggestion-weight">{(s.weight * 100).toFixed(0)}%</span>
-                  )}
-                  <span className="thesis-suggestion-theme">{s.theme}</span>
-                </div>
-                <div className="thesis-suggestion-reason">{s.reason}</div>
-                <div className="thesis-suggestion-role">{s.role}</div>
-              </div>
+              <SuggestionRow key={s.ticker} s={s} />
             ))}
           </div>
 
