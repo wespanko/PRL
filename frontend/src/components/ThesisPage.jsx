@@ -209,8 +209,10 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
         </div>
       </div>
 
+      <div className="or-divider"><span>OR</span></div>
+
       <div className="card">
-        <div className="thesis-section-label">Or pick a diagnosis</div>
+        <div className="thesis-section-label">Pick a diagnosis</div>
         <div className="thesis-diagnosis-grid">
           {DIAGNOSIS_PRESETS.map((d) => (
             <button
@@ -229,9 +231,12 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           ))}
         </div>
 
-        <div className="thesis-section-label" style={{ marginTop: 24 }}>
-          Or write your own thesis
-        </div>
+      </div>
+
+      <div className="or-divider"><span>OR</span></div>
+
+      <div className="card">
+        <div className="thesis-section-label">Write your own thesis</div>
         <textarea
           className="thesis-textarea"
           placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."

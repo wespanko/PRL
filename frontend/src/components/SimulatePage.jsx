@@ -127,11 +127,16 @@ export default function SimulatePage({ lastPayload, lastResults, simulateOverrid
         <div>
           <h1 style={{ marginBottom: 4 }}>Simulate</h1>
           <p className="page-subtitle" style={{ marginBottom: 0 }}>
-            Adjust weights or swap tickers to see how your risk profile changes.
+            <strong>Adjust weights</strong> or swap tickers and see how your risk profile changes.
             Same date range as your last analysis ({lastPayload.start_date} → {lastPayload.end_date}).
           </p>
         </div>
         <button className="btn btn-secondary btn-sm" onClick={resetToOriginal}>Reset to original</button>
+      </div>
+
+      <div className="step-marker">
+        <span className="step-marker-num">1</span>
+        <span className="step-marker-label">Edit your portfolio</span>
       </div>
 
       <div className="card">
@@ -183,14 +188,30 @@ export default function SimulatePage({ lastPayload, lastResults, simulateOverrid
         </p>
 
         {error && <div className="error">{error}</div>}
+      </div>
 
-        <button className="btn btn-primary" onClick={handleSimulate} disabled={!canRun}>
-          {loading ? <><span className="spinner" /> Simulating…</> : "Run Simulation"}
+      <div className="step-marker">
+        <span className="step-marker-num">2</span>
+        <span className="step-marker-label">Run the simulation</span>
+      </div>
+
+      <div className="card simulate-run-card">
+        <button className="btn btn-primary simulate-run-btn" onClick={handleSimulate} disabled={!canRun}>
+          {loading ? <><span className="spinner" /> Simulating…</> : "Run Simulation →"}
         </button>
+        <p className="simulate-run-hint">
+          We re-run the full risk analysis with your proposed weights against the same
+          date range, then show you exactly how each metric changes.
+        </p>
       </div>
 
       {simResults && (
         <>
+          <div className="step-marker">
+            <span className="step-marker-num">3</span>
+            <span className="step-marker-label">See the impact</span>
+          </div>
+
           <div className="card simulate-comparison">
             <h2>Before vs. After</h2>
             <table className="data-table">

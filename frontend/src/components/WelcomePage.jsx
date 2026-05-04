@@ -106,8 +106,8 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-headline-accent">analyzed like a quant.</span>
             </h1>
             <p className="welcome-subhead">
-              Real risk math. Optimized rebalancing. The diversification metric
-              your brokerage doesn't show you.
+              <strong>Real risk math.</strong> Optimized rebalancing.
+              The diversification metric your brokerage <em>doesn't show you</em>.
             </p>
 
             <button className="welcome-cta" onClick={() => setStep("name")}>

@@ -168,12 +168,20 @@ function DebtCalculator({ defaultExpectedReturn }) {
         </div>
       </div>
 
-      <div className="plan-tip">
-        <strong>Real-world tip:</strong> credit cards (15-25%) are always pay-first. Student loans (5-7%)
-        are close to expected market returns — the math is a coin flip, but the <em>certainty</em> of
-        paying down debt is often worth it. Mortgages (3-7%) are the tightest call — historically,
-        long-term equities have outperformed, but only if you actually invest and don't sell.
-      </div>
+      <details className="plan-tip plan-tip--collapsible">
+        <summary><strong>Real-world tip</strong> — when math vs. behavior matters →</summary>
+        <p>
+          <strong>Credit cards (15-25%):</strong> always pay first. The math isn't even close.
+        </p>
+        <p>
+          <strong>Student loans (5-7%):</strong> close to expected market returns — the math is a
+          coin flip, but the <em>certainty</em> of paying down debt is often worth it.
+        </p>
+        <p>
+          <strong>Mortgages (3-7%):</strong> tightest call. Historically, long-term equities have
+          outperformed — <em>but only if you actually invest the difference and don't sell during a downturn</em>.
+        </p>
+      </details>
     </div>
   );
 }
@@ -357,12 +365,19 @@ function FutureValueProjector({ portfolioReturn, portfolioVol, totalValue }) {
         </div>
       </div>
 
-      <div className="plan-tip">
-        <strong>Why two dashed lines?</strong> Markets don't return their average every year.
-        The blue line is the expected path. The green dashed line is roughly the best-case
-        (one standard deviation up); orange is the worst-case (one standard deviation down).
-        Reality is usually somewhere between — but anything is possible.
-      </div>
+      <details className="plan-tip plan-tip--collapsible">
+        <summary><strong>Why two dashed lines?</strong> →</summary>
+        <p>
+          Markets <strong>don't</strong> return their average every year. The blue line is the
+          expected path. The <span style={{color:"var(--positive)"}}>green dashed</span> line is
+          roughly the best-case (one standard deviation up); the{" "}
+          <span style={{color:"var(--warning)"}}>orange dashed</span> is the worst-case (one
+          standard deviation down).
+        </p>
+        <p>
+          Reality is usually somewhere between — <em>but anything is possible</em>.
+        </p>
+      </details>
     </div>
   );
 }
@@ -456,13 +471,18 @@ function DrawdownExplainer() {
         </div>
       </div>
 
-      <div className="plan-tip">
-        <strong>The key insight:</strong> drawdowns are how the market <em>pays</em> long-term
-        investors. The reason equities return more than bonds over decades is precisely because
-        they swing more in the short term. If you can't tolerate a 30% drop, you should hold a
-        more defensive portfolio — not avoid the market entirely. The Improve tab can build one
-        for you.
-      </div>
+      <details className="plan-tip plan-tip--collapsible" open>
+        <summary><strong>The key insight</strong> →</summary>
+        <p>
+          Drawdowns are how the market <em>pays</em> long-term investors. The reason equities
+          return more than bonds over decades is <strong>precisely because they swing more</strong>{" "}
+          in the short term.
+        </p>
+        <p>
+          If you <strong>can't tolerate a 30% drop</strong>, you should hold a more defensive
+          portfolio — not avoid the market entirely. The Improve tab can build one for you.
+        </p>
+      </details>
     </div>
   );
 }

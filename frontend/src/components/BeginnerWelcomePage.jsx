@@ -1,19 +1,31 @@
 import { profileFirstName, updateProfile } from "../utils/profile";
 
+// JSX-friendly bodies so we can bold key phrases inline without a markdown lib.
 const STEPS = [
   {
     n: 1,
     icon: "✎",
     title: "Tell us what you believe in",
-    body: "Think you're bullish on AI? Worried about a recession? Want a portfolio that lasts through retirement? Just type it in plain English on the Thesis tab — we'll suggest specific tickers that match.",
+    body: (
+      <>
+        <strong>Type in plain English</strong> what you think about markets — bullish on AI,
+        worried about a recession, planning for retirement, whatever. We'll suggest{" "}
+        <strong>specific tickers</strong> that match.
+      </>
+    ),
     cta: "Start with Thesis",
-    target: "thesis",
+    target: "build",
   },
   {
     n: 2,
     icon: "▷",
     title: "See the risk you're actually taking",
-    body: "Once you have a portfolio, the Analyze tab tells you how risky it is — not in vague terms, in real numbers. Your portfolio's worst-case loss, how much it swings, how diversified it really is.",
+    body: (
+      <>
+        Once you have a portfolio, Analyze tells you how risky it is — <strong>in real numbers</strong>.
+        Worst-case loss. Volatility. <strong>How diversified you really are</strong> (not just ticker count).
+      </>
+    ),
     cta: "Try Analyze",
     target: "analyze",
   },
@@ -21,7 +33,12 @@ const STEPS = [
     n: 3,
     icon: "✦",
     title: "Get specific ways to make it better",
-    body: "The Improve tab does the math to find specific trades that lower your risk without killing your returns. Like 'add 12% TLT, here's exactly how that changes things.'",
+    body: (
+      <>
+        Improve does the math to find <strong>specific trades</strong> that lower your risk
+        without killing returns. Like <em>"add 12% TLT — here's exactly how that changes things."</em>
+      </>
+    ),
     cta: "See Improve",
     target: "improve",
   },
