@@ -9,7 +9,8 @@ export default function PrivacyPolicyPage({ setActiveTab }) {
       <div className="card legal-card">
         <h2 className="legal-h2">1. What we collect — and what we don't</h2>
         <p>
-          Panko stores all of your personal data <strong>only in your own browser's localStorage</strong>.
+          Panko, operated by Panko Financial Strategies LLC ("Panko," "we"), stores all of your
+          personal data <strong>only in your own browser's localStorage</strong>.
           No central database. The operator cannot see your name, email, portfolios, or analysis history.
           The data we hold in your browser:
         </p>
@@ -84,7 +85,7 @@ export default function PrivacyPolicyPage({ setActiveTab }) {
 
         <h2 className="legal-h2">9. Contact</h2>
         <p>
-          For privacy-related questions, contact the operator at the email used at sign-up, or via
+          For privacy-related questions, contact Panko Financial Strategies LLC at the email used at sign-up, or via
           the project's GitHub repository.
         </p>
 

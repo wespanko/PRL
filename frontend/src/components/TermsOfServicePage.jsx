@@ -9,7 +9,7 @@ export default function TermsOfServicePage({ setActiveTab }) {
       <div className="card legal-card">
         <h2 className="legal-h2">1. Educational Use Only</h2>
         <p>
-          Panko ("the Service") is a portfolio risk diagnostics tool provided strictly for
+          Panko, operated by Panko Financial Strategies LLC ("Panko," "we," "us," or "the Service"), is a portfolio risk diagnostics tool provided strictly for
           <strong> educational and informational purposes</strong>. The Service is <strong>not</strong> investment
           advice, financial advice, brokerage services, tax advice, legal advice, or a recommendation
           to buy, sell, or hold any security. The Service does not consider your personal financial
@@ -37,12 +37,14 @@ export default function TermsOfServicePage({ setActiveTab }) {
 
         <h2 className="legal-h2">4. Limitation of Liability</h2>
         <p>
-          To the maximum extent permitted by law, neither Panko nor its operator is liable for any
-          direct, indirect, incidental, special, consequential, or punitive damages arising from
-          your use of the Service, including but not limited to: investment losses, missed
-          opportunities, tax consequences, data loss, business interruption, or any decision made
-          based on Service output. <strong>You acknowledge that all investment decisions are yours
-          alone and that you bear sole responsibility for any outcomes.</strong>
+          To the maximum extent permitted by law, neither Panko Financial Strategies LLC nor its
+          members, officers, employees, agents, or affiliates are liable for any direct, indirect,
+          incidental, special, consequential, or punitive damages arising from your use of the
+          Service, including but not limited to: investment losses, missed opportunities, tax
+          consequences, data loss, business interruption, or any decision made based on Service
+          output. <strong>You acknowledge that all investment decisions are yours alone and that
+          you bear sole responsibility for any outcomes.</strong> Aggregate liability shall not
+          exceed the amount you paid for the Service in the twelve months preceding the claim.
         </p>
 
         <h2 className="legal-h2">5. Past Performance</h2>
@@ -80,9 +82,10 @@ export default function TermsOfServicePage({ setActiveTab }) {
 
         <h2 className="legal-h2">9. Indemnification</h2>
         <p>
-          You agree to indemnify and hold harmless Panko, its operator, and its affiliates from any
-          claim, loss, damage, or expense (including reasonable attorney fees) arising from your use
-          of the Service, your violation of these Terms, or your investment decisions.
+          You agree to indemnify and hold harmless Panko Financial Strategies LLC, its members,
+          officers, employees, agents, and affiliates from any claim, loss, damage, or expense
+          (including reasonable attorney fees) arising from your use of the Service, your
+          violation of these Terms, or your investment decisions.
         </p>
 
         <h2 className="legal-h2">10. Modifications and Termination</h2>

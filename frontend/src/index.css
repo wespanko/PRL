@@ -1660,6 +1660,14 @@ body {
 }
 .disclaimer-footer-links button:hover { text-decoration: underline; }
 .disclaimer-footer-link-divider { color: var(--label-4); font-size: 10px; }
+.disclaimer-footer-copyright {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.04);
+  font-size: 10.5px;
+  color: var(--label-4);
+  letter-spacing: -0.005em;
+}
 
 /* ── InfoTip ("?" popover) ── */
 .infotip-wrap {
