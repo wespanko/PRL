@@ -45,6 +45,8 @@ export default function StatusBar({ results, payload }) {
   return (
     <div className="status-bar">
       <div className="status-bar-section status-bar-left">
+        <span className="status-bar-wordmark">Panko</span>
+        <span className="status-bar-divider" />
         <span className={`status-dot status-dot--${session.state}`} aria-hidden="true" />
         <span className="status-bar-label">{session.label}</span>
         <span className="status-bar-divider" />
@@ -52,32 +54,32 @@ export default function StatusBar({ results, payload }) {
       </div>
 
       <div className="status-bar-section status-bar-center">
-        <span className="status-bar-label-muted">PORTFOLIO</span>
+        <span className="status-bar-label-muted">Portfolio</span>
         <span className="status-bar-mono">{tickerLine}</span>
       </div>
 
       <div className="status-bar-section status-bar-right">
         {results ? (
           <>
-            <span className="status-bar-stat">
-              <span className="status-bar-stat-label">SHARPE</span>
+            <div className="status-bar-stat">
+              <span className="status-bar-stat-label">Sharpe</span>
               <span className="status-bar-mono">{Number(results.sharpe_ratio).toFixed(2)}</span>
-            </span>
-            <span className="status-bar-stat">
-              <span className="status-bar-stat-label">VOL</span>
+            </div>
+            <div className="status-bar-stat">
+              <span className="status-bar-stat-label">Vol</span>
               <span className="status-bar-mono">{pctSigned(results.annualized_volatility)}</span>
-            </span>
-            <span className="status-bar-stat">
-              <span className="status-bar-stat-label">β</span>
+            </div>
+            <div className="status-bar-stat">
+              <span className="status-bar-stat-label">Beta</span>
               <span className="status-bar-mono">{Number(results.beta).toFixed(2)}</span>
-            </span>
-            <span className="status-bar-stat">
-              <span className="status-bar-stat-label">DD</span>
+            </div>
+            <div className="status-bar-stat">
+              <span className="status-bar-stat-label">Drawdown</span>
               <span className="status-bar-mono status-bar-mono--neg">{pctSigned(results.max_drawdown)}</span>
-            </span>
+            </div>
           </>
         ) : (
-          <span className="status-bar-label-muted">RUN ANALYSIS TO POPULATE</span>
+          <span className="status-bar-label-muted">Run analysis to populate</span>
         )}
       </div>
     </div>

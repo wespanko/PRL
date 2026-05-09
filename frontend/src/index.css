@@ -1,8 +1,10 @@
+/* Design tokens — see DESIGN_BRIEF.md §2. Must come first so all
+   downstream rules can read var(--ink-900) etc. */
+@import "./styles/tokens.css";
+
 /* ── reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { overflow-wrap: break-word; }
-
-@import url("https://rsms.me/inter/inter.css");
 
 /* ── design tokens ── */
 :root {
@@ -39,22 +41,19 @@ body { overflow-wrap: break-word; }
   --hero-neg:       #ef4444;
 }
 
-/* ── base ── */
+/* ── base ── §2: body sans = Hanken Grotesk; paper bg; ink-900 text. */
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  font-feature-settings: "cv11", "ss01", "ss03", "tnum";
-  background: var(--bg);
-  color: var(--label);
-  font-size: 14.5px;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--ink-900);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--text-body-weight);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
   letter-spacing: -0.005em;
-}
-@supports (font-variation-settings: normal) {
-  body { font-family: "Inter var", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
 }
 
 .container {
@@ -2141,17 +2140,22 @@ body {
 }
 
 /* ── status bar (Bloomberg-style top strip) ── */
+/* ─────────────────────────────────────────────────────────────────────
+   Persistent metric ribbon (header) — DESIGN_BRIEF.md §3 + §5
+   64px tall, white, hairline bottom, sticky.
+   Layout: [wordmark] [nav/portfolio] [metrics, mono, right]
+   ───────────────────────────────────────────────────────────────────── */
 .status-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 10px 28px;
-  background: var(--surface);
-  color: var(--label-2);
-  font-size: 11.5px;
-  letter-spacing: -0.005em;
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-6);
+  padding: 0 var(--space-8);
+  height: 64px;
+  background: var(--canvas);
+  color: var(--ink-700);
+  font-family: var(--font-sans);
+  border-bottom: var(--border-hairline);
   position: sticky;
   top: 0;
   z-index: 30;
@@ -2159,67 +2163,109 @@ body {
 .status-bar-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   min-width: 0;
 }
+.status-bar-left { gap: var(--space-3); }
 .status-bar-center {
   flex: 1;
   justify-content: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  gap: var(--space-3);
 }
 .status-bar-right {
-  gap: 14px;
+  gap: 0;
   flex-shrink: 0;
+  align-items: stretch;
 }
+
+/* Wordmark — gold-500, Libre Baskerville. §4: gold reserved for wordmark + Panko Score + one CTA. */
+.status-bar-wordmark {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 400;
+  color: var(--gold-500);
+  letter-spacing: -0.01em;
+}
+
+/* "Market open" / time labels — body weight 500, ink-500 */
 .status-bar-label {
-  color: var(--label-3);
+  color: var(--ink-500);
+  font-size: var(--text-body-sm-size);
   font-weight: 500;
-}
-.status-bar-label-muted {
-  color: var(--label-4);
-  font-weight: 600;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.status-bar-mono {
-  font-size: 11.5px;
-  color: var(--label);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
 }
-.status-bar-mono--neg { color: var(--negative); }
-.status-bar-divider {
-  width: 1px;
-  height: 12px;
-  background: var(--border);
-}
-.status-bar-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-.status-bar-stat-label {
-  color: var(--label-4);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+/* Caption-style muted label — for "Portfolio" header above ticker line */
+.status-bar-label-muted {
+  color: var(--ink-400);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
 }
 
+/* Generic mono cell — used inline (e.g. time, ticker line) at mono-sm. */
+.status-bar-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  font-weight: var(--text-mono-sm-weight);
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.status-bar-mono--neg { color: var(--risk-red); }
+
+.status-bar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--ink-200);
+}
+
+/* Each metric: caption label above, mono-lg number below, hairline divider between cells. §5 */
+.status-bar-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 var(--space-4);
+  border-right: var(--border-hairline);
+  min-width: 88px;
+}
+.status-bar-stat:last-child { border-right: none; padding-right: 0; }
+.status-bar-stat:first-child { padding-left: 0; }
+.status-bar-stat-label {
+  color: var(--ink-400);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+}
+/* Override the inline mono cell to mono-lg when inside a stat. */
+.status-bar-stat .status-bar-mono {
+  font-size: var(--text-mono-lg-size);
+  line-height: var(--text-mono-lg-line);
+  font-weight: var(--text-mono-lg-weight);
+}
+
+/* Market session indicator — data context for live trading state. §4 permits
+   risk colors here; glow effects removed per §6 (no decorative shadows). */
 .status-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
 }
-.status-dot--open   { background: #34c759; box-shadow: 0 0 8px rgba(52, 199, 89, 0.6); }
-.status-dot--pre    { background: #ffd60a; box-shadow: 0 0 8px rgba(255, 214, 10, 0.5); }
-.status-dot--after  { background: #ff9f0a; box-shadow: 0 0 8px rgba(255, 159, 10, 0.5); }
-.status-dot--closed { background: #6e6e73; }
+.status-dot--open   { background: var(--risk-green); }
+.status-dot--pre    { background: var(--risk-amber); }
+.status-dot--after  { background: var(--risk-amber); }
+.status-dot--closed { background: var(--ink-300); }
 
 @media (max-width: 900px) {
   .status-bar { position: relative; top: auto; }
@@ -2378,7 +2424,7 @@ body {
   position: relative;
 }
 .app-main {
-  margin-left: 232px;
+  margin-left: 240px;  /* matches §3 sidebar width */
   min-height: 100vh;
 }
 @media (max-width: 900px) {
@@ -2386,75 +2432,62 @@ body {
 }
 
 /* ── sidebar ── */
+/* ─────────────────────────────────────────────────────────────────────
+   Sidebar — DESIGN_BRIEF.md §3 + §5
+   240px wide, --paper bg, hairline right. Labels always visible.
+   Wordmark lives in the header now (§3), not here.
+   ───────────────────────────────────────────────────────────────────── */
 .sidebar {
   position: fixed;
   top: 0; left: 0; bottom: 0;
   width: 240px;
   display: flex;
   flex-direction: column;
-  padding: 24px 14px 16px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  padding: var(--space-6) var(--space-3) var(--space-4);
+  background: var(--paper);
+  border-right: var(--border-hairline);
   z-index: 50;
-}
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 4px 10px 28px;
-}
-.sidebar-brand-mark {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  background: var(--label);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.sidebar-brand-name {
-  font-size: 16.5px;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--label);
+  font-family: var(--font-sans);
 }
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+/* Nav items — body weight 500. Active: blue-700 text, gold-500 left border, ink-50 bg.
+   Inactive items get a transparent left border so text doesn't shift on activation. §5 */
 .sidebar-link {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 8px 11px;
+  gap: var(--space-3);
+  padding: 8px var(--space-3);
   background: none;
   border: none;
-  border-radius: 8px;
+  border-left: 2px solid transparent;
+  border-radius: 0;
   cursor: pointer;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
   font-weight: 500;
-  color: var(--label-2);
-  letter-spacing: -0.01em;
-  transition: background 0.15s, color 0.15s;
+  color: var(--ink-700);
+  letter-spacing: -0.005em;
+  text-align: left;
+  width: 100%;
+  transition: background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
 .sidebar-link:hover:not(.sidebar-link--disabled) {
-  background: var(--surface-2);
-  color: var(--label);
+  background: var(--ink-50);
 }
 .sidebar-link--active {
-  background: var(--surface-2);
-  color: var(--label);
-  font-weight: 600;
+  background: var(--ink-50);
+  color: var(--blue-700);
+  border-left-color: var(--gold-500);
 }
-.sidebar-link--active:hover { background: var(--surface-2); }
+.sidebar-link--active:hover { background: var(--ink-50); }
 .sidebar-link--disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 .sidebar-link-icon {
@@ -2463,57 +2496,49 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: var(--label-3);
+  color: var(--ink-400);
   flex-shrink: 0;
 }
-.sidebar-link--active .sidebar-link-icon { color: var(--primary); }
-.sidebar-link-label { flex: 1; }
-.sidebar-link-indicator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 18px;
-  background: var(--primary);
-  border-radius: 0 3px 3px 0;
-}
+.sidebar-link--active .sidebar-link-icon { color: var(--blue-700); }
+.sidebar-link-label { flex: 1; font-family: inherit; }
 .sidebar-spacer { flex: 1; min-height: 24px; }
 
 .sidebar-profile-wrap {
   position: relative;
 }
+/* Profile button — same body sans, neutral hover. Avatar is the one allowed
+   round element (§6: "rounded-full ... avatars excepted"). No gradient, no shadow. */
 .sidebar-profile {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: none;
-  border: 0.5px solid transparent;
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
   cursor: pointer;
   font-family: inherit;
   text-align: left;
-  transition: all 0.15s;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
 }
 .sidebar-profile:hover, .sidebar-profile--open {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: var(--border-light);
+  background: var(--ink-50);
+  border-color: var(--ink-200);
 }
 .sidebar-profile-avatar {
-  width: 32px; height: 32px;
+  width: 28px; height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
+  background: var(--blue-700);
+  color: var(--canvas);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,122,255,0.25);
 }
 .sidebar-profile-text {
   display: flex;
@@ -2522,48 +2547,57 @@ body {
   min-width: 0;
 }
 .sidebar-profile-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--label);
-  letter-spacing: -0.01em;
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 500;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sidebar-profile-status {
-  font-size: 11px;
-  color: var(--label-4);
-  letter-spacing: -0.005em;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--ink-400);
 }
 .sidebar-profile-chevron {
   font-size: 12px;
-  color: var(--label-4);
+  color: var(--ink-400);
   flex-shrink: 0;
 }
 .sidebar-profile-menu {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 0; right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.14);
-  padding: 12px;
+  /* Profile dropdown — popover. §2: elevated surface uses --shadow-elevated, no glass. */
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-3);
+  box-shadow: var(--shadow-elevated);
+  padding: var(--space-3);
   z-index: 60;
 }
 .sidebar-profile-menu-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
 }
 .sidebar-profile-menu-email {
-  font-size: 11.5px;
-  color: var(--label-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  font-weight: var(--text-mono-sm-weight);
+  color: var(--ink-400);
   margin-top: 2px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   word-break: break-all;
 }
 .sidebar-profile-menu-item {
@@ -2572,21 +2606,22 @@ body {
   text-align: left;
   background: none;
   border: none;
-  padding: 7px 10px;
-  margin-top: 6px;
-  border-radius: 7px;
-  font-size: 12.5px;
+  padding: var(--space-2) var(--space-3);
+  margin-top: var(--space-1);
+  border-radius: var(--radius-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
   font-weight: 500;
-  color: var(--negative);
+  color: var(--risk-red);
   cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
+  transition: background 150ms ease-out;
 }
 .sidebar-profile-menu-item:hover {
-  background: rgba(255, 59, 48, 0.08);
+  background: var(--ink-50);
 }
-.sidebar-profile-menu-item--neutral { color: var(--label-2); }
-.sidebar-profile-menu-item--neutral:hover { background: rgba(0, 0, 0, 0.04); color: var(--label); }
+.sidebar-profile-menu-item--neutral { color: var(--ink-700); }
+.sidebar-profile-menu-item--neutral:hover { background: var(--ink-50); color: var(--ink-900); }
 
 /* mobile: collapse sidebar to top bar */
 @media (max-width: 900px) {

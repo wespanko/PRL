@@ -3,10 +3,10 @@ import { profileInitials, profileFirstName } from "../utils/profile";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: "◎" },
-  { id: "build",     label: "Build",     icon: "✎" },
-  { id: "analyze",   label: "Analyze",   icon: "▷" },
+  { id: "build",     label: "Build",     icon: "◆" },
+  { id: "analyze",   label: "Analyze",   icon: "▲" },
   { id: "simulate",  label: "Simulate",  icon: "◇" },
-  { id: "improve",   label: "Improve",   icon: "✦" },
+  { id: "improve",   label: "Improve",   icon: "↕" },
   { id: "plan",      label: "Plan",      icon: "$" },
   { id: "monitor",   label: "Monitor",   icon: "↻" },
   { id: "learn",     label: "Learn",     icon: "?" },
@@ -30,11 +30,6 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-brand">
-        <span className="sidebar-brand-mark">P</span>
-        <span className="sidebar-brand-name">Panko</span>
-      </div>
-
       <nav className="sidebar-nav">
         {NAV_ITEMS.map((item) => {
           const disabled = (item.id === "simulate" || item.id === "improve") && !hasResults;
@@ -47,9 +42,8 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
               onClick={() => !disabled && setActiveTab(item.id)}
               title={disabled ? "Run an analysis first" : item.label}
             >
-              <span className="sidebar-link-icon">{item.icon}</span>
+              <span className="sidebar-link-icon" aria-hidden="true">{item.icon}</span>
               <span className="sidebar-link-label">{item.label}</span>
-              {active && <span className="sidebar-link-indicator" aria-hidden="true" />}
             </button>
           );
         })}

@@ -1,0 +1,130 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Panko Risk Report — Design Tokens
+   Source: DESIGN_BRIEF.md §2
+
+   This file is the single source of truth for every visual primitive.
+   Components must reference these custom properties — no arbitrary hex
+   codes, no off-grid spacing, no radii outside this scale.
+
+   Project uses plain CSS (not Tailwind). Tokens are exposed as CSS
+   custom properties on :root; component CSS reads them via var().
+   The "tailwind.config" half of §8 step 1 does not apply here.
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Color ── */
+
+  /* Neutrals */
+  --paper:    #FAFAF7;  /* page bg, warm white */
+  --canvas:   #FFFFFF;  /* card surfaces */
+  --ink-900:  #0A1628;  /* primary text, deep navy-black */
+  --ink-700:  #1E2A3D;  /* headings */
+  --ink-500:  #4A5568;  /* body */
+  --ink-400:  #718096;  /* secondary */
+  --ink-300:  #A0AEC0;  /* tertiary, captions */
+  --ink-200:  #CBD5E0;  /* hairlines */
+  --ink-100:  #E2E8F0;  /* subtle bg */
+  --ink-50:   #F1F5F9;  /* hover, table stripes */
+
+  /* Blue — primary brand */
+  --blue-900: #0B1F3A;  /* deepest, dark sections only */
+  --blue-700: #1E3A5F;  /* primary brand */
+  --blue-500: #2B5582;  /* default accent */
+  --blue-300: #6B8CAE;  /* muted */
+  --blue-100: #E8EEF5;  /* tint bg */
+
+  /* Gold — sparingly. Panko Score, key CTAs only */
+  --gold-700: #8B6F1F;
+  --gold-500: #B8923A;  /* the "Panko gold" */
+  --gold-300: #D4B870;
+  --gold-100: #F5EDD6;
+
+  /* Semantic — data context only */
+  --risk-red:   #B33A3A;
+  --risk-amber: #C68A1A;
+  --risk-green: #2D6A4F;
+
+  /* ── Typography ── */
+
+  /* Font families. Wiring to <link> tags happens in §8 step 2 — these
+     custom properties are the contract; the actual @import / link load
+     is the next step. */
+  --font-display: "Libre Baskerville", Georgia, serif;
+  --font-sans:    "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale — size / line-height / weight.
+     Letter-spacing & casing are applied at the class level (heading-sm
+     and caption are uppercase per the brief).                       */
+  --text-display-xl-size:    48px;
+  --text-display-xl-line:    56px;
+  --text-display-xl-weight:  400;
+
+  --text-display-lg-size:    36px;
+  --text-display-lg-line:    44px;
+  --text-display-lg-weight:  400;
+
+  --text-heading-lg-size:    24px;
+  --text-heading-lg-line:    32px;
+  --text-heading-lg-weight:  600;
+
+  --text-heading-md-size:    18px;
+  --text-heading-md-line:    26px;
+  --text-heading-md-weight:  600;
+
+  --text-heading-sm-size:    14px;
+  --text-heading-sm-line:    20px;
+  --text-heading-sm-weight:  600;
+  --text-heading-sm-tracking: 0.08em;
+
+  --text-body-lg-size:       16px;
+  --text-body-lg-line:       26px;
+  --text-body-lg-weight:     400;
+
+  --text-body-size:          14px;
+  --text-body-line:          22px;
+  --text-body-weight:        400;
+
+  --text-body-sm-size:       13px;
+  --text-body-sm-line:       20px;
+  --text-body-sm-weight:     400;
+
+  --text-caption-size:       12px;
+  --text-caption-line:       16px;
+  --text-caption-weight:     500;
+  --text-caption-tracking:   0.06em;
+
+  --text-mono-lg-size:       16px;
+  --text-mono-lg-line:       24px;
+  --text-mono-lg-weight:     500;
+
+  --text-mono-size:          14px;
+  --text-mono-line:          20px;
+  --text-mono-weight:        500;
+
+  --text-mono-sm-size:       12px;
+  --text-mono-sm-line:       18px;
+  --text-mono-sm-weight:     500;
+
+  /* ── Spacing — 8pt grid, restricted set ── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-24:  96px;
+  --space-32:  128px;
+
+  /* ── Radii ── */
+  --radius-0: 0px;     /* tables, data cells, dividers */
+  --radius-1: 2px;     /* buttons, inputs, badges */
+  --radius-2: 4px;     /* cards, panels */
+  --radius-3: 8px;     /* modals, command bar */
+
+  /* ── Borders & elevation ── */
+  --border-hairline: 1px solid var(--ink-200);
+  --shadow-elevated: 0 4px 24px rgba(10, 22, 40, 0.08);
+}
