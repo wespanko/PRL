@@ -1,6 +1,9 @@
 /* Design tokens — see DESIGN_BRIEF.md §2. Must come first so all
    downstream rules can read var(--ink-900) etc. */
 @import "./styles/tokens.css";
+/* Shared primitives — see DESIGN_BRIEF.md §5. .pk-* classes consumed
+   by src/components/ui/*. Inert until pages import those components. */
+@import "./styles/primitives.css";
 
 /* ── reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
