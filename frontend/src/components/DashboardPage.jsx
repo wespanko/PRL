@@ -33,7 +33,7 @@ function HeroChart({ points, positive }) {
   });
   const d = xy.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
   const last = xy[xy.length - 1];
-  const stroke = positive ? "#22d3a3" : "#ff5d52";
+  const stroke = positive ? "#10b981" : "#ef4444";
   const fillId = positive ? "hero-fill-pos" : "hero-fill-neg";
   const areaD = `${d} L${last[0].toFixed(1)} ${h} L${pad} ${h} Z`;
   return (

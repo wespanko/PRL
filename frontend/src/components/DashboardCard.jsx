@@ -100,10 +100,10 @@ const SEV_COLOR = {
 };
 
 const BAND_COLORS = {
-  good: "#22d3a3",
-  ok: "#22d3a3",
-  warn: "#ffb648",
-  bad: "#ff5d52",
+  good: "#10b981",
+  ok: "#10b981",
+  warn: "#f59e0b",
+  bad: "#ef4444",
 };
 
 export default function DashboardCard({ results, prevSnapshot, ScoreRing }) {
