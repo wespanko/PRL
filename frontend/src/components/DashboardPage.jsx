@@ -17,6 +17,40 @@ function fmtMoneySigned(n) {
   return sign + fmtMoney(Math.abs(n));
 }
 
+function Sparkline({ points, positive }) {
+  if (!points || points.length < 2) return null;
+  const w = 140;
+  const h = 38;
+  const pad = 1.5;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const step = (w - pad * 2) / (points.length - 1);
+  const xy = points.map((v, i) => {
+    const x = pad + i * step;
+    const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+    return [x, y];
+  });
+  const d = xy.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const last = xy[xy.length - 1];
+  const stroke = positive ? "var(--positive)" : "var(--negative)";
+  const fillId = positive ? "spark-fill-pos" : "spark-fill-neg";
+  const areaD = `${d} L${last[0].toFixed(1)} ${h - pad} L${pad} ${h - pad} Z`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="dash-spark">
+      <defs>
+        <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaD} fill={`url(#${fillId})`} />
+      <path d={d} fill="none" stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={last[0]} cy={last[1]} r="2.2" fill={stroke} />
+    </svg>
+  );
+}
+
 function QuickStat({ label, value, color, metric, onLearnMore }) {
   return (
     <div className="dash-quick-stat">
@@ -82,6 +116,14 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
   const tickers = results.tickers ?? [];
   const period = results.actual_period ?? results.period ?? {};
   const totalValue = results.total_value;
+  const series = results.cumulative_return_series ?? [];
+  const last = series.length ? series[series.length - 1] : null;
+  const periodReturn = last && Number.isFinite(last.portfolio) ? last.portfolio : null;
+  const benchDelta = last && Number.isFinite(last.portfolio) && Number.isFinite(last.benchmark)
+    ? last.portfolio - last.benchmark
+    : null;
+  const sparkPoints = series.length >= 2 ? series.map((d) => d.portfolio) : null;
+  const benchmarkLabel = results.benchmark ?? "SPY";
 
   return (
     <div className="container">
@@ -97,21 +139,40 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
 
       {totalValue != null && totalValue > 0 && (
         <div className="dash-portfolio-value">
-          <div className="dash-portfolio-value-label">Portfolio value</div>
-          <div className="dash-portfolio-value-amount">{fmtMoney(totalValue)}</div>
-          <div className="dash-portfolio-value-stress">
-            <span className="dash-portfolio-value-stress-item">
-              <span className="dash-portfolio-value-stress-label">Worst observed drawdown</span>
-              <span className="dash-portfolio-value-stress-value" style={{ color: "var(--negative)" }}>
+          <div className="dash-portfolio-value-main">
+            <div className="dash-portfolio-value-label">Portfolio value</div>
+            <div className="dash-portfolio-value-amount">{fmtMoney(totalValue)}</div>
+            {periodReturn != null && (
+              <div className="dash-portfolio-value-deltas">
+                <span className={`dash-portfolio-value-delta ${periodReturn >= 0 ? "is-pos" : "is-neg"}`}>
+                  {periodReturn >= 0 ? "▲" : "▼"} {periodReturn >= 0 ? "+" : ""}{(periodReturn * 100).toFixed(2)}%
+                </span>
+                {benchDelta != null && (
+                  <span className={`dash-portfolio-value-vs ${benchDelta >= 0 ? "is-pos" : "is-neg"}`}>
+                    {benchDelta >= 0 ? "+" : ""}{(benchDelta * 100).toFixed(1)}% vs {benchmarkLabel}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          {sparkPoints && (
+            <div className="dash-portfolio-value-spark-wrap">
+              <Sparkline points={sparkPoints} positive={(periodReturn ?? 0) >= 0} />
+            </div>
+          )}
+          <div className="dash-portfolio-value-stats">
+            <div className="dash-mini-stat">
+              <div className="dash-mini-stat-label">Worst drawdown</div>
+              <div className="dash-mini-stat-value is-neg">
                 {fmtMoneySigned(totalValue * (results.max_drawdown ?? 0))}
-              </span>
-            </span>
-            <span className="dash-portfolio-value-stress-item">
-              <span className="dash-portfolio-value-stress-label">VaR 95% (typical bad month)</span>
-              <span className="dash-portfolio-value-stress-value" style={{ color: "var(--negative)" }}>
+              </div>
+            </div>
+            <div className="dash-mini-stat">
+              <div className="dash-mini-stat-label">VaR 95%</div>
+              <div className="dash-mini-stat-value is-neg">
                 {fmtMoneySigned(totalValue * (results.var_95 ?? 0))}
-              </span>
-            </span>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -124,7 +185,9 @@ export default function DashboardPage({ profile, results, payload, prevSnapshot,
         className="dash-deepdive-link"
         onClick={() => setActiveTab("analyze")}
       >
-        See full breakdown — DNA, risk contributions, stress tests, correlations →
+        <span className="dash-deepdive-text">See full breakdown</span>
+        <span className="dash-deepdive-sub">DNA · risk contributions · stress tests · correlations</span>
+        <span className="dash-deepdive-arrow" aria-hidden="true">→</span>
       </button>
     </div>
   );

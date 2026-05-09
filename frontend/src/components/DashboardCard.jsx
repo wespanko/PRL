@@ -2,13 +2,6 @@ import { pct, num } from "../utils/formatters";
 import { diffSnapshots } from "../utils/diff";
 import { useAnimatedNumber } from "../utils/useAnimatedNumber";
 
-const TONE_COLORS = {
-  good: "var(--positive)",
-  ok: "var(--positive)",
-  warn: "var(--warning)",
-  bad: "var(--negative)",
-};
-
 const PILLAR_COLORS = {
   diversification:        "#34c759",
   risk_adjusted_return:   "#007aff",
@@ -112,7 +105,6 @@ export default function DashboardCard({ results, prevSnapshot }) {
   const panko = results.panko_score ?? null;
   const score = panko?.total ?? 0;
   const band = panko?.band ?? { label: "Unscored", tone: "ok" };
-  const bandColor = TONE_COLORS[band.tone] ?? "var(--label-3)";
   const pillars = panko?.pillars ?? [];
 
   const dnaType = results.portfolio_dna?.type ?? "Unclassified";
@@ -135,7 +127,7 @@ export default function DashboardCard({ results, prevSnapshot }) {
           <div className="dashboard-hero-score">
             <span className="dashboard-hero-num">{Math.round(animatedScore)}</span>
             <span className="dashboard-hero-denom">/100</span>
-            <span className="dashboard-hero-band-pill" style={{ background: bandColor }}>
+            <span className="dashboard-hero-band-pill">
               {band.label}
             </span>
           </div>
