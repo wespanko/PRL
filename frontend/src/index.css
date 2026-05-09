@@ -2181,14 +2181,15 @@ body {
   align-items: stretch;
 }
 
-/* Wordmark — gold-500, Libre Baskerville. §4: gold reserved for wordmark + Panko Score + one CTA. */
+/* Wordmark — actual logo asset, ink-900 navy. Brief §4 (revised):
+   gold is now reserved only for the Panko Score number + one CTA per page. */
 .status-bar-wordmark {
-  font-family: var(--font-display);
-  font-size: 20px;
-  line-height: 1;
-  font-weight: 400;
-  color: var(--gold-500);
-  letter-spacing: -0.01em;
+  display: block;
+  height: 22px;
+  width: auto;
+  flex-shrink: 0;
+  /* Slight right padding so the next divider sits with breathing room. */
+  padding-right: var(--space-1);
 }
 
 /* "Market open" / time labels — body weight 500, ink-500 */

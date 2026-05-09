@@ -98,7 +98,8 @@ mono-sm       12/18   500   IBM Plex Mono
 Default state of any page is 90% neutrals, 8% blue, 2% gold. If you reach for color, don't.
 
 - **Blue** is the brand: primary buttons, active nav, links, chart primary series, header accent.
-- **Gold** is reserved: the Panko Score, the wordmark, the single most important CTA per page. Nothing else. Gold is what the eye finds first — protect that.
+- **Gold** is reserved for exactly two things: (1) the **Panko Score number**, and (2) the **single most important CTA per page**. Nothing else. Gold is what the eye finds first — protect that.
+- **The "Panko" wordmark** is the actual logo asset (`/public/logo.png`, eventually SVG) and renders in `--ink-900` (navy) — the brand's real color. It is NOT gold. It is not text rendered in Libre Baskerville. The Libre Baskerville family is reserved for the Panko Score number and any rare hero headline.
 - **Risk red/amber/green** ONLY in data context (drawdowns, risk flags). Never decorative.
 - One section per page MAY invert to dark (`--blue-900` bg, white text) for visual rhythm. Once, not three times.
 

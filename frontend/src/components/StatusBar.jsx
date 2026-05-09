@@ -45,7 +45,7 @@ export default function StatusBar({ results, payload }) {
   return (
     <div className="status-bar">
       <div className="status-bar-section status-bar-left">
-        <span className="status-bar-wordmark">Panko</span>
+        <img src="/logo.png" alt="Panko" className="status-bar-wordmark" />
         <span className="status-bar-divider" />
         <span className={`status-dot status-dot--${session.state}`} aria-hidden="true" />
         <span className="status-bar-label">{session.label}</span>
