@@ -99,7 +99,14 @@ const SEV_COLOR = {
   improved: "var(--positive)",
 };
 
-export default function DashboardCard({ results, prevSnapshot }) {
+const BAND_COLORS = {
+  good: "#22d3a3",
+  ok: "#22d3a3",
+  warn: "#ffb648",
+  bad: "#ff5d52",
+};
+
+export default function DashboardCard({ results, prevSnapshot, ScoreRing }) {
   if (!results) return null;
 
   const panko = results.panko_score ?? null;
@@ -115,6 +122,7 @@ export default function DashboardCard({ results, prevSnapshot }) {
   const vuln = biggestVulnerability(results);
 
   const animatedScore = useAnimatedNumber(score, 900);
+  const ringColor = BAND_COLORS[band.tone] ?? "#22d3a3";
 
   const topAlertTone = top && top.pctRisk > 0.45 ? "warn" : top && top.overweight ? "watch" : null;
   const changedTone = changed && !changed.stable ? changed.severity : null;
@@ -123,13 +131,26 @@ export default function DashboardCard({ results, prevSnapshot }) {
     <div className={`dashboard-card dashboard-card--${band.tone}`}>
       <div className="dashboard-hero">
         <div className="dashboard-hero-left">
-          <div className="dashboard-hero-label">Panko Score</div>
-          <div className="dashboard-hero-score">
-            <span className="dashboard-hero-num">{Math.round(animatedScore)}</span>
-            <span className="dashboard-hero-denom">/100</span>
-            <span className="dashboard-hero-band-pill">
-              {band.label}
-            </span>
+          <div className="dashboard-hero-score-block">
+            {ScoreRing && (
+              <div className="dashboard-hero-ring">
+                <ScoreRing score={animatedScore} color={ringColor} />
+                <div className="dashboard-hero-ring-inner">
+                  <span className="dashboard-hero-ring-num">{Math.round(animatedScore)}</span>
+                  <span className="dashboard-hero-ring-denom">/100</span>
+                </div>
+              </div>
+            )}
+            <div className="dashboard-hero-score-meta">
+              <div className="dashboard-hero-label">Panko Score</div>
+              <div className="dashboard-hero-band-pill" style={{ background: `${ringColor}1f`, color: ringColor }}>
+                {band.label}
+              </div>
+              <div className="dashboard-hero-dna">
+                <span className="dashboard-hero-dna-label">DNA</span>
+                <span className="dashboard-hero-dna-type">{dnaType}</span>
+              </div>
+            </div>
           </div>
 
           {pillars.length > 0 && (
@@ -141,7 +162,6 @@ export default function DashboardCard({ results, prevSnapshot }) {
                     <div
                       key={p.id}
                       className="panko-pillar-bar-segment"
-                      style={{ background: "rgba(0,0,0,0.06)" }}
                       title={`${p.label}: ${p.value.toFixed(1)} / ${p.max} (${p.raw_label})`}
                     >
                       <div
@@ -172,17 +192,16 @@ export default function DashboardCard({ results, prevSnapshot }) {
             </>
           )}
         </div>
-        <div className="dashboard-hero-right">
-          <div className="dashboard-dna-label">DNA</div>
-          <div className="dashboard-dna-type">{dnaType}</div>
-          {drivers.length > 0 && (
+        {drivers.length > 0 && (
+          <div className="dashboard-hero-right">
+            <div className="dashboard-dna-label">Primary drivers</div>
             <div className="dashboard-dna-drivers">
-              {drivers.slice(0, 3).map((d) => (
+              {drivers.slice(0, 4).map((d) => (
                 <span key={d} className="dashboard-dna-chip">{d}</span>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="dashboard-tiles">
