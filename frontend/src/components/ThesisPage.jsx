@@ -1,15 +1,27 @@
+// Build page — DESIGN_BRIEF.md §7
+//
+// Strict spec: Three-column grid (Quick Start | Pick a Diagnosis |
+// Custom Thesis). Quick Start items are secondary buttons. Custom
+// Thesis textarea uses the brief's "feel like a serious input" spec
+// (ink-50 bg, ink-200 border, 4px radius, body-lg). Risk Tolerance is
+// a segmented control with hairline borders, active filled blue-700.
+// "Generate suggestions" is THE gold CTA — the page's single most
+// important action per §4.
+
 import { useState } from "react";
 import { generateThesis } from "../api/client";
 import { normalizeWeights } from "../utils/normalizeWeights";
+import { Button, Card, Textarea, Badge, Banner } from "./ui";
 
 // Beginner-friendly goal cards. preset_id matches a curated portfolio in
 // backend/data/preset_portfolios.py — those clicks skip the LLM entirely.
+// Icons use only the geometric glyphs §6 endorses (◍ ◎ ▲ ◆ ↕ ◐).
 const QUICK_START_GOALS = [
   { id: "long_term_growth", icon: "▲", label: "Grow my money long-term", sub: "10+ year horizon. Compound through dips." },
   { id: "avoid_losses",     icon: "◐", label: "Avoid big losses",         sub: "Steady is fine. Cap drawdowns under 15%." },
-  { id: "tech_growth",      icon: "✦", label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
+  { id: "tech_growth",      icon: "◍", label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
   { id: "balanced_starter", icon: "◎", label: "Balanced starter",         sub: "First-time investor, sensible default." },
-  { id: "stock_picker",     icon: "★", label: "Pick individual stocks",  sub: "High-conviction names, not ETF-led." },
+  { id: "stock_picker",     icon: "◆", label: "Pick individual stocks",   sub: "High-conviction names, not ETF-led." },
 ];
 
 const DIAGNOSIS_PRESETS = [
@@ -30,7 +42,7 @@ const DIAGNOSIS_PRESETS = [
   {
     id: "ai_bubble_risk",
     label: "AI Bubble Risk",
-    icon: "✦",
+    icon: "↕",
     summary: "Hedge concentration in AI/megacap tech without leaving the trade entirely.",
     text: "I'm worried about an AI / megacap tech valuation bubble. I have meaningful exposure to NVDA, MSFT, GOOGL — I don't want to fully exit that position because the long-term thesis is real, but I need explicit hedges against a violent correction. International, defensive sectors, gold, and bonds that won't crash with tech.",
   },
@@ -43,46 +55,55 @@ const DIAGNOSIS_PRESETS = [
   },
 ];
 
-const EXAMPLE_THESES = [
-  {
-    label: "Long AI infrastructure, hedged for rate shocks",
-    text: "I'm bullish on AI infrastructure for the next 5+ years — semis, cloud providers, and the megacaps building the rails. But I want meaningful protection against another rate shock and inflation re-acceleration. Balanced toward growth but not unhedged.",
-  },
-  {
-    label: "Diversified beyond US tech concentration",
-    text: "I currently own a lot of US large-cap tech and I want to diversify beyond it without abandoning equities. International exposure, defensive sectors, real assets. I want to reduce my correlation to QQQ.",
-  },
+const RISK_LEVELS = [
+  { id: "conservative", label: "Conservative" },
+  { id: "balanced",     label: "Balanced" },
+  { id: "aggressive",   label: "Aggressive" },
 ];
 
-const RISK_LEVELS = [
-  { id: "conservative", label: "Conservative", body: "Capital preservation first" },
-  { id: "balanced",     label: "Balanced",     body: "Growth with risk control" },
-  { id: "aggressive",   label: "Aggressive",   body: "Growth-tilted, higher volatility tolerance" },
-];
+function PickButton({ icon, title, sub, onClick, disabled }) {
+  return (
+    <button
+      type="button"
+      className="pk-btn pk-btn--secondary build-pick"
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <span className="build-pick-icon" aria-hidden="true">{icon}</span>
+      <span className="build-pick-text">
+        <span className="build-pick-title">{title}</span>
+        <span className="build-pick-sub">{sub}</span>
+      </span>
+    </button>
+  );
+}
 
 function SuggestionRow({ s }) {
   const [expanded, setExpanded] = useState(false);
-  const kindLabel = (s.kind || "etf").toUpperCase();
   const isStock = s.kind === "stock";
+  const kindLabel = (s.kind || "etf").toUpperCase();
+  const kindVariant = s.kind === "stock" ? "blue" : s.kind === "trust" ? "gold" : "default";
 
   return (
-    <div className={`thesis-suggestion ${expanded ? "thesis-suggestion--expanded" : ""}`}>
-      <div className="thesis-suggestion-head">
-        <span className="thesis-suggestion-ticker">{s.ticker}</span>
-        <span className={`thesis-kind-badge thesis-kind-badge--${s.kind || "etf"}`}>{kindLabel}</span>
-        <span className="thesis-suggestion-name">{s.name}</span>
+    <div className="build-sugg">
+      <div className="build-sugg-head">
+        <span className="build-sugg-ticker pk-text-mono">{s.ticker}</span>
+        <Badge variant={kindVariant}>{kindLabel}</Badge>
+        <span className="build-sugg-name">{s.name}</span>
         {typeof s.weight === "number" && (
-          <span className="thesis-suggestion-weight">{(s.weight * 100).toFixed(0)}%</span>
+          <span className="build-sugg-weight pk-text-mono-sm">
+            {(s.weight * 100).toFixed(0)}%
+          </span>
         )}
-        <span className="thesis-suggestion-theme">{s.theme}</span>
+        {s.theme && <span className="build-sugg-theme">{s.theme}</span>}
       </div>
-      <div className="thesis-suggestion-reason">{s.reason}</div>
-      <div className="thesis-suggestion-row-actions">
-        <span className="thesis-suggestion-role">{s.role}</span>
+      {s.reason && <div className="build-sugg-reason">{s.reason}</div>}
+      <div className="build-sugg-foot">
+        {s.role && <span className="build-sugg-role">{s.role}</span>}
         {s.blurb && (
           <button
             type="button"
-            className="thesis-suggestion-explain-btn"
+            className="pk-btn pk-btn--tertiary"
             onClick={() => setExpanded((v) => !v)}
           >
             {expanded ? "Hide" : `What is ${isStock ? "this company" : "this fund"}?`}
@@ -90,7 +111,7 @@ function SuggestionRow({ s }) {
         )}
       </div>
       {expanded && s.blurb && (
-        <div className="thesis-suggestion-blurb">{s.blurb}</div>
+        <div className="build-sugg-blurb">{s.blurb}</div>
       )}
     </div>
   );
@@ -114,9 +135,11 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
         ...(presetId ? { preset_id: presetId } : {}),
       });
       if (data.error) {
-        setError(data.error === "no_api_key"
-          ? "ANTHROPIC_API_KEY not set in backend/.env."
-          : data.error);
+        setError(
+          data.error === "no_api_key"
+            ? "ANTHROPIC_API_KEY not set in backend/.env."
+            : data.error,
+        );
       } else {
         setResult(data);
       }
@@ -149,8 +172,6 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
   function buildHoldings() {
     if (!result?.suggestions?.length) return [];
-    // If the backend returned curated weights (preset path), use them.
-    // Otherwise (LLM path) fall back to equal-weight.
     const hasCuratedWeights = result.suggestions.every(
       (s) => typeof s.weight === "number" && s.weight > 0,
     );
@@ -173,157 +194,162 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
   return (
     <div className="container">
-      <div className="thesis-hero">
-        <h1 className="thesis-hero-title">Build a Portfolio</h1>
-        <p className="thesis-hero-sub">
-          Pick a goal and we'll suggest specific tickers — or write a custom thesis below.
-          <strong> Educational, not advice.</strong>
+      <header className="build-header">
+        <h1 className="pk-text-heading-lg pk-ink-900">Build a portfolio</h1>
+        <p className="pk-text-body-lg pk-ink-500 build-header-sub">
+          Pick a goal, choose a diagnosis, or write your own thesis — Panko
+          maps it to specific tickers from a curated universe.
         </p>
-      </div>
+      </header>
 
-      <div className="thesis-disclaimer">
-        Suggestions are mechanical mappings from your goal/thesis to a curated universe of broad
-        ETFs and well-known names. They are <strong>not financial advice</strong>. Run any idea
-        through the Analyze tab to see real risk numbers before acting.
-      </div>
+      <Banner variant="warning" title="Educational, not financial advice">
+        Suggestions are mechanical mappings to a curated list of broad ETFs and
+        well-known names. Run any idea through Analyze to see real risk numbers
+        before acting.
+      </Banner>
 
-      <div className="card">
-        <div className="thesis-section-label">Quick start — pick a goal</div>
-        <div className="quick-start-grid">
-          {QUICK_START_GOALS.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              className="quick-start-card"
-              onClick={() => pickQuickStart(g)}
-              disabled={loading}
-            >
-              <span className="quick-start-icon">{g.icon}</span>
-              <div className="quick-start-text">
-                <div className="quick-start-label">{g.label}</div>
-                <div className="quick-start-sub">{g.sub}</div>
-              </div>
-              <span className="quick-start-arrow">→</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <div className="build-3col">
+        {/* Column 1: Quick Start — secondary buttons. §7 */}
+        <Card className="build-col">
+          <Card.Eyebrow>Quick start</Card.Eyebrow>
+          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
+            Pick a goal. We'll suggest a curated portfolio.
+          </p>
+          <div className="build-col-stack">
+            {QUICK_START_GOALS.map((g) => (
+              <PickButton
+                key={g.id}
+                icon={g.icon}
+                title={g.label}
+                sub={g.sub}
+                disabled={loading}
+                onClick={() => pickQuickStart(g)}
+              />
+            ))}
+          </div>
+        </Card>
 
-      <div className="or-divider"><span>OR</span></div>
+        {/* Column 2: Pick a Diagnosis. §7 */}
+        <Card className="build-col">
+          <Card.Eyebrow>Pick a diagnosis</Card.Eyebrow>
+          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
+            A specific risk concern. Pre-fills your thesis below.
+          </p>
+          <div className="build-col-stack">
+            {DIAGNOSIS_PRESETS.map((d) => (
+              <PickButton
+                key={d.id}
+                icon={d.icon}
+                title={d.label}
+                sub={d.summary}
+                disabled={loading}
+                onClick={() => pickDiagnosis(d)}
+              />
+            ))}
+          </div>
+        </Card>
 
-      <div className="card">
-        <div className="thesis-section-label">Pick a diagnosis</div>
-        <div className="thesis-diagnosis-grid">
-          {DIAGNOSIS_PRESETS.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              className="thesis-diagnosis-card"
-              onClick={() => pickDiagnosis(d)}
-              disabled={loading}
-            >
-              <span className="thesis-diagnosis-icon">{d.icon}</span>
-              <div className="thesis-diagnosis-text">
-                <div className="thesis-diagnosis-label">{d.label}</div>
-                <div className="thesis-diagnosis-summary">{d.summary}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+        {/* Column 3: Custom Thesis. §7 */}
+        <Card className="build-col build-col--custom">
+          <Card.Eyebrow>Custom thesis</Card.Eyebrow>
+          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
+            Write what matters to you in your own words.
+          </p>
 
-      </div>
+          <Textarea
+            value={thesis}
+            onChange={(e) => {
+              setThesis(e.target.value);
+              setError(null);
+            }}
+            placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."
+            rows={8}
+            maxLength={4000}
+          />
 
-      <div className="or-divider"><span>OR</span></div>
+          {/* Risk Tolerance — segmented control, hairline borders,
+              active filled blue-700. §5 */}
+          <div className="build-risk">
+            <div className="pk-text-caption pk-ink-400 build-risk-label">
+              Risk tolerance
+            </div>
+            <div className="build-risk-seg" role="radiogroup" aria-label="Risk tolerance">
+              {RISK_LEVELS.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={risk === r.id}
+                  className={`build-risk-seg-item ${
+                    risk === r.id ? "is-active" : ""
+                  }`}
+                  onClick={() => setRisk(r.id)}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <div className="card">
-        <div className="thesis-section-label">Write your own thesis</div>
-        <textarea
-          className="thesis-textarea"
-          placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."
-          value={thesis}
-          onChange={(e) => { setThesis(e.target.value); setError(null); }}
-          rows={6}
-          maxLength={4000}
-        />
+          {error && (
+            <div className="build-error">
+              <Banner variant="error">{error}</Banner>
+            </div>
+          )}
 
-        <div className="thesis-examples">
-          <span className="thesis-examples-label">Or start from an example:</span>
-          {EXAMPLE_THESES.map((ex) => (
-            <button
-              key={ex.label}
-              type="button"
-              className="thesis-example-btn"
-              onClick={() => { setThesis(ex.text); setError(null); }}
-            >
-              {ex.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="thesis-section-label" style={{ marginTop: 18 }}>Risk tolerance</div>
-        <div className="thesis-risk-grid">
-          {RISK_LEVELS.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              className={`thesis-risk-card ${risk === r.id ? "thesis-risk-card--active" : ""}`}
-              onClick={() => setRisk(r.id)}
-            >
-              <div className="thesis-risk-label">{r.label}</div>
-              <div className="thesis-risk-body">{r.body}</div>
-            </button>
-          ))}
-        </div>
-
-        {error && <div className="error" style={{ marginTop: 14 }}>{error}</div>}
-
-        <button
-          className="btn btn-primary"
-          onClick={handleGenerate}
-          disabled={loading}
-          style={{ marginTop: 18 }}
-        >
-          {loading ? <><span className="spinner" /> Mapping thesis…</> : "Generate suggestions →"}
-        </button>
+          {/* THE gold CTA per §7. */}
+          <Button
+            variant="gold"
+            onClick={handleGenerate}
+            disabled={loading}
+            className="build-generate"
+          >
+            {loading ? "Mapping thesis…" : "Generate suggestions →"}
+          </Button>
+        </Card>
       </div>
 
       {result && (
-        <div className="card">
-          <div className="thesis-result-header">
-            <div>
-              <div className="thesis-section-label">Detected themes</div>
-              <div className="thesis-themes">
-                {result.themes.map((t) => (
-                  <span key={t} className="thesis-theme-pill">{t}</span>
-                ))}
-              </div>
+        <Card className="build-result">
+          <div className="build-result-head">
+            <Card.Eyebrow>Detected themes</Card.Eyebrow>
+            <div className="build-themes">
+              {result.themes.map((t) => (
+                <Badge key={t} variant="blue">
+                  {t}
+                </Badge>
+              ))}
             </div>
           </div>
 
           {result.summary && (
-            <p className="thesis-summary">{result.summary}</p>
+            <p className="pk-text-body pk-ink-500 build-result-summary">
+              {result.summary}
+            </p>
           )}
 
-          <div className="thesis-section-label" style={{ marginTop: 22 }}>
-            Suggested holdings ({result.suggestions.length})
-          </div>
-          <div className="thesis-suggestions">
-            {result.suggestions.map((s) => (
-              <SuggestionRow key={s.ticker} s={s} />
-            ))}
+          <div className="build-result-section">
+            <Card.Eyebrow>
+              Suggested holdings ({result.suggestions.length})
+            </Card.Eyebrow>
+            <div className="build-suggs">
+              {result.suggestions.map((s) => (
+                <SuggestionRow key={s.ticker} s={s} />
+              ))}
+            </div>
           </div>
 
           {result.suggestions.length > 0 && onUseInAnalyze && (
-            <div className="thesis-actions">
-              <button className="btn btn-primary" onClick={handleAddToPortfolio}>
+            <div className="build-result-actions">
+              <Button variant="primary" onClick={handleAddToPortfolio}>
                 Use as starting portfolio (equal-weight) →
-              </button>
-              <span className="thesis-actions-note">
+              </Button>
+              <span className="pk-text-body-sm pk-ink-400">
                 Loads tickers into the Analyze form at equal weight. Adjust before running.
               </span>
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );

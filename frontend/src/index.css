@@ -1140,417 +1140,212 @@ body {
   .dash-score-hero { padding: var(--space-12) 0; }
 }
 
-/* ── Build page: Quick-start goal cards ── */
-.quick-start-grid {
+/* ─────────────────────────────────────────────────────────────────────
+   Build page (Thesis) — DESIGN_BRIEF.md §7
+   Strict spec: Three-column grid Quick Start | Pick a Diagnosis |
+   Custom Thesis. Quick Start items are secondary buttons. Risk
+   tolerance is a segmented control (hairline borders, active filled
+   blue-700). "Generate suggestions" is THE gold CTA.
+   ───────────────────────────────────────────────────────────────────── */
+
+.build-header { margin-bottom: var(--space-6); }
+.build-header-sub { max-width: 720px; margin-top: var(--space-2); }
+
+.build-3col {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  /* Custom Thesis column (the working column) gets more room. */
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-12);
 }
-@media (max-width: 600px) { .quick-start-grid { grid-template-columns: 1fr; } }
-.quick-start-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.quick-start-card:hover:not(:disabled) {
-  background: white;
-  border-color: rgba(0, 122, 255, 0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.1);
-}
-.quick-start-card:disabled { opacity: 0.5; cursor: not-allowed; }
-.quick-start-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.24);
-}
-.quick-start-text { flex: 1; min-width: 0; }
-.quick-start-label {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.015em;
-  margin-bottom: 2px;
-}
-.quick-start-sub {
-  font-size: 12px;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-  line-height: 1.45;
-}
-.quick-start-arrow {
-  font-size: 16px;
-  color: var(--label-4);
-  flex-shrink: 0;
-  transition: transform 0.18s, color 0.18s;
-}
-.quick-start-card:hover:not(:disabled) .quick-start-arrow {
-  color: var(--primary);
-  transform: translateX(3px);
+@media (max-width: 1100px) {
+  .build-3col { grid-template-columns: 1fr; }
 }
 
-/* (Legacy .dash-deepdive-link block removed in Step 5 Dashboard refactor —
-   "See full breakdown" is now a tertiary <Button> primitive.) */
-
-/* ── Thesis page ── */
-.thesis-hero { margin-bottom: 16px; }
-.thesis-hero-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 6px;
-}
-.thesis-hero-sub {
-  font-size: 14px;
-  color: var(--label-3);
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  max-width: 720px;
-}
-.thesis-hero-sub strong { color: var(--label-2); font-weight: 600; }
-
-.thesis-disclaimer {
-  background: rgba(255, 159, 10, 0.08);
-  border: 0.5px solid rgba(255, 159, 10, 0.25);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 12.5px;
-  color: #8a4f00;
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  margin-bottom: 14px;
-}
-.thesis-disclaimer strong { color: #6b3d00; font-weight: 700; }
-
-.thesis-section-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--label-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
-}
-.thesis-diagnosis-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 4px;
-}
-@media (max-width: 600px) { .thesis-diagnosis-grid { grid-template-columns: 1fr; } }
-.thesis-diagnosis-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: all 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.thesis-diagnosis-card:hover {
-  background: white;
-  border-color: rgba(88, 86, 214, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
-}
-.thesis-diagnosis-icon {
-  width: 32px; height: 32px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.24);
-}
-.thesis-diagnosis-text { min-width: 0; }
-.thesis-diagnosis-label {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.015em;
-  margin-bottom: 3px;
-}
-.thesis-diagnosis-summary {
-  font-size: 12px;
-  color: var(--label-3);
-  line-height: 1.45;
-  letter-spacing: -0.005em;
-}
-
-.thesis-textarea {
-  width: 100%;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 14.5px;
-  font-family: inherit;
-  color: var(--label);
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  resize: vertical;
-  outline: none;
-  transition: all 0.18s;
-}
-.thesis-textarea:focus {
-  border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-.thesis-examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 14px;
-}
-.thesis-examples-label {
-  font-size: 11.5px;
-  color: var(--label-4);
-  letter-spacing: -0.005em;
-  margin-right: 4px;
-}
-.thesis-example-btn {
-  background: rgba(0, 0, 0, 0.04);
-  border: 0.5px solid var(--border-light);
-  color: var(--label-2);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 99px;
-  cursor: pointer;
-  font-family: inherit;
-  letter-spacing: -0.005em;
-  transition: all 0.15s;
-}
-.thesis-example-btn:hover {
-  background: rgba(0, 122, 255, 0.07);
-  border-color: rgba(0, 122, 255, 0.25);
-  color: var(--primary);
-}
-
-.thesis-risk-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-@media (max-width: 600px) { .thesis-risk-grid { grid-template-columns: 1fr; } }
-.thesis-risk-card {
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  padding: 12px 14px;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: all 0.15s;
-}
-.thesis-risk-card:hover { border-color: rgba(0, 122, 255, 0.3); }
-.thesis-risk-card--active {
-  background: rgba(0, 122, 255, 0.08);
-  border-color: var(--primary);
-  border-width: 1px;
-}
-.thesis-risk-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
-  margin-bottom: 2px;
-}
-.thesis-risk-card--active .thesis-risk-label { color: var(--primary); }
-.thesis-risk-body {
-  font-size: 11.5px;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-}
-
-.thesis-themes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.thesis-theme-pill {
-  background: rgba(88, 86, 214, 0.12);
-  color: #4945c1;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 4px 11px;
-  border-radius: 99px;
-  letter-spacing: -0.005em;
-}
-.thesis-summary {
-  font-size: 13.5px;
-  color: var(--label-2);
-  line-height: 1.6;
-  letter-spacing: -0.005em;
-  background: rgba(0, 0, 0, 0.025);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 4px;
-}
-.thesis-suggestions {
+.build-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-4);
 }
-.thesis-suggestion {
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid var(--border-light);
-  border-radius: 12px;
-  padding: 12px 16px;
-}
-.thesis-suggestion-head {
+.build-col-lead { margin-top: calc(-1 * var(--space-2)); margin-bottom: var(--space-2); }
+.build-col-stack {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--space-2);
 }
-.thesis-suggestion-ticker {
+
+/* Pick button — secondary <Button> stretched full-width with icon +
+   stacked title/sub layout. §7 says Quick Start = secondary buttons. */
+.build-pick {
+  width: 100%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  gap: var(--space-3);
+  white-space: normal;
+  min-height: 64px;
+}
+.build-pick-icon {
+  flex-shrink: 0;
+  width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
   font-size: 14px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: -0.02em;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  color: var(--ink-400);
+  margin-top: 2px;
 }
-.thesis-suggestion-name {
-  font-size: 13px;
-  color: var(--label);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.thesis-suggestion-theme {
-  font-size: 11px;
-  color: var(--label-3);
-  background: rgba(0, 0, 0, 0.04);
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  margin-left: auto;
-}
-.thesis-suggestion-weight {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--label);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-}
-.thesis-kind-badge {
-  display: inline-block;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-}
-.thesis-kind-badge--stock {
-  background: rgba(255, 59, 48, 0.12);
-  color: #c0392b;
-}
-.thesis-kind-badge--etf {
-  background: rgba(0, 122, 255, 0.12);
-  color: var(--primary);
-}
-.thesis-kind-badge--trust {
-  background: rgba(88, 86, 214, 0.12);
-  color: var(--purple);
-}
-.thesis-suggestion-row-actions {
+.build-pick:hover:not(:disabled) .build-pick-icon { color: var(--blue-700); }
+.build-pick-text {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-top: 4px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
-.thesis-suggestion-explain-btn {
-  background: rgba(0, 122, 255, 0.08);
-  border: 0.5px solid rgba(0, 122, 255, 0.2);
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 700;
+.build-pick-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  font-weight: 500;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
+}
+.build-pick-sub {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 400;
+  color: var(--ink-500);
+}
+
+/* Risk tolerance — segmented control. §5 spec exact: hairline borders,
+   active filled --blue-700. */
+.build-risk { margin-top: var(--space-3); }
+.build-risk-label { margin-bottom: var(--space-2); }
+.build-risk-seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+.build-risk-seg-item {
+  background: var(--canvas);
+  border: none;
+  border-right: 1px solid var(--ink-200);
+  padding: 10px var(--space-3);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 500;
+  color: var(--ink-700);
   cursor: pointer;
-  padding: 5px 12px;
-  border-radius: 99px;
+  letter-spacing: -0.005em;
+  transition: background 150ms ease-out, color 150ms ease-out;
   font-family: inherit;
-  letter-spacing: -0.005em;
-  flex-shrink: 0;
-  transition: all 0.15s;
 }
-.thesis-suggestion-explain-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+.build-risk-seg-item:last-child { border-right: none; }
+.build-risk-seg-item:hover:not(.is-active) { background: var(--ink-50); }
+.build-risk-seg-item.is-active {
+  background: var(--blue-700);
+  color: var(--canvas);
 }
-.thesis-suggestion-blurb {
-  margin-top: 8px;
-  padding: 10px 12px;
-  background: rgba(0, 122, 255, 0.05);
-  border: 0.5px solid rgba(0, 122, 255, 0.15);
-  border-radius: 8px;
-  font-size: 12.5px;
-  color: var(--label-2);
-  line-height: 1.55;
-  letter-spacing: -0.005em;
+
+.build-error { margin-top: var(--space-2); }
+.build-generate { margin-top: var(--space-3); align-self: flex-start; }
+
+/* Result card */
+.build-result { margin-top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); }
+.build-result-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
-.thesis-suggestion--expanded {
-  border-color: rgba(0, 122, 255, 0.25);
-  background: rgba(255, 255, 255, 0.65);
-}
-.thesis-suggestion-reason {
-  font-size: 13px;
-  color: var(--label-2);
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-  margin-bottom: 4px;
-}
-.thesis-suggestion-role {
-  font-size: 11.5px;
-  color: var(--label-4);
-  font-style: italic;
-  letter-spacing: -0.005em;
-}
-.thesis-actions {
+.build-themes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.build-result-summary { background: var(--ink-50); padding: var(--space-3) var(--space-4); border-radius: var(--radius-2); }
+.build-result-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.build-result-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  margin-top: 18px;
+  margin-top: var(--space-3);
 }
-.thesis-actions-note {
-  font-size: 11.5px;
-  color: var(--label-4);
+
+/* Suggestion row — neutral card, mono ticker, Badge for kind. */
+.build-suggs { display: flex; flex-direction: column; gap: var(--space-2); }
+.build-sugg {
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+}
+.build-sugg-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+.build-sugg-ticker {
+  font-weight: 600;
+  color: var(--blue-700);
+  letter-spacing: -0.01em;
+}
+.build-sugg-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-700);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.build-sugg-theme {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--ink-400);
+  margin-left: auto;
+}
+.build-sugg-weight {
+  font-weight: 600;
+  color: var(--ink-900);
+}
+.build-sugg-reason {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--space-2);
+}
+.build-sugg-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.build-sugg-role {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.build-sugg-blurb {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
 
@@ -4146,33 +3941,10 @@ th.improve-metric-val { text-align: right; }
    now lives in the .dash-score-hero / .dash-3col / .dash-metric-card
    block earlier in this file.) */
 
-/* ── OR divider (parallel options, not steps) ── */
-.or-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 6px 0 14px;
-  color: var(--label-4);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-}
-.or-divider::before,
-.or-divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
-}
-.or-divider span {
-  background: rgba(255, 255, 255, 0.7);
-  padding: 4px 14px;
-  border-radius: 99px;
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-}
+/* (Legacy .or-divider block removed in Step 5 Build refactor —
+   the brief's three-column grid replaces the vertical OR-divider flow.) */
 
-/* ── Step marker (sequential flow, the opposite of OR) ── */
+/* ── Step marker (sequential flow, used by Simulate) ── */
 .step-marker {
   display: flex;
   align-items: center;
