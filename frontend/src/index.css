@@ -3269,33 +3269,59 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
   font-size: 13px;
 }
 
-/* ── results header ── */
-.results-header {
+/* ─────────────────────────────────────────────────────────────────────
+   Analyze page — DESIGN_BRIEF.md §7
+   Stack: Analyst Summary → Benchmark+Capital side-by-side →
+   Correlation Matrix → Stress Scenarios (4 cards) → Drawdown chart.
+   "Dense. Allow density." Section gap = 48px (§3).
+   ───────────────────────────────────────────────────────────────────── */
+
+.analyze-results { display: flex; flex-direction: column; gap: var(--space-12); }
+
+.analyze-results-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  padding: 0 4px;
-  gap: 12px;
+  align-items: baseline;
+  gap: var(--space-3);
   flex-wrap: wrap;
+  padding-bottom: var(--space-2);
+  /* margin-bottom isn't needed — outer flex gap handles section spacing */
+  margin-bottom: calc(-1 * var(--space-12) + var(--space-2));
 }
-.results-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.results-tickers {
-  font-size: 13.5px;
+.analyze-results-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.analyze-results-tickers {
   font-weight: 600;
-  color: var(--label-2);
   letter-spacing: -0.01em;
 }
-.results-period {
-  font-size: 12px;
-  color: var(--label-4);
-  font-variant-numeric: tabular-nums;
+.analyze-results-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
 }
+
+.analyze-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);                         /* §3: 24px between cards */
+}
+@media (max-width: 1000px) {
+  .analyze-2col { grid-template-columns: 1fr; }
+}
+
+/* Cancel default .card margin-bottom inside the analyze-2col grid so
+   gap rules the spacing rather than per-card margins. */
+.analyze-2col > .card { margin-bottom: 0; }
+
+/* Supplementary section — eyebrow + stacked cards beneath the brief stack. */
+.analyze-supplementary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-12);
+  border-top: var(--border-hairline);
+}
+.analyze-supplementary-label { margin-bottom: var(--space-2); }
 
 /* ── metrics grid ── */
 .metrics-grid {
@@ -3331,55 +3357,85 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
 .metric-value.negative { color: var(--negative); }
 .metric-value.neutral  { color: var(--label); }
 
-/* ── analyst summary ── */
-.analyst-card { border-left: 3px solid var(--primary); }
-.analyst-headline {
-  font-size: 1rem;
-  color: var(--label);
-  line-height: 1.7;
-  margin-bottom: 22px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+/* ── Analyst Summary — DESIGN_BRIEF.md §7
+   Full-width, --ink-50 bg. Drop the legacy blue left border. Risk
+   colors used per §4 — these lists ARE data context (key risks,
+   strengths, things to watch). */
+.analyst-card {
+  background: var(--ink-50);
+  border: var(--border-hairline);
 }
-.analyst-section { margin-bottom: 16px; }
-.analyst-section-title {
-  font-size: 10px;
-  font-weight: 700;
+.analyst-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
+  color: var(--ink-400);
+  margin-bottom: var(--space-3);
 }
-.risk-title     { color: var(--negative); }
-.strength-title { color: var(--positive); }
-.watch-title    { color: var(--warning); }
+.analyst-headline {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line);
+  color: var(--ink-900);
+  margin-bottom: var(--space-6);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.analyst-section { margin-bottom: var(--space-4); }
+.analyst-section-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+.risk-title     { color: var(--risk-red); }
+.strength-title { color: var(--risk-green); }
+.watch-title    { color: var(--risk-amber); }
 
-.analyst-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.analyst-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .analyst-item {
-  font-size: 13.5px;
-  line-height: 1.55;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-1);
 }
-.risk-item     { background: rgba(255,59,48,0.07);  color: #c0392b; }
-.strength-item { background: rgba(52,199,89,0.07);  color: #1a7a36; }
-.watch-item    { background: rgba(255,159,10,0.07); color: #8a5c00; }
+/* Item tints stay quiet — bg ~10% alpha, text uses the brand risk-* tokens. */
+.risk-item     { background: rgba(179, 58, 58, 0.08);  color: var(--risk-red); }
+.strength-item { background: rgba(45, 106, 79, 0.08);  color: var(--risk-green); }
+.watch-item    { background: rgba(198, 138, 26, 0.10); color: var(--risk-amber); }
 
-.analyst-paragraphs { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+.analyst-paragraphs {
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 .analyst-para {
-  font-size: 14px;
-  color: var(--label-2);
-  line-height: 1.7;
-  border-left: 2px solid var(--border);
-  padding-left: 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
+  border-left: 2px solid var(--ink-200);
+  padding-left: var(--space-3);
+  letter-spacing: -0.005em;
 }
 
 .analyst-disclaimer {
-  margin-top: 20px;
-  font-size: 11px;
-  color: var(--label-4);
-  border-top: 0.5px solid var(--border-light);
-  padding-top: 12px;
-  line-height: 1.5;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-400);
+  letter-spacing: -0.005em;
 }
 
 /* ── chart caption ── */
@@ -3477,18 +3533,126 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
   margin-top: 10px; font-style: italic;
 }
 
-/* ── stress breakdown ── */
-.stress-row:hover td { background: rgba(0,0,0,0.02); }
-.stress-detail-row td { background: rgba(0,0,0,0.015); }
-.breakdown-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.breakdown-table th {
-  font-size: 10px; font-weight: 600; color: var(--label-3);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 7px 12px; text-align: left;
-  background: rgba(0,0,0,0.02); border-bottom: 0.5px solid var(--border);
+/* ── Stress Scenarios — DESIGN_BRIEF.md §7 ("row of 4 small cards")
+   Featured row of 4 worst-first cards. Click expands a detail panel
+   using the .pk-table primitive. Optional "show more" reveals the
+   remaining scenarios in a flat table. */
+.stress-section { display: flex; flex-direction: column; gap: var(--space-4); }
+.stress-header  { display: flex; flex-direction: column; gap: 2px; }
+.stress-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
 }
-.breakdown-table td { padding: 8px 12px; border-bottom: 0.5px solid var(--border-light); }
-.breakdown-table tr:last-child td { border-bottom: none; }
+.stress-sub {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  letter-spacing: -0.005em;
+}
+.stress-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+@media (max-width: 1000px) { .stress-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .stress-row { grid-template-columns: 1fr; } }
+.stress-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-start;
+  text-align: left;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background 150ms ease-out;
+}
+.stress-card:hover:not(:disabled):not(.is-open) { background: var(--ink-50); }
+.stress-card:disabled { cursor: default; }
+.stress-card.is-open {
+  border-color: var(--ink-300);
+  background: var(--ink-50);
+}
+.stress-card-label { letter-spacing: var(--text-caption-tracking); }
+.stress-card-figure {
+  /* §6 exception: stress figure is a number — uses --font-mono via
+     .pk-text-mono-lg in the markup. Color set inline per scenario. */
+  font-weight: var(--text-mono-lg-weight);
+  letter-spacing: -0.01em;
+}
+
+.stress-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline);
+}
+.stress-detail-eyebrow { letter-spacing: var(--text-heading-sm-tracking); }
+
+.stress-more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline);
+}
+.stress-rest-wrap { /* uses .pk-table-wrap */ }
+
+
+/* ── Correlation Matrix — DESIGN_BRIEF.md §5
+   Blue scale only (E8EEF5 → 0B1F3A). NO red-green diverging.
+   Headers in caption style; cells centered, mono. */
+.corr-card { /* uses .card */ }
+.corr-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-4);
+}
+.corr-table-wrap { overflow-x: auto; border: var(--border-hairline); }
+.corr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+}
+.corr-table thead th,
+.corr-th-row {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--ink-400);
+  background: var(--ink-50);
+  padding: 8px 10px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: var(--border-hairline);
+}
+.corr-th-row { text-align: left; border-right: var(--border-hairline); }
+.corr-cell {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  font-weight: var(--text-mono-sm-weight);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  padding: 8px 6px;
+  /* Bg + color set per-cell from the JS ramp (§5 blue-only). */
+}
 
 /* ── exposures card ── */
 .exposures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }

@@ -2,9 +2,11 @@ export default function AnalystSummary({ summary }) {
   if (!summary) return null;
   const { headline, paragraphs = [], risks, strengths, watch_list } = summary;
 
+  // §7 Analyze: AI Analyst Summary uses --ink-50 background, not --canvas.
+  // The .analyst-card modifier applies that override on top of .card.
   return (
     <div className="card analyst-card">
-      <h2>AI Analyst Summary</h2>
+      <h2 className="analyst-eyebrow">AI Analyst Summary</h2>
       <p className="analyst-headline">{headline}</p>
 
       {paragraphs.length > 0 && (
