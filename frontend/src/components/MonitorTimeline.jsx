@@ -2,6 +2,10 @@ import { useMemo, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { pct, num } from "../utils/formatters";
 
+// §5: chart series colors come from the brief palette only. Brand-led
+// metric (health) is --blue-700; risk-context metrics (volatility,
+// drawdown) get --risk-amber / --risk-red; positive-direction metric
+// (diversification) gets --risk-green. All from §2 tokens.
 const METRICS = [
   {
     key: "health",
@@ -9,7 +13,7 @@ const METRICS = [
     fmt: (v) => `${v.toFixed(1)}/10`,
     pick: (s) => s.results.risk_score != null ? +(10 - s.results.risk_score).toFixed(1) : null,
     domain: [0, 10],
-    color: "var(--primary)",
+    color: "#1E3A5F",        // --blue-700
     higherBetter: true,
   },
   {
@@ -17,7 +21,7 @@ const METRICS = [
     label: "Volatility",
     fmt: (v) => pct(v / 100, 1),
     pick: (s) => s.results.annualized_volatility != null ? +(s.results.annualized_volatility * 100).toFixed(2) : null,
-    color: "#ff9f0a",
+    color: "#C68A1A",        // --risk-amber
     higherBetter: false,
   },
   {
@@ -25,7 +29,7 @@ const METRICS = [
     label: "Max Drawdown",
     fmt: (v) => pct(v / 100, 1),
     pick: (s) => s.results.max_drawdown != null ? +(s.results.max_drawdown * 100).toFixed(2) : null,
-    color: "#ff3b30",
+    color: "#B33A3A",        // --risk-red
     higherBetter: true, // closer to 0 is better
   },
   {
@@ -33,7 +37,7 @@ const METRICS = [
     label: "Real Diversification",
     fmt: (v) => `${v.toFixed(1)} pos`,
     pick: (s) => s.results.concentration?.enp_risk != null ? +s.results.concentration.enp_risk.toFixed(2) : null,
-    color: "#34c759",
+    color: "#2D6A4F",        // --risk-green
     higherBetter: true,
   },
 ];
@@ -71,7 +75,7 @@ function Sparkline({ metric, data }) {
   const delta = last - first;
   const better = metric.higherBetter ? delta > 0 : delta < 0;
   const small = Math.abs(delta) < 0.001 * Math.max(Math.abs(first), 1);
-  const deltaColor = small ? "var(--label-4)" : better ? "var(--positive)" : "var(--negative)";
+  const deltaColor = small ? "var(--ink-400)" : better ? "var(--risk-green)" : "var(--risk-red)";
   const deltaPrefix = small ? "" : delta > 0 ? "+" : "";
 
   return (

@@ -183,7 +183,7 @@ export default function App() {
             <PlanPage results={results} payload={payload} />
           )}
 
-          {activeTab === "monitor" && <MonitorPage />}
+          {activeTab === "monitor" && <MonitorPage setActiveTab={setActiveTab} />}
 
           {activeTab === "learn" && <LearnPage initialMetricId={learnTarget} />}
 

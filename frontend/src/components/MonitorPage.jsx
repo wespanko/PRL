@@ -1,3 +1,13 @@
+// Monitor — DESIGN_BRIEF.md §7
+//
+// Strict empty state spec:
+//   "Empty state must be elegant. display-lg headline 'No snapshots yet'
+//    in --ink-300, body subtext, single secondary button 'Save your first
+//    snapshot.' Center-aligned, 480px-wide block."
+//
+// Populated state isn't specified beyond the brief's general rules — we
+// keep the existing snapshot-card structure but apply brief tokens.
+
 import { useState, useRef } from "react";
 import {
   getSnapshots, deleteSnapshot, renameSnapshot, pinSnapshot, clearSnapshots,
@@ -5,9 +15,21 @@ import {
 import { diffSnapshots } from "../utils/diff";
 import { pct, num } from "../utils/formatters";
 import MonitorTimeline from "./MonitorTimeline";
+import { Button, Card } from "./ui";
 
-const SEV_COLOR = { critical: "#dc2626", warning: "#d97706", improved: "#16a34a", stable: "#9ca3af" };
-const SEV_ICON  = { critical: "⚠", warning: "↑", improved: "↓", stable: "—" };
+const SEV_COLOR = {
+  critical: "var(--risk-red)",
+  warning:  "var(--risk-amber)",
+  improved: "var(--risk-green)",
+  stable:   "var(--ink-400)",
+};
+// §6: no emoji icons. Plain typographic glyphs only.
+const SEV_GLYPH = {
+  critical: "!",
+  warning:  "↑",
+  improved: "↓",
+  stable:   "—",
+};
 
 function sortSnapshots(snaps) {
   const byTime = (a, b) => new Date(b.timestamp) - new Date(a.timestamp);
@@ -24,18 +46,25 @@ function isIdentical(a, b) {
 
 function KeyMetrics({ results }) {
   const enp = results.concentration?.enp_risk;
+  const items = [
+    { label: "Sharpe",     value: num(results.sharpe_ratio, 2) },
+    { label: "Volatility", value: pct(results.annualized_volatility) },
+    { label: "Max DD",     value: pct(results.max_drawdown), tone: "neg" },
+    { label: "Real Pos.",  value: enp != null ? enp.toFixed(1) : "—" },
+    { label: "Risk Score", value: results.risk_score != null ? `${results.risk_score}/10` : "—" },
+  ];
   return (
     <div className="monitor-metrics">
-      {[
-        { label: "Sharpe",       value: num(results.sharpe_ratio, 2) },
-        { label: "Volatility",   value: pct(results.annualized_volatility) },
-        { label: "Max DD",       value: pct(results.max_drawdown), color: "#dc2626" },
-        { label: "Real Pos.",    value: enp != null ? enp.toFixed(1) : "—" },
-        { label: "Risk Score",   value: results.risk_score != null ? `${results.risk_score}/10` : "—" },
-      ].map(({ label, value, color }) => (
+      {items.map(({ label, value, tone }) => (
         <div key={label} className="monitor-metric">
-          <div className="monitor-metric-label">{label}</div>
-          <div className="monitor-metric-value" style={color ? { color } : {}}>{value}</div>
+          <div className="pk-text-caption pk-ink-400 monitor-metric-label">{label}</div>
+          <div
+            className={`pk-text-mono-lg monitor-metric-value ${
+              tone === "neg" ? "monitor-metric-value--neg" : ""
+            }`}
+          >
+            {value}
+          </div>
         </div>
       ))}
     </div>
@@ -68,47 +97,80 @@ function SnapshotCard({ snap, compareTarget, onDelete, onRename, onPin }) {
   const notable = diff ? diff.metric_changes.filter((m) => m.severity !== "stable") : [];
 
   return (
-    <div className={`card monitor-card ${snap.pinned ? "monitor-card--pinned" : ""}`}>
+    <Card className={`monitor-card ${snap.pinned ? "monitor-card--pinned" : ""}`}>
       <div className="monitor-card-header">
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {snap.pinned && <span className="monitor-pin-badge">📌 Baseline</span>}
+        <div className="monitor-card-meta">
+          {snap.pinned && (
+            <span className="pk-text-caption pk-blue-700 monitor-pin-badge">
+              Baseline
+            </span>
+          )}
           {editMode ? (
-            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
+            <div className="monitor-rename-row">
               <input
                 ref={inputRef}
-                className="monitor-rename-input"
+                className="pk-input monitor-rename-input"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditMode(false); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitEdit();
+                  if (e.key === "Escape") setEditMode(false);
+                }}
                 placeholder="Snapshot label…"
               />
-              <button className="btn btn-primary btn-sm" onClick={commitEdit}>Save</button>
-              <button className="btn btn-secondary btn-sm" onClick={() => setEditMode(false)}>Cancel</button>
+              <Button variant="primary" size="sm" onClick={commitEdit}>Save</Button>
+              <Button variant="secondary" size="sm" onClick={() => setEditMode(false)}>Cancel</Button>
             </div>
           ) : (
-            <div className="monitor-date" onClick={startEdit} title="Click to rename" style={{ cursor: "text" }}>
-              {snap.name || date}
-              {snap.name && <span className="monitor-date-sub"> · {date}</span>}
+            <div
+              className="monitor-date"
+              onClick={startEdit}
+              title="Click to rename"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter") startEdit(); }}
+            >
+              <span className="pk-text-heading-md pk-ink-900">
+                {snap.name || date}
+              </span>
+              {snap.name && (
+                <span className="pk-text-mono-sm pk-ink-400 monitor-date-sub">
+                  · {date}
+                </span>
+              )}
             </div>
           )}
-          <div className="monitor-tickers">{(snap.results.tickers ?? []).join(" · ")}</div>
-          <div className="monitor-dna">{snap.results.portfolio_dna?.type ?? "—"}</div>
+          <div className="pk-text-mono-sm pk-ink-500 monitor-tickers">
+            {(snap.results.tickers ?? []).join(" · ")}
+          </div>
+          <div className="pk-text-caption pk-ink-400 monitor-dna">
+            {snap.results.portfolio_dna?.type ?? "—"}
+          </div>
         </div>
 
         <div className="monitor-card-actions">
-          <span style={{ fontSize: 11, color: "#9ca3af" }}>
+          <span className="pk-text-mono-sm pk-ink-400 monitor-period">
             {snap.payload?.start_date} → {snap.payload?.end_date}
           </span>
           <button
-            className="monitor-action-btn"
+            type="button"
+            className="monitor-action"
             onClick={() => onPin(snap.id)}
             title={snap.pinned ? "Unpin baseline" : "Pin as baseline"}
           >
             {snap.pinned ? "Unpin" : "Pin"}
           </button>
-          <button className="monitor-action-btn" onClick={startEdit} title="Rename">Rename</button>
           <button
-            className="monitor-action-btn monitor-action-btn--danger"
+            type="button"
+            className="monitor-action"
+            onClick={startEdit}
+            title="Rename"
+          >
+            Rename
+          </button>
+          <button
+            type="button"
+            className="monitor-action monitor-action--danger"
             onClick={() => onDelete(snap.id)}
             title="Delete"
           >
@@ -120,34 +182,46 @@ function SnapshotCard({ snap, compareTarget, onDelete, onRename, onPin }) {
       <KeyMetrics results={snap.results} />
 
       {compareTarget && isIdentical(snap, compareTarget) && (
-        <div style={{ fontSize: 11, color: "#9ca3af", fontStyle: "italic", marginTop: 8 }}>
+        <div className="pk-text-body-sm pk-ink-400 monitor-identical">
           Identical to previous snapshot — no comparison shown.
         </div>
       )}
 
       {notable.length > 0 && (
         <div className="monitor-changes">
-          <div className="monitor-changes-label">vs. previous snapshot</div>
+          <div className="pk-text-caption pk-ink-400 monitor-changes-label">
+            vs. previous snapshot
+          </div>
           {notable.map((m) => (
             <div key={m.key} className="monitor-change-row">
-              <span style={{ color: SEV_COLOR[m.severity], width: 14, textAlign: "center", display: "inline-block" }}>
-                {SEV_ICON[m.severity]}
+              <span
+                className="monitor-change-glyph"
+                style={{ color: SEV_COLOR[m.severity] }}
+                aria-hidden="true"
+              >
+                {SEV_GLYPH[m.severity]}
               </span>
-              <span style={{ flex: 1, fontSize: 12, color: "#374151" }}>{m.label}</span>
-              <span style={{ fontSize: 12, color: "#9ca3af" }}>{m.fmt(m.prev)}</span>
-              <span style={{ fontSize: 12, color: "#9ca3af", margin: "0 4px" }}>→</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: SEV_COLOR[m.severity] }}>{m.fmt(m.curr)}</span>
+              <span className="pk-text-body-sm pk-ink-700 monitor-change-label">
+                {m.label}
+              </span>
+              <span className="pk-text-mono-sm pk-ink-400">{m.fmt(m.prev)}</span>
+              <span className="pk-text-mono-sm pk-ink-400 monitor-change-arrow">→</span>
+              <span
+                className="pk-text-mono"
+                style={{ color: SEV_COLOR[m.severity], fontWeight: 600 }}
+              >
+                {m.fmt(m.curr)}
+              </span>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
-export default function MonitorPage() {
+export default function MonitorPage({ setActiveTab }) {
   const [rawSnaps, setRawSnaps] = useState(() => getSnapshots());
-
   const snaps = sortSnapshots(rawSnaps);
 
   function refresh() { setRawSnaps(getSnapshots()); }
@@ -174,15 +248,24 @@ export default function MonitorPage() {
     setRawSnaps([]);
   }
 
+  // §7 Monitor empty state — exact spec.
   if (snaps.length === 0) {
     return (
       <div className="container">
-        <div className="empty-state">
-          <div className="empty-state-icon">📊</div>
-          <div className="empty-state-title">No snapshots yet</div>
-          <div className="empty-state-body">
-            Run an analysis and click <strong>Save Snapshot</strong> to start tracking your portfolio over time.
-          </div>
+        <div className="monitor-empty">
+          <h1 className="pk-text-display-lg pk-ink-300 monitor-empty-headline">
+            No snapshots yet
+          </h1>
+          <p className="pk-text-body-lg pk-ink-500 monitor-empty-body">
+            Run an analysis and save it to start tracking how your portfolio's
+            risk profile changes over time.
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => setActiveTab && setActiveTab("analyze")}
+          >
+            Save your first snapshot
+          </Button>
         </div>
       </div>
     );
@@ -190,13 +273,18 @@ export default function MonitorPage() {
 
   return (
     <div className="container">
-      <div className="page-header">
-        <h1 style={{ margin: 0 }}>Monitor</h1>
-        <button className="monitor-clear-btn" onClick={handleClearAll}>Clear all</button>
-      </div>
-      <p className="page-subtitle">
-        {snaps.length} snapshot{snaps.length !== 1 ? "s" : ""} · click a name to rename · pinned snapshots appear first
-      </p>
+      <header className="monitor-header">
+        <div>
+          <h1 className="pk-text-heading-lg pk-ink-900">Monitor</h1>
+          <p className="pk-text-body pk-ink-500 monitor-header-sub">
+            {snaps.length} snapshot{snaps.length !== 1 ? "s" : ""} · click a name
+            to rename · pinned snapshots appear first
+          </p>
+        </div>
+        <Button variant="tertiary" onClick={handleClearAll}>
+          Clear all
+        </Button>
+      </header>
 
       <MonitorTimeline snapshots={snaps} />
 
