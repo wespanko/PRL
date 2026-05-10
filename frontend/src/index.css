@@ -69,390 +69,460 @@ body {
   .container { padding: var(--space-6) var(--space-4) var(--space-12); }
 }
 
-/* ── Plan tab (Debt + Projection + Drawdown explainer) ── */
-.plan-hero { margin-bottom: 18px; }
-.plan-hero-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 6px;
-}
-.plan-hero-sub {
-  font-size: 14px;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-}
+/* ─────────────────────────────────────────────────────────────────────
+   Plan page — DESIGN_BRIEF.md §7
+   Three calculator cards. Compound-interest chart: blue-700 line +
+   blue-100 confidence band. "Drawdowns aren't the enemy" gets the
+   --blue-900 dark inverted treatment — the page's ONE dark section
+   per §4.
+   ───────────────────────────────────────────────────────────────────── */
 
-.plan-card { padding: 24px 24px 22px; }
+.plan-header { margin-bottom: var(--space-6); }
+.plan-header-sub { max-width: 720px; margin-top: var(--space-2); }
+
+.plan-card { padding: var(--space-6); }
 .plan-card-header {
   display: flex;
-  gap: 14px;
+  gap: var(--space-3);
   align-items: flex-start;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-4);
 }
-.plan-card-icon {
-  width: 38px; height: 38px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
+
+/* Flat single-color glyph — no gradient, no shadow per §6. */
+.plan-card-glyph {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-2);
+  background: var(--ink-50);
+  color: var(--ink-700);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
-  font-weight: 800;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
   flex-shrink: 0;
-  box-shadow: 0 5px 14px rgba(0, 122, 255, 0.28);
 }
 .plan-card-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--label);
-  letter-spacing: -0.025em;
-  margin-bottom: 4px;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+  margin-bottom: 2px;
 }
 .plan-card-sub {
-  font-size: 13px;
-  color: var(--label-3);
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
 
+/* ── Inputs ── §2 + §5 (hairline border, indigo focus) */
 .plan-inputs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 @media (max-width: 600px) { .plan-inputs { grid-template-columns: 1fr; } }
 .plan-input { display: flex; flex-direction: column; gap: 6px; }
 .plan-input-label {
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--label-3);
+  color: var(--ink-400);
 }
-.plan-input-prefix, .plan-input-suffix {
+.plan-input-row {
   display: flex;
   align-items: center;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 0 12px;
-  transition: all 0.15s;
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);
+  padding: 0 var(--space-3);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
 }
-.plan-input-prefix:focus-within, .plan-input-suffix:focus-within {
-  border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+.plan-input-row:hover:not(:focus-within) { border-color: var(--ink-300); }
+.plan-input-row:focus-within {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(43, 85, 130, 0.14);
 }
-.plan-input-prefix span, .plan-input-suffix span {
-  color: var(--label-4);
-  font-size: 14px;
+.plan-input-affix {
+  color: var(--ink-400);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
   font-weight: 500;
+  flex-shrink: 0;
 }
-.plan-input-prefix input, .plan-input-suffix input {
+.plan-input-control {
   border: none;
   background: transparent;
-  padding: 10px 6px;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
+  padding: 8px 6px;
   width: 100%;
   outline: none;
-}
-.plan-input-prefix input:focus, .plan-input-suffix input:focus {
-  box-shadow: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--text-mono-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
 }
 
 .plan-toggle {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  font-size: 12.5px;
-  color: var(--label-2);
-  line-height: 1.5;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-4);
   cursor: pointer;
 }
 .plan-toggle input { width: auto; margin-top: 3px; flex-shrink: 0; }
 
 .plan-default-note {
-  background: rgba(0, 0, 0, 0.025);
-  border: 0.5px solid var(--border-light);
-  border-radius: 10px;
-  padding: 11px 14px;
-  font-size: 12px;
-  color: var(--label-3);
-  line-height: 1.55;
+  background: var(--ink-50);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-4);
 }
-.plan-default-note strong { color: var(--label-2); font-weight: 700; }
+.plan-default-note strong { color: var(--ink-900); font-weight: 600; }
 
+/* Verdict block (Debt vs Invest) — risk-context tinted callouts. §4 allows
+   risk colors here (data-context: this IS a risk evaluation). */
 .plan-verdict {
-  border-radius: 12px;
-  padding: 16px 18px;
-  margin-bottom: 18px;
-  border: 0.5px solid;
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid;
+  font-family: var(--font-sans);
 }
 .plan-verdict--bad {
-  background: rgba(255, 59, 48, 0.06);
-  border-color: rgba(255, 59, 48, 0.22);
+  background: rgba(179, 58, 58, 0.06);
+  border-color: rgba(179, 58, 58, 0.22);
 }
 .plan-verdict--neutral {
-  background: rgba(0, 122, 255, 0.05);
-  border-color: rgba(0, 122, 255, 0.18);
+  background: var(--blue-100);
+  border-color: var(--blue-300);
 }
 .plan-verdict-headline {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--label);
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-2);
 }
 .plan-verdict-body {
-  font-size: 13.5px;
-  color: var(--label-2);
-  line-height: 1.6;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
 }
 
+/* Comparison rows */
 .plan-comparison {
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: rgba(0, 0, 0, 0.025);
-  border-radius: 10px;
-  margin-bottom: 14px;
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  margin-bottom: var(--space-4);
 }
 .plan-comparison-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
-  border-bottom: 0.5px solid var(--border-light);
-  gap: 12px;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-hairline);
+  gap: var(--space-3);
 }
 .plan-comparison-row:last-child { border-bottom: none; }
 .plan-comparison-row--total {
-  background: rgba(0, 122, 255, 0.05);
-  border-radius: 0 0 10px 10px;
-  border-top: 0.5px solid rgba(0, 122, 255, 0.15);
+  background: var(--blue-100);
+  border-top: 1px solid rgba(43, 85, 130, 0.18);
   border-bottom: none;
 }
 .plan-comparison-label {
-  font-size: 12.5px;
-  color: var(--label-2);
-  line-height: 1.4;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
 }
 .plan-comparison-row--total .plan-comparison-label {
-  font-weight: 700;
-  color: var(--label);
+  font-weight: 600;
+  color: var(--ink-900);
 }
 .plan-comparison-value {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--label);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-lg-size);
+  line-height: var(--text-mono-lg-line);
+  font-weight: 600;
+  color: var(--ink-900);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-align: right;
   flex-shrink: 0;
 }
-.plan-comparison-value--bad  { color: var(--negative); }
-.plan-comparison-value--good { color: var(--positive); }
+.plan-comparison-value--bad  { color: var(--risk-red); }
+.plan-comparison-value--good { color: var(--risk-green); }
 
+/* Projection headline — center-aligned per §6 exception ("Center only
+   headlines and the Panko Score"). Big mono number, no gradient text. */
 .plan-projection-headline {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-4);
 }
 .plan-projection-amount {
-  font-size: 2.6rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
+  font-family: var(--font-mono);
+  font-size: 2.4rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--blue-700);
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
 }
 .plan-projection-context {
-  font-size: 12.5px;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
   margin-top: 4px;
 }
 
 .plan-projection-breakdown {
-  margin-top: 14px;
+  margin-top: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: rgba(0, 0, 0, 0.025);
-  border-radius: 10px;
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
 }
 .plan-breakdown-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 11px 14px;
-  border-bottom: 0.5px solid var(--border-light);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-hairline);
 }
 .plan-breakdown-row:last-child { border-bottom: none; }
 .plan-breakdown-row--total {
-  background: rgba(0, 122, 255, 0.05);
-  border-top: 0.5px solid rgba(0, 122, 255, 0.15);
+  background: var(--blue-100);
+  border-top: 1px solid rgba(43, 85, 130, 0.18);
 }
 .plan-breakdown-row--total .plan-breakdown-label {
-  font-weight: 700;
-  color: var(--label);
+  font-weight: 600;
+  color: var(--ink-900);
 }
 .plan-breakdown-label {
-  font-size: 12.5px;
-  color: var(--label-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
 }
 .plan-breakdown-value {
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  font-size: 14px;
-  color: var(--label);
+  font-size: var(--text-mono-size);
+  color: var(--ink-900);
   letter-spacing: -0.01em;
 }
-.plan-breakdown-value--good { color: var(--positive); }
+.plan-breakdown-value--good { color: var(--risk-green); }
 
+/* Collapsible tip (details/summary). Subtle ink-50 panel. */
 .plan-tip {
-  background: rgba(52, 199, 89, 0.06);
-  border: 0.5px solid rgba(52, 199, 89, 0.18);
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 12.5px;
-  color: var(--label-2);
-  line-height: 1.55;
+  background: var(--ink-50);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  margin-top: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
-  margin-top: 14px;
 }
-.plan-tip strong { color: var(--label); font-weight: 700; }
-
-.plan-tip--collapsible { padding: 0; }
-.plan-tip--collapsible summary {
+.plan-tip strong { color: var(--ink-900); font-weight: 600; }
+.plan-tip > summary {
   cursor: pointer;
-  padding: 12px 14px;
-  font-size: 12.5px;
-  color: var(--label-2);
+  padding: var(--space-3) var(--space-4);
   list-style: none;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background 0.15s;
+  transition: background 150ms ease-out;
 }
-.plan-tip--collapsible summary::-webkit-details-marker { display: none; }
-.plan-tip--collapsible summary:hover { background: rgba(52, 199, 89, 0.04); }
-.plan-tip--collapsible[open] summary {
-  border-bottom: 0.5px solid rgba(52, 199, 89, 0.15);
-}
-.plan-tip--collapsible p {
-  font-size: 12.5px;
-  color: var(--label-2);
-  line-height: 1.6;
-  letter-spacing: -0.005em;
-  padding: 10px 14px;
+.plan-tip > summary::-webkit-details-marker { display: none; }
+.plan-tip > summary:hover { background: rgba(17, 24, 39, 0.03); }
+.plan-tip[open] > summary { border-bottom: var(--border-hairline); }
+.plan-tip > p {
+  padding: var(--space-2) var(--space-4);
   margin: 0;
-  border-bottom: 0.5px dotted rgba(0, 0, 0, 0.05);
+  border-bottom: 1px dotted var(--ink-200);
 }
-.plan-tip--collapsible p:last-child { border-bottom: none; padding-bottom: 14px; }
+.plan-tip > p:last-child { border-bottom: none; padding-bottom: var(--space-3); }
 
-.plan-callout {
-  background: linear-gradient(135deg, rgba(0, 122, 255, 0.08), rgba(88, 86, 214, 0.05));
-  border: 0.5px solid rgba(0, 122, 255, 0.2);
-  border-radius: 12px;
-  padding: 14px 18px;
-  font-size: 14px;
-  color: var(--label);
-  line-height: 1.6;
-  letter-spacing: -0.005em;
-  margin-bottom: 18px;
-}
-.plan-callout strong { font-weight: 700; }
-
+/* Section label inside Plan cards. */
 .plan-section-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin: 14px 0 10px;
+  color: var(--ink-400);
+  margin: var(--space-4) 0 var(--space-3);
 }
 
 .plan-recovery-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-4);
 }
 .plan-recovery-row {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.025);
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-variant-numeric: tabular-nums;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
   letter-spacing: -0.005em;
   flex-wrap: wrap;
 }
 .plan-recovery-event {
-  font-weight: 700;
-  color: var(--label);
+  font-weight: 600;
+  color: var(--ink-900);
   flex: 1;
   min-width: 140px;
 }
 .plan-recovery-drop {
-  font-weight: 800;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-.plan-recovery-arrow { color: var(--label-4); }
-.plan-recovery-time { color: var(--label-2); font-weight: 500; }
+.plan-recovery-arrow { color: var(--ink-400); }
+.plan-recovery-time {
+  color: var(--ink-500);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Callout (used inside DrawdownExplainer). On dark, see --dark variant. */
+.plan-callout {
+  background: var(--blue-100);
+  border-left: 4px solid var(--blue-500);
+  border-radius: var(--radius-0);
+  padding: var(--space-4) var(--space-5, 20px);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--space-4);
+}
+.plan-callout strong { font-weight: 600; }
 
 .plan-key-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 @media (max-width: 600px) { .plan-key-stats { grid-template-columns: 1fr; } }
 .plan-key-stat {
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid var(--border-light);
-  border-radius: 12px;
-  padding: 14px;
-  text-align: center;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  /* Body-text is left-aligned per §6 (no center body) — center the
+     STAT VALUE only, which is a headline number. */
 }
 .plan-key-stat-value {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--label);
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--ink-900);
   font-variant-numeric: tabular-nums;
-  margin-bottom: 4px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  margin-bottom: var(--space-2);
 }
 .plan-key-stat-label {
-  font-size: 11.5px;
-  color: var(--label-3);
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
+
+/* ─── DARK INVERTED CARD — §4 + §7 ────────────────────────────────────
+   The Drawdown Explainer card. ONE dark section per page only.
+   Background: --blue-900. Text: white / ink-300.                     */
+.plan-card--dark {
+  background: var(--blue-900);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--canvas);
+}
+.plan-card-glyph--dark {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--canvas);
+}
+.plan-card-title--dark { color: var(--canvas); }
+.plan-card-sub--dark   { color: var(--ink-300); }
+
+.plan-callout--dark {
+  background: rgba(255, 255, 255, 0.06);
+  border-left-color: var(--gold-500);
+  color: var(--canvas);
+}
+
+.plan-section-label--dark { color: var(--ink-300); }
+
+.plan-recovery-row--dark {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--canvas);
+}
+.plan-recovery-row--dark .plan-recovery-event { color: var(--canvas); }
+.plan-recovery-row--dark .plan-recovery-arrow { color: var(--ink-300); }
+.plan-recovery-row--dark .plan-recovery-time  { color: var(--ink-300); }
+
+.plan-key-stats--dark { /* uses .plan-key-stats */ }
+.plan-key-stat--dark {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.plan-key-stat-value--dark { color: var(--canvas); }
+.plan-key-stat-label--dark { color: var(--ink-300); }
+
+.plan-tip--dark {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--ink-300);
+}
+.plan-tip--dark strong { color: var(--canvas); }
+.plan-tip--dark > summary:hover { background: rgba(255, 255, 255, 0.04); }
+.plan-tip--dark[open] > summary { border-bottom-color: rgba(255, 255, 255, 0.08); }
+.plan-tip--dark > p { border-bottom-color: rgba(255, 255, 255, 0.06); color: var(--ink-300); }
 
 /* ── Beginner Portfolio Wizard ── */
 .wizard-hero { margin-bottom: 22px; }
