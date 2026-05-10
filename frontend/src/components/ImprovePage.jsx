@@ -1,28 +1,35 @@
+// Improve — DESIGN_BRIEF.md §7
+//
+// Strict spec: Yellow warning banner at top. Two-column compare
+// (Current | Proposed) with a center delta column showing Sharpe,
+// Vol, and Drawdown in mono with ↑↓ arrows in green/red.
+
 import { useState } from "react";
 import { improvePortfolio } from "../api/client";
 import ResultsPanel from "./ResultsPanel";
 import InfoTip from "./InfoTip";
 import { pct, num } from "../utils/formatters";
+import { Button, Card, Banner, Table } from "./ui";
 
 /* ── per-path metadata ── */
 const PATH_METADATA = {
   "Maximize Health": {
     tagline: "Maximize the composite Health Score (Sharpe + DD + Diversification + Beta)",
-    note: "Searched across hedge candidates and sizing levels to find the single trade that lifts the composite Health Score most while keeping annualized return within tolerance. The Health Score is a weighted blend so the chosen trade typically improves multiple risk dimensions simultaneously.",
+    note: "Searched across hedge candidates and sizing levels to find the single trade that lifts the composite Health Score most while keeping annualized return within tolerance.",
     bestFor: "investors who want a single best-effort move that improves overall portfolio quality across all four risk dimensions at once",
     neutralMetrics: new Set(["upside_capture"]),
     isOptimized: true,
   },
   "Optimized Hedge": {
     tagline: "Mathematically minimize downside capture, preserve Sharpe",
-    note: "Searched across hedge candidates and sizing levels to find the trade with the largest downside capture reduction while keeping Sharpe within tolerance. The selection is data-driven, not a heuristic.",
+    note: "Searched across hedge candidates and sizing levels to find the trade with the largest downside capture reduction while keeping Sharpe within tolerance.",
     bestFor: "investors who want maximum downside protection per unit of Sharpe given up — backed by an explicit objective and constraint",
     neutralMetrics: new Set(["upside_capture", "annualized_return"]),
     isOptimized: true,
   },
   "Lower Volatility": {
     tagline: "Mathematically minimize volatility, preserve return",
-    note: "Searched across hedge candidates and sizing levels to find the trade with the largest volatility reduction while keeping annualized return within tolerance. The trade-off is explicit: smoother returns at a known and bounded return cost.",
+    note: "Searched across hedge candidates and sizing levels to find the trade with the largest volatility reduction while keeping annualized return within tolerance.",
     bestFor: "investors who want lower realized volatility for compounding stability without giving up much annualized return",
     neutralMetrics: new Set(["upside_capture", "downside_capture"]),
     isOptimized: true,
@@ -47,7 +54,7 @@ const PATH_METADATA = {
   },
   "Benchmark Balanced": {
     tagline: "Move toward a traditional 60/40 risk profile",
-    note: "A structural reference point, not a recommendation. Shows how a conventional balanced allocation affects your risk metrics.",
+    note: "A structural reference point, not a recommendation.",
     bestFor: "investors who want to see how their portfolio compares to a traditional balanced approach",
     neutralMetrics: new Set(["upside_capture"]),
   },
@@ -55,11 +62,12 @@ const PATH_METADATA = {
 
 const ALLOWED_INSTRUMENTS = ["SPY", "AGG", "BND", "GLD", "TLT", "EFA", "VNQ", "BNDX"];
 
-const SEV_COLOR = { critical: "var(--negative)", warning: "var(--warning)" };
-const SEV_ICON  = { critical: "⚠", warning: "↑" };
+const SEV_COLOR = { critical: "var(--risk-red)", warning: "var(--risk-amber)" };
+// §6: no emoji icons. Keep typographic glyphs.
+const SEV_GLYPH = { critical: "!", warning: "↑" };
 
 const METRICS = [
-  { label: "Sharpe",         metric: "sharpe_ratio",          key: "sharpe_ratio",          fmt: (v) => num(v, 2),        higherBetter: true  },
+  { label: "Sharpe",         metric: "sharpe_ratio",          key: "sharpe_ratio",          fmt: (v) => num(v, 2),         higherBetter: true  },
   { label: "Volatility",     metric: "annualized_volatility", key: "annualized_volatility", fmt: (v) => pct(v),            higherBetter: false },
   { label: "Max Drawdown",   metric: "max_drawdown",          key: "max_drawdown",          fmt: (v) => pct(v),            higherBetter: false },
   { label: "Beta",           metric: "beta",                  key: "beta",                  fmt: (v) => num(v, 2),         higherBetter: false },
@@ -69,15 +77,97 @@ const METRICS = [
   { label: "Risk Score",     metric: "risk_score",            key: "risk_score",            fmt: (v) => `${num(v, 1)}/10`, higherBetter: false },
 ];
 
+// The §7 headline three. Drives the centerpiece CompareBlock.
+const HEADLINE_METRICS = [
+  { label: "Sharpe",     key: "sharpe_ratio",          fmt: (v) => num(v, 2), higherBetter: true  },
+  { label: "Volatility", key: "annualized_volatility", fmt: (v) => pct(v),    higherBetter: false },
+  { label: "Drawdown",   key: "max_drawdown",          fmt: (v) => pct(v),    higherBetter: false },
+];
+
 function WeaknessCallout({ weakness }) {
   return (
     <div className={`weakness-callout weakness-callout--${weakness.severity}`}>
-      <span className="weakness-icon" style={{ color: SEV_COLOR[weakness.severity] }}>
-        {SEV_ICON[weakness.severity]}
+      <span
+        className="weakness-glyph"
+        style={{ color: SEV_COLOR[weakness.severity] }}
+        aria-hidden="true"
+      >
+        {SEV_GLYPH[weakness.severity]}
       </span>
-      <div>
+      <div className="weakness-body">
         <strong className="weakness-title">{weakness.title}</strong>
         <div className="weakness-desc">{weakness.description}</div>
+      </div>
+    </div>
+  );
+}
+
+function CompareBlock({ current, proposed, proposedLabel, isNeutral }) {
+  return (
+    <div className="improve-compare">
+      <div className="improve-compare-side">
+        <div className="pk-text-caption pk-ink-400 improve-compare-label">Current</div>
+        <div className="improve-compare-metrics">
+          {HEADLINE_METRICS.map((m) => (
+            <div key={m.key} className="improve-compare-cell">
+              <div className="pk-text-body-sm pk-ink-500">{m.label}</div>
+              <div className="pk-text-mono-lg pk-ink-700">{m.fmt(current[m.key])}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* §7 center column: deltas in mono with ↑↓ arrows, green/red for direction */}
+      <div className="improve-compare-deltas">
+        <div className="pk-text-caption pk-ink-400 improve-compare-label improve-compare-label--center">
+          Δ
+        </div>
+        <div className="improve-compare-metrics">
+          {HEADLINE_METRICS.map((m) => {
+            const delta = proposed[m.key] - current[m.key];
+            const neutral = isNeutral(m.key) || Math.abs(delta) < 0.001;
+            const improved = !neutral && (m.higherBetter ? delta > 0 : delta < 0);
+            const arrow = neutral ? "" : improved ? "↑" : "↓";
+            const color = neutral
+              ? "var(--ink-400)"
+              : improved
+                ? "var(--risk-green)"
+                : "var(--risk-red)";
+            const text = neutral
+              ? "—"
+              : `${delta > 0 ? "+" : ""}${m.fmt(delta)}`;
+            return (
+              <div
+                key={m.key}
+                className="improve-compare-delta"
+                style={{ color }}
+              >
+                <span className="pk-text-mono improve-compare-delta-num">
+                  {text}
+                </span>
+                {arrow && (
+                  <span className="improve-compare-arrow" aria-hidden="true">
+                    {arrow}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="improve-compare-side improve-compare-side--proposed">
+        <div className="pk-text-caption pk-blue-700 improve-compare-label">
+          {proposedLabel}
+        </div>
+        <div className="improve-compare-metrics">
+          {HEADLINE_METRICS.map((m) => (
+            <div key={m.key} className="improve-compare-cell">
+              <div className="pk-text-body-sm pk-ink-500">{m.label}</div>
+              <div className="pk-text-mono-lg pk-ink-900">{m.fmt(proposed[m.key])}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -89,18 +179,18 @@ function MetricRow({ label, metric, before, after, fmt, higherBetter, isNeutral,
   const tinyDelta = Math.abs(delta) < 0.001;
   const neutral = isNeutral || tinyDelta;
   const improved = !neutral && (higherBetter ? delta > 0 : delta < 0);
-  const changeColor = neutral ? "var(--label-4)" : improved ? "var(--positive)" : "var(--negative)";
+  const changeColor = neutral ? "var(--ink-400)" : improved ? "var(--risk-green)" : "var(--risk-red)";
   const arrow = tinyDelta || neutral ? "" : improved ? " ↑" : " ↓";
 
   return (
     <tr>
-      <td className="improve-metric-label">
+      <td>
         {label}
         {metric && <InfoTip metric={metric} onLearnMore={onLearnMore} side="bottom" />}
       </td>
-      <td className="improve-metric-val">{fmt(before)}</td>
-      <td className="improve-metric-val" style={{ fontWeight: 600 }}>{fmt(after)}</td>
-      <td className="improve-metric-val" style={{ color: changeColor, fontWeight: 700 }}>
+      <td className="pk-num pk-ink-400">{fmt(before)}</td>
+      <td className="pk-num" style={{ fontWeight: 600 }}>{fmt(after)}</td>
+      <td className="pk-num" style={{ color: changeColor, fontWeight: 600 }}>
         {tinyDelta ? "—" : `${delta > 0 ? "+" : ""}${fmt(delta)}${arrow}`}
       </td>
     </tr>
@@ -121,16 +211,14 @@ function portfolioSummary(holdings) {
   return holdings.map((h) => `${h.ticker} ${pct(h.weight, 0)}`).join(" · ");
 }
 
-/* Per-metric display configuration for the optimization details block.
-   `dir` = which direction is "good" (so we can color the delta).         */
 const METRIC_CONFIG = {
-  downside_capture:      { label: "Downside Capture", fmt: (v) => `${v.toFixed(2)}×`,        dir: "lower" },
+  downside_capture:      { label: "Downside Capture", fmt: (v) => `${v.toFixed(2)}×`,        dir: "lower"  },
   upside_capture:        { label: "Upside Capture",   fmt: (v) => `${v.toFixed(2)}×`,        dir: "higher" },
   sharpe:                { label: "Sharpe Ratio",     fmt: (v) => v.toFixed(2),              dir: "higher" },
   annualized_return:     { label: "Ann. Return",      fmt: (v) => `${(v * 100).toFixed(1)}%`,dir: "higher" },
-  annualized_volatility: { label: "Volatility",       fmt: (v) => `${(v * 100).toFixed(1)}%`,dir: "lower" },
+  annualized_volatility: { label: "Volatility",       fmt: (v) => `${(v * 100).toFixed(1)}%`,dir: "lower"  },
   max_drawdown:          { label: "Max Drawdown",     fmt: (v) => `${(v * 100).toFixed(1)}%`,dir: "higher" },
-  beta:                  { label: "Beta",             fmt: (v) => v.toFixed(2),              dir: "lower" },
+  beta:                  { label: "Beta",             fmt: (v) => v.toFixed(2),              dir: "lower"  },
   enp_risk:              { label: "Real Diversification", fmt: (v) => `${v.toFixed(1)} pos`, dir: "higher" },
   health_score:          { label: "Health Score",     fmt: (v) => `${v.toFixed(1)}/10`,      dir: "higher" },
 };
@@ -183,7 +271,7 @@ function OptimizationDetails({ math }) {
   } = math;
 
   const direction = String(math.objective ?? "").startsWith("max") ? "maximize" : "minimize";
-  const operator = direction === "maximize" ? "≥" : "≤";
+  const operator = direction === "maximize" ? "≥" : "≥";  // both branches use same sign on the constraint floor
 
   const objCfg = METRIC_CONFIG[objective_attr];
   const conCfg = METRIC_CONFIG[constraint_attr];
@@ -213,7 +301,7 @@ function OptimizationDetails({ math }) {
         <div className="opt-formula-line">
           <span className="opt-formula-label">Constraint</span>
           <code>
-            {(constraint_label ?? constraint_attr).toLowerCase()}(w) {operator === "≥" ? "≥" : "≥"}{" "}
+            {(constraint_label ?? constraint_attr).toLowerCase()}(w) {operator}{" "}
             {conCfg && constraintFloor != null ? conCfg.fmt(constraintFloor) : constraintFloor?.toFixed(3)}
           </code>
           {max_drop_pct != null && baseline?.[constraint_attr] != null && conCfg && (
@@ -318,15 +406,15 @@ export default function ImprovePage({
     }
   }
 
+  // Empty state — display-lg ink-300 headline + body.
   if (!lastPayload) {
     return (
       <div className="container">
-        <div className="empty-state">
-          <div className="empty-state-icon">🔍</div>
-          <div className="empty-state-title">No analysis yet</div>
-          <div className="empty-state-body">
+        <div className="improve-empty">
+          <h1 className="pk-text-display-lg pk-ink-300">No analysis yet</h1>
+          <p className="pk-text-body-lg pk-ink-500 improve-empty-body">
             Run an analysis first to generate improvement suggestions.
-          </div>
+          </p>
         </div>
       </div>
     );
@@ -340,37 +428,51 @@ export default function ImprovePage({
 
   return (
     <div className="container">
-      <div className="improve-header">
+      {/* §7: yellow warning banner at top */}
+      <Banner variant="warning" title="Educational, not financial advice">
+        The paths below are mechanical structural alternatives generated from
+        the math, <strong>not investment recommendations</strong>. They don't
+        account for taxes, transaction costs, your time horizon, or liquidity
+        needs. Consult a licensed financial advisor before adjusting your
+        portfolio.
+      </Banner>
+
+      <header className="improve-header">
         <div>
-          <h1 style={{ margin: 0 }}>Improve</h1>
-          <p style={{ fontSize: 13, color: "var(--label-3)", margin: "4px 0 0" }}>
-            Structural alternatives — not financial advice
+          <h1 className="pk-text-heading-lg pk-ink-900">Improve</h1>
+          <p className="pk-text-body pk-ink-500 improve-header-sub">
+            Structural alternatives — pick a path to see how each metric changes.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleRun} disabled={loading || !activePayload}>
+        <Button
+          variant="primary"
+          onClick={handleRun}
+          disabled={loading || !activePayload}
+        >
           {loading ? "Analyzing…" : improveData ? "Refresh" : "Analyze"}
-        </button>
-      </div>
+        </Button>
+      </header>
 
-      <div className="advisor-callout">
-        <strong>Reminder:</strong> the paths below are mechanical structural alternatives generated
-        from the math, <strong>not investment recommendations</strong>. They don't account for taxes,
-        transaction costs, your specific time horizon, or your liquidity needs.{" "}
-        <strong>Consult a licensed financial advisor</strong> before adjusting your portfolio.
-      </div>
-
-      {/* Source toggle */}
-      <div className="improve-source-row">
-        <span className="improve-source-label">Improving:</span>
-        <div className="seg-control">
+      {/* Source toggle — segmented control, hairline borders, active blue-700 (§5) */}
+      <div className="improve-source">
+        <span className="pk-text-caption pk-ink-400 improve-source-label">
+          Improving
+        </span>
+        <div className="improve-seg" role="radiogroup" aria-label="Source portfolio">
           <button
-            className={`seg-btn ${source === "current" ? "seg-btn--active" : ""}`}
+            type="button"
+            role="radio"
+            aria-checked={source === "current"}
+            className={`improve-seg-item ${source === "current" ? "is-active" : ""}`}
             onClick={() => handleSourceChange("current")}
           >
             Current Portfolio
           </button>
           <button
-            className={`seg-btn ${source === "proposed" ? "seg-btn--active" : ""}`}
+            type="button"
+            role="radio"
+            aria-checked={source === "proposed"}
+            className={`improve-seg-item ${source === "proposed" ? "is-active" : ""}`}
             onClick={() => handleSourceChange("proposed")}
             disabled={!hasProposed}
             title={!hasProposed ? "Run a simulation on the Simulate tab first" : undefined}
@@ -380,74 +482,89 @@ export default function ImprovePage({
         </div>
       </div>
 
-      {/* Source summary line */}
       {activePayload && (
-        <div className="improve-source-detail">
+        <div className="pk-text-mono-sm pk-ink-400 improve-source-detail">
           {portfolioSummary(activePayload.holdings)}
           {" · "}
           {activePayload.start_date} → {activePayload.end_date}
         </div>
       )}
 
-      {error && <div className="error">{error}</div>}
+      {error && <Banner variant="error">{error}</Banner>}
 
       {!improveData && !loading && (
-        <div className="card" style={{ textAlign: "center", padding: "32px 24px", color: "var(--label-3)", fontSize: 13 }}>
-          Click <strong>Analyze</strong> to detect structural weaknesses and see alternatives with real computed metrics.
-        </div>
+        <Card className="improve-prompt-card">
+          <p className="pk-text-body pk-ink-500">
+            Click <strong className="pk-ink-900">Analyze</strong> to detect
+            structural weaknesses and see alternatives with real computed
+            metrics.
+          </p>
+        </Card>
       )}
 
       {loading && (
-        <div className="card" style={{ textAlign: "center", padding: "32px 24px", color: "var(--label-3)" }}>
-          <span className="spinner spinner--dark" style={{ marginRight: 8 }} />
-          Computing alternatives — running full analysis for each path…
-        </div>
+        <Card className="improve-prompt-card">
+          <p className="pk-text-body pk-ink-500">
+            <span className="spinner spinner--dark" style={{ marginRight: 8 }} />
+            Computing alternatives — running full analysis for each path…
+          </p>
+        </Card>
       )}
 
       {improveData && (
         <>
           {/* Weaknesses */}
-          <div className="card" style={{ marginBottom: 12 }}>
+          <Card className="improve-weaknesses-card">
             {weaknesses.length === 0 ? (
               <>
-                <div style={{ color: "var(--positive)", fontWeight: 600, marginBottom: 4 }}>
+                <div className="pk-text-heading-md pk-risk-green">
                   No major structural weaknesses detected.
                 </div>
-                <div style={{ fontSize: 13, color: "var(--label-3)" }}>
-                  Portfolio appears well-structured. Alternatives are shown below for reference.
-                </div>
+                <p className="pk-text-body pk-ink-500 improve-weaknesses-sub">
+                  Portfolio appears well-structured. Alternatives are shown
+                  below for reference.
+                </p>
               </>
             ) : (
               <>
-                <div style={{ fontWeight: 700, marginBottom: 12, letterSpacing: "-0.01em" }}>
-                  Detected weaknesses
-                </div>
+                <Card.Eyebrow>Detected weaknesses</Card.Eyebrow>
                 <div className="weakness-list">
-                  {weaknesses.map((w) => <WeaknessCallout key={w.id} weakness={w} />)}
+                  {weaknesses.map((w) => (
+                    <WeaknessCallout key={w.id} weakness={w} />
+                  ))}
                 </div>
               </>
             )}
-          </div>
+          </Card>
 
           {/* Paths */}
           {paths.length > 0 && (
-            <div className="card">
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontWeight: 700, letterSpacing: "-0.01em", marginBottom: 4 }}>
-                  Structural alternatives
+            <Card className="improve-paths-card">
+              <Card.Header>
+                <div>
+                  <Card.Title>Structural alternatives</Card.Title>
+                  <p className="pk-text-body-sm pk-ink-400 improve-paths-sub">
+                    Only adds broad ETFs:{" "}
+                    <span className="pk-text-mono-sm pk-ink-700">
+                      {ALLOWED_INSTRUMENTS.slice(0, 6).join(", ")}
+                    </span>{" "}
+                    and similar. No individual stocks are added.
+                  </p>
                 </div>
-                <div style={{ fontSize: 12, color: "var(--label-4)" }}>
-                  Only adds broad ETFs: {ALLOWED_INSTRUMENTS.slice(0, 6).join(", ")} and similar.
-                  No individual stocks are added.
-                </div>
-              </div>
+              </Card.Header>
 
-              <div className="improve-tabs">
+              <div className="improve-tabs" role="tablist">
                 {paths.map((p, i) => (
                   <button
                     key={p.name}
-                    className={`improve-tab ${selectedPath === i ? "improve-tab--active" : ""}`}
-                    onClick={() => { setSelectedPath(i); setShowFullAnalysis(false); }}
+                    type="button"
+                    role="tab"
+                    aria-selected={selectedPath === i}
+                    className={`improve-tab ${selectedPath === i ? "is-active" : ""}`}
+                    onClick={() => {
+                      setSelectedPath(i);
+                      setShowFullAnalysis(false);
+                    }}
                   >
                     {p.name}
                   </button>
@@ -455,60 +572,62 @@ export default function ImprovePage({
               </div>
 
               {path && (
-                <div className="improve-path-content">
-                  {/* Objective badge */}
+                <div className="improve-path">
                   {meta.tagline && (
-                    <div className="improve-objective-tag">Objective: {meta.tagline}</div>
-                  )}
-
-                  <div className="improve-path-desc">{path.description}</div>
-
-                  {meta.note && (
-                    <div className="improve-objective-note">{meta.note}</div>
-                  )}
-
-                  {meta.bestFor && (
-                    <div className="improve-best-for">
-                      <strong>Best for:</strong> {meta.bestFor}.
+                    <div className="improve-path-tagline">
+                      <span className="pk-text-caption pk-ink-400">Objective:</span>{" "}
+                      <span className="pk-text-body-sm pk-ink-700">{meta.tagline}</span>
                     </div>
                   )}
 
+                  <p className="pk-text-body pk-ink-700 improve-path-desc">
+                    {path.description}
+                  </p>
+
+                  {meta.note && (
+                    <p className="pk-text-body-sm pk-ink-500 improve-path-note">
+                      {meta.note}
+                    </p>
+                  )}
+
+                  {meta.bestFor && (
+                    <p className="pk-text-body-sm pk-ink-500">
+                      <strong className="pk-ink-700">Best for:</strong>{" "}
+                      {meta.bestFor}.
+                    </p>
+                  )}
+
                   {path.error && (
-                    <div className="improve-path-error">Could not compute metrics: {path.error}</div>
+                    <Banner variant="error">
+                      Could not compute metrics: {path.error}
+                    </Banner>
                   )}
 
                   {path.math && <OptimizationDetails math={path.math} />}
 
-                  {/* Weight changes */}
-                  <div className="improve-section">
-                    <div className="improve-section-label">What changes</div>
-                    <div className="improve-weight-changes">
-                      {buildWeightChanges(activePayload.holdings, path.holdings).map((row) => (
-                        <div key={row.ticker} className="improve-weight-row">
-                          <span className="improve-weight-ticker">{row.ticker}</span>
-                          <span className="improve-weight-before">
-                            {row.before != null ? pct(row.before, 1) : "—"}
-                          </span>
-                          <span className="improve-weight-arrow">→</span>
-                          <span className={`improve-weight-after${row.isNew ? " improve-weight-new" : ""}`}>
-                            {pct(row.after, 1)}{row.isNew && " (new)"}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Before / After table */}
+                  {/* §7 CENTERPIECE — two-column compare with delta column */}
                   {path.results && currentResults && (
-                    <div className="improve-section">
-                      <div className="improve-section-label">Before vs After</div>
-                      <table className="improve-table">
+                    <CompareBlock
+                      current={currentResults}
+                      proposed={path.results}
+                      proposedLabel={path.name}
+                      isNeutral={(key) => meta.neutralMetrics?.has(key) ?? false}
+                    />
+                  )}
+
+                  {/* All-metrics detail table — collapsible */}
+                  {path.results && currentResults && (
+                    <details className="improve-detail-table">
+                      <summary className="pk-text-body-sm pk-ink-500">
+                        Show all metrics
+                      </summary>
+                      <Table>
                         <thead>
                           <tr>
                             <th>Metric</th>
-                            <th className="improve-metric-val">Before</th>
-                            <th className="improve-metric-val">{path.name}</th>
-                            <th className="improve-metric-val">Change</th>
+                            <th className="pk-num">Current</th>
+                            <th className="pk-num">{path.name}</th>
+                            <th className="pk-num">Change</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -536,35 +655,72 @@ export default function ImprovePage({
                             onLearnMore={onLearnMore}
                           />
                         </tbody>
-                      </table>
-                    </div>
+                      </Table>
+                    </details>
                   )}
+
+                  {/* Holdings changes */}
+                  <div className="improve-section">
+                    <Card.Eyebrow>What changes</Card.Eyebrow>
+                    <div className="improve-weight-list">
+                      {buildWeightChanges(activePayload.holdings, path.holdings).map((row) => (
+                        <div key={row.ticker} className="improve-weight-row">
+                          <span className="pk-text-mono pk-ink-900 improve-weight-ticker">
+                            {row.ticker}
+                          </span>
+                          <span className="pk-text-mono-sm pk-ink-400 improve-weight-before">
+                            {row.before != null ? pct(row.before, 1) : "—"}
+                          </span>
+                          <span className="improve-weight-arrow" aria-hidden="true">→</span>
+                          <span
+                            className={`pk-text-mono pk-ink-900 improve-weight-after${row.isNew ? " is-new" : ""}`}
+                          >
+                            {pct(row.after, 1)}
+                            {row.isNew && (
+                              <span className="improve-weight-new-tag pk-text-caption pk-blue-700">
+                                {" "}new
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {/* Tradeoff */}
                   {path.tradeoff && (
                     <div className="improve-tradeoff">
-                      <div className="improve-tradeoff-gain">✓ You gain: {path.tradeoff.gain}</div>
-                      <div className="improve-tradeoff-give">✗ You give up: {path.tradeoff.give_up}</div>
+                      <div className="improve-tradeoff-row improve-tradeoff-row--gain">
+                        <span className="improve-tradeoff-tag">Gain</span>
+                        <span className="pk-text-body pk-ink-900">{path.tradeoff.gain}</span>
+                      </div>
+                      <div className="improve-tradeoff-row improve-tradeoff-row--give">
+                        <span className="improve-tradeoff-tag">Give up</span>
+                        <span className="pk-text-body pk-ink-900">{path.tradeoff.give_up}</span>
+                      </div>
                     </div>
                   )}
 
                   {/* Actions */}
                   <div className="improve-actions">
-                    <button className="btn btn-primary" onClick={() => onUseInSimulate(path.holdings)}>
+                    <Button
+                      variant="primary"
+                      onClick={() => onUseInSimulate(path.holdings)}
+                    >
                       Use in Simulate →
-                    </button>
+                    </Button>
                     {path.results && (
-                      <button
-                        className="btn btn-secondary"
+                      <Button
+                        variant="tertiary"
                         onClick={() => setShowFullAnalysis(!showFullAnalysis)}
                       >
                         {showFullAnalysis ? "Hide full analysis" : "Show full analysis"}
-                      </button>
+                      </Button>
                     )}
                   </div>
 
                   {showFullAnalysis && path.results && (
-                    <div style={{ marginTop: 24 }}>
+                    <div className="improve-full-results">
                       <ResultsPanel
                         results={path.results}
                         payload={{ ...activePayload, holdings: path.holdings }}
@@ -574,12 +730,15 @@ export default function ImprovePage({
                   )}
                 </div>
               )}
-            </div>
+            </Card>
           )}
 
-          <div className="improve-disclaimer">
-            These are structural examples, not recommendations. They use broad ETFs only as illustrations of risk exposures — not as endorsements. Past performance does not predict future results. Consult a financial advisor before making changes to your investments.
-          </div>
+          <p className="pk-text-body-sm pk-ink-400 improve-disclaimer">
+            These are structural examples, not recommendations. They use broad
+            ETFs only as illustrations of risk exposures — not as endorsements.
+            Past performance does not predict future results. Consult a
+            financial advisor before making changes to your investments.
+          </p>
         </>
       )}
     </div>
