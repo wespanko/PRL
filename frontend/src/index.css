@@ -1062,15 +1062,17 @@ body {
   .form-computed-cell { font-size: 10.5px; }
 }
 .form-computed-pct {
-  font-size: 12px;
-  color: var(--label-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  color: var(--ink-500);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.005em;
   font-weight: 500;
 }
 .form-computed-cell {
-  font-size: 11.5px;
-  color: var(--label-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
   display: flex;
   flex-wrap: wrap;
@@ -1078,23 +1080,24 @@ body {
   gap: 3px;
   font-variant-numeric: tabular-nums;
 }
-.form-computed-px { color: var(--label-4); }
+.form-computed-px { color: var(--ink-400); }
 .form-computed-dollars {
-  color: var(--label);
+  color: var(--ink-900);
   font-weight: 600;
 }
 .form-computed-loading {
-  color: var(--label-4);
+  color: var(--ink-400);
   font-style: italic;
 }
 .form-computed-missing {
-  color: var(--negative);
+  color: var(--risk-red);
   font-weight: 500;
 }
 .form-asof {
-  color: var(--label-4);
+  color: var(--ink-400);
   font-weight: 400;
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
   letter-spacing: -0.005em;
 }
 
@@ -1439,32 +1442,8 @@ body {
 .welcome-acknowledge strong { color: var(--label); font-weight: 700; }
 
 /* ── Advisor / risk disclosure callouts ── */
-.advisor-callout {
-  background: rgba(255, 159, 10, 0.07);
-  border: 0.5px solid rgba(255, 159, 10, 0.22);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 12.5px;
-  color: #8a4f00;
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  margin-bottom: 14px;
-}
-.advisor-callout strong { color: #6b3d00; font-weight: 700; }
-
-.risk-disclosure {
-  background: rgba(0, 0, 0, 0.025);
-  border: 0.5px solid var(--border-light);
-  border-left: 3px solid var(--label-3);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 11.5px;
-  color: var(--label-3);
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-  margin-bottom: 14px;
-}
-.risk-disclosure strong { color: var(--label-2); font-weight: 700; }
+/* (Legacy .advisor-callout / .risk-disclosure blocks removed in the
+   Step 5 cleanup pass — replaced everywhere by <Banner> primitive.) */
 
 /* ── Legal pages (Terms / Privacy) ── */
 .legal-hero { margin-bottom: 18px; }
@@ -3444,158 +3423,205 @@ h2 {
   box-shadow: var(--shadow);
 }
 
-/* ── form ── */
-.holdings-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+/* ── form (PortfolioForm + miscellaneous form sub-components) ── */
+.holdings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--space-3);
+}
 .holdings-table th {
   text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--ink-400);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0 8px 10px;
+  letter-spacing: var(--text-caption-tracking);
+  padding: 0 var(--space-2) var(--space-2);
 }
-.holdings-table td { padding: 4px 8px; }
+.holdings-table td { padding: 4px var(--space-2); }
 .holdings-table input { width: 100%; }
 
+/* Global input / select styling — brief spec (hairline border, mono-ish
+   for numeric inputs handled inline where needed). */
 input, select {
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 9px 12px;
-  font-size: 14px;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);
+  padding: 8px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
   outline: none;
   width: 100%;
-  background: var(--surface);
-  color: var(--label);
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-  font-family: inherit;
+  background: var(--canvas);
+  color: var(--ink-900);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
   letter-spacing: -0.005em;
 }
+input[type="number"] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
 input:hover:not(:focus), select:hover:not(:focus) {
-  border-color: var(--border-strong);
+  border-color: var(--ink-300);
 }
 input:focus, select:focus {
-  border-color: var(--primary);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(43, 85, 130, 0.14);
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5, 20px);
 }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--ink-400);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--text-caption-tracking);
+}
+
+.form-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .remove-btn {
   background: none;
   border: none;
-  color: var(--label-4);
+  color: var(--ink-400);
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.15s;
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-1);
+  transition: background 150ms ease-out, color 150ms ease-out;
 }
-.remove-btn:hover { color: var(--negative); background: rgba(255,59,48,0.08); }
+.remove-btn:hover {
+  color: var(--risk-red);
+  background: rgba(179, 58, 58, 0.08);
+}
 
 .add-row-btn {
-  background: rgba(0,0,0,0.025);
-  border: 1.5px dashed var(--border);
-  color: var(--label-3);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
+  background: transparent;
+  border: 1px dashed var(--ink-200);
+  color: var(--ink-500);
+  border-radius: var(--radius-1);
+  padding: 8px var(--space-3);
   cursor: pointer;
-  font-size: 14px;
-  margin-bottom: 16px;
-  transition: all 0.15s;
-  font-family: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  font-weight: 500;
+  margin-bottom: var(--space-4);
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  letter-spacing: -0.005em;
 }
-.add-row-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,122,255,0.05); }
+.add-row-btn:hover {
+  border-color: var(--blue-500);
+  color: var(--blue-700);
+  background: var(--blue-100);
+}
 
-.weight-sum { font-size: 13px; margin-bottom: 18px; font-weight: 500; }
-.weight-sum.ok  { color: var(--positive); }
-.weight-sum.bad { color: var(--negative); }
+.weight-sum {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  font-weight: 500;
+  margin-bottom: var(--space-4);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.weight-sum.ok  { color: var(--risk-green); }
+.weight-sum.bad { color: var(--risk-red); }
 
-/* ── buttons ── */
+/* ── Buttons (legacy classes, kept for PortfolioForm + a couple of
+   other holdouts; brief-spec primitives at .pk-btn are the canonical
+   path going forward). */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 9px 18px;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: var(--radius-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
-  letter-spacing: -0.01em;
-  font-family: inherit;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  letter-spacing: -0.005em;
   line-height: 1;
 }
 form .btn-primary { width: 100%; }
 
 .btn-primary {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  background: var(--blue-700);
+  color: var(--canvas);
+  border-color: var(--blue-700);
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  background: var(--blue-900);
+  border-color: var(--blue-900);
 }
-.btn-primary:active { box-shadow: none; }
-.btn-primary:disabled { background: rgba(79, 70, 229, 0.45); border-color: transparent; cursor: not-allowed; box-shadow: none; }
+.btn-primary:active { /* no shadow per §6 */ }
+.btn-primary:disabled {
+  background: var(--blue-300);
+  border-color: var(--blue-300);
+  cursor: not-allowed;
+}
 
 .btn-secondary {
-  background: var(--surface);
-  color: var(--label);
-  border-color: var(--border);
-  box-shadow: var(--shadow-sm);
+  background: var(--canvas);
+  color: var(--ink-900);
+  border-color: var(--ink-300);
 }
 .btn-secondary:hover:not(:disabled) {
-  background: var(--surface-2);
-  border-color: var(--border-strong);
+  background: var(--ink-50);
+  border-color: var(--ink-300);
 }
 .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ── spinner ── */
+/* ── Spinner — small inline loading indicator. */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spinner {
   display: inline-block;
   width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--canvas);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
+.spinner--dark {
+  border-color: rgba(17, 24, 39, 0.12);
+  border-top-color: var(--ink-500);
+}
 
-/* ── validation & errors ── */
-input.invalid { border-color: var(--negative) !important; }
-input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
-.btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 9px; }
+/* ── Validation & errors ── */
+input.invalid { border-color: var(--risk-red) !important; }
+input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; }
+.btn-sm { padding: 6px 12px; font-size: var(--text-body-sm-size); }
 
 .error {
-  background: rgba(255,59,48,0.07);
-  border: 0.5px solid rgba(255,59,48,0.25);
-  color: #c0392b;
-  padding: 12px 16px;
-  border-radius: 10px;
-  margin-bottom: 16px;
-  font-size: 13px;
+  background: rgba(179, 58, 58, 0.07);
+  border: 1px solid rgba(179, 58, 58, 0.22);
+  color: var(--risk-red);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-2);
+  margin-bottom: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  letter-spacing: -0.005em;
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -4660,34 +4686,37 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
   letter-spacing: -0.005em;
 }
 
-/* ── iOS segmented control ── */
+/* ── Segmented control (legacy class; brief-spec equivalent — used by
+   PortfolioForm's Percent/Dollars/Shares mode toggle). §5: hairline
+   borders, active filled --blue-700. */
 .seg-control {
   display: inline-flex;
-  background: rgba(120, 120, 128, 0.12);
-  border-radius: 9px;
-  padding: 2px;
-  gap: 2px;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+  font-family: var(--font-sans);
 }
 .seg-btn {
-  padding: 5px 14px;
+  padding: 7px 14px;
   border: none;
-  border-radius: 7px;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--label-3);
-  cursor: pointer;
-  transition: all 0.18s ease;
+  border-right: 1px solid var(--ink-200);
+  background: var(--canvas);
   font-family: inherit;
-  line-height: 1.4;
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 500;
+  color: var(--ink-700);
+  cursor: pointer;
+  transition: background 150ms ease-out, color 150ms ease-out;
+  letter-spacing: -0.005em;
   white-space: nowrap;
 }
-.seg-btn:hover:not(:disabled) { color: var(--label); }
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover:not(:disabled):not(.seg-btn--active) { background: var(--ink-50); }
 .seg-btn--active {
-  background: var(--surface);
-  color: var(--label);
+  background: var(--blue-700);
+  color: var(--canvas);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
 }
 .seg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -4907,49 +4936,53 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
    "run card" wrapper. The new layout has the gold "Run Simulation"
    CTA flowing directly under the sandbox panel.) */
 
-/* ── shared empty state & page header ── */
+/* ── Shared empty state & page header — legacy classes, brief-tokenized.
+   Still used by BeginnerPortfolioWizard. */
 .empty-state {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: var(--radius);
-  padding: 56px 24px;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-16) var(--space-6);
   text-align: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.04),
-    0 6px 24px rgba(15, 23, 42, 0.05);
 }
-.empty-state-icon { font-size: 2.2rem; margin-bottom: 14px; }
+.empty-state-icon { font-size: 1.75rem; margin-bottom: var(--space-3); color: var(--ink-300); }
 .empty-state-title {
-  font-weight: 700;
-  color: var(--label);
-  margin-bottom: 8px;
-  font-size: 1rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--ink-900);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
   letter-spacing: -0.01em;
 }
 .empty-state-body {
-  font-size: 13px;
-  color: var(--label-3);
-  line-height: 1.55;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-500);
   max-width: 420px;
   margin: 0 auto;
+  letter-spacing: -0.005em;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 4px;
-  gap: 12px;
+  margin-bottom: var(--space-2);
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 .page-subtitle {
-  font-size: 13px;
-  color: var(--label-3);
-  margin-bottom: 24px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-500);
+  margin-bottom: var(--space-6);
   letter-spacing: -0.005em;
 }
+/* (Duplicate .page-subtitle rule above this one removed — single
+   definition lives in the .page-header block.) */
 
 /* ─────────────────────────────────────────────────────────────────────
    Monitor Timeline — DESIGN_BRIEF.md §5 (charts) + §7 Monitor

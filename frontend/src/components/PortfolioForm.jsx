@@ -379,7 +379,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
               className={dateError ? "invalid" : ""}
             />
             {dateError && (
-              <span style={{ fontSize: 11, color: "#ef4444", marginTop: 2 }}>
+              <span style={{ fontSize: 11, color: "var(--risk-red)", marginTop: 2 }}>
                 End date must be after start date
               </span>
             )}
