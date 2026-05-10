@@ -2806,12 +2806,150 @@ body {
 }
 .snapshot-name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
 
-/* ── simulate page ── */
-.simulate-header {
+/* ─────────────────────────────────────────────────────────────────────
+   Simulate page — DESIGN_BRIEF.md §7
+   Sandbox table is the centerpiece. --ink-50 panel bg, white input
+   cells with --ink-200 borders, weight-total validator pinned
+   bottom-right in mono-lg, "Run Simulation" = THE gold CTA.
+   ───────────────────────────────────────────────────────────────────── */
+
+.sim-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+.sim-header-sub { max-width: 760px; margin-top: var(--space-2); }
+
+.sim-empty {
+  max-width: 480px;
+  margin: var(--space-16) auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.sim-empty-headline { /* uses .pk-text-display-lg */ }
+.sim-empty-body { text-align: center; }
+
+/* §7: ink-50 panel bg, sandbox table inside. */
+.sim-sandbox {
+  background: var(--ink-50);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-4) var(--space-6) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.sim-sandbox-eyebrow {
+  margin-bottom: var(--space-3);
+}
+
+.sim-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.sim-th {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
+  text-transform: uppercase;
+  color: var(--ink-400);
+  text-align: left;
+  padding: 0 var(--space-3) var(--space-2);
+}
+.sim-th--num { text-align: right; }
+.sim-th--actions { width: 32px; }
+
+.sim-tr { /* row container — no styling, layout via td padding */ }
+.sim-td { padding: 4px var(--space-1); vertical-align: middle; }
+.sim-td:first-child { padding-left: 0; }
+.sim-td:last-child  { padding-right: 0; }
+.sim-td--actions { width: 32px; text-align: center; }
+
+/* §7 exact: white input cells with --ink-200 borders. */
+.sim-input {
+  display: block;
+  width: 100%;
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);
+  padding: 8px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
+  outline: none;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.sim-input:hover:not(:focus) { border-color: var(--ink-300); }
+.sim-input:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(43, 85, 130, 0.14);
+}
+.sim-input--mono {
+  font-family: var(--font-mono);
+  font-weight: var(--text-mono-weight);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.sim-remove {
+  background: none;
+  border: none;
+  color: var(--ink-400);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: var(--radius-1);
+  transition: color 150ms ease-out, background 150ms ease-out;
+  font-family: inherit;
+}
+.sim-remove:hover {
+  color: var(--risk-red);
+  background: rgba(179, 58, 58, 0.08);
+}
+
+/* Sandbox foot: + Add row left, weight validator right (mono-lg). §7. */
+.sim-sandbox-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-hairline);
+  flex-wrap: wrap;
+}
+.sim-validator {
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.sim-validator.is-ok  { color: var(--risk-green); }
+.sim-validator.is-bad { color: var(--risk-red); }
+
+.sim-run {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-12);
+}
+.sim-run-hint { max-width: 600px; }
+
+.sim-compare-card { margin-bottom: var(--space-6); }
+
+.sim-show-full {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-6);
 }
 
 /* ── monitor page ── */
@@ -4108,54 +4246,11 @@ th.improve-metric-val { text-align: right; }
 /* (Legacy .or-divider block removed in Step 5 Build refactor —
    the brief's three-column grid replaces the vertical OR-divider flow.) */
 
-/* ── Step marker (sequential flow, used by Simulate) ── */
-.step-marker {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 18px 0 12px;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
-}
-.step-marker-num {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 800;
-  flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(0, 122, 255, 0.25);
-}
-.step-marker-label {
-  font-weight: 700;
-}
-
-/* ── Simulate run button card ── */
-.simulate-run-card {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  text-align: center;
-}
-.simulate-run-btn {
-  width: 100%;
-  padding: 14px 24px;
-  font-size: 15.5px;
-}
-.simulate-run-hint {
-  font-size: 12px;
-  color: var(--label-3);
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-}
-.simulate-run-hint strong { color: var(--label-2); }
+/* (Legacy .step-marker / .simulate-run-card / .simulate-run-btn /
+   .simulate-run-hint blocks removed in Step 5 Simulate refactor —
+   the brief drops the 1/2/3 step markers and the full-width centered
+   "run card" wrapper. The new layout has the gold "Run Simulation"
+   CTA flowing directly under the sandbox panel.) */
 
 /* ── shared empty state & page header ── */
 .empty-state {
