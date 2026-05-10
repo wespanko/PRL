@@ -1,22 +1,24 @@
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+// §4: monthly returns are data context — risk colors permitted.
+// rgba mirrors of --risk-green (#2D6A4F) and --risk-red (#B33A3A).
 function colorForReturn(value, scale) {
   if (value == null) return "transparent";
-  if (Math.abs(value) < 0.001) return "rgba(0,0,0,0.04)";
+  if (Math.abs(value) < 0.001) return "rgba(17, 24, 39, 0.04)";
   const intensity = Math.min(1, Math.abs(value) / scale);
   if (value > 0) {
     const a = 0.12 + intensity * 0.55;
-    return `rgba(52, 199, 89, ${a.toFixed(3)})`;
+    return `rgba(45, 106, 79, ${a.toFixed(3)})`;
   }
   const a = 0.12 + intensity * 0.55;
-  return `rgba(255, 59, 48, ${a.toFixed(3)})`;
+  return `rgba(179, 58, 58, ${a.toFixed(3)})`;
 }
 
 function textColor(value, scale) {
   if (value == null) return "transparent";
   const intensity = Math.min(1, Math.abs(value) / scale);
-  if (intensity > 0.45) return "white";
-  return value > 0 ? "#1a7a36" : "#9a2a23";
+  if (intensity > 0.45) return "var(--canvas)";
+  return value > 0 ? "var(--risk-green)" : "var(--risk-red)";
 }
 
 export default function MonthlyReturnsHeatmap({ monthlyReturns }) {
@@ -49,7 +51,7 @@ export default function MonthlyReturnsHeatmap({ monthlyReturns }) {
           <span className="heatmap-legend">
             <span className="heatmap-legend-cell" style={{ background: colorForReturn(-scale, scale) }} />
             <span className="heatmap-legend-cell" style={{ background: colorForReturn(-scale * 0.4, scale) }} />
-            <span className="heatmap-legend-cell" style={{ background: "rgba(0,0,0,0.04)" }} />
+            <span className="heatmap-legend-cell" style={{ background: "rgba(17, 24, 39, 0.04)" }} />
             <span className="heatmap-legend-cell" style={{ background: colorForReturn(scale * 0.4, scale) }} />
             <span className="heatmap-legend-cell" style={{ background: colorForReturn(scale, scale) }} />
             <span className="heatmap-legend-label">−{(scale * 100).toFixed(0)}% to +{(scale * 100).toFixed(0)}%</span>

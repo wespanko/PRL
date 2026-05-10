@@ -2121,7 +2121,7 @@ body {
   color: var(--label-4);
 }
 
-/* ── monthly returns heatmap ── */
+/* ── Monthly returns heatmap (MonthlyReturnsHeatmap) ── */
 .heatmap-table-wrap {
   overflow-x: auto;
   margin: 0 -4px;
@@ -2129,49 +2129,46 @@ body {
 .heatmap-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 3px;
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-  font-size: 10.5px;
+  border-spacing: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
   font-variant-numeric: tabular-nums;
 }
 .heatmap-table th {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
   padding: 6px 8px;
   text-align: center;
 }
 .heatmap-table .heatmap-year-col {
   text-align: left;
   padding-left: 4px;
-  color: var(--label-2);
+  color: var(--ink-700);
   font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  font-size: 11px;
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  letter-spacing: -0.005em;
   width: 56px;
 }
 .heatmap-cell {
-  border-radius: 5px;
+  border-radius: var(--radius-1);
   padding: 7px 4px;
   text-align: center;
   min-width: 38px;
   height: 28px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  transition: transform 0.15s ease;
+  font-weight: var(--text-mono-sm-weight);
+  letter-spacing: -0.005em;
+  transition: filter 150ms ease-out;
 }
-.heatmap-cell:hover {
-  transform: scale(1.06);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+.heatmap-cell:hover { filter: brightness(0.96); }
 .heatmap-month-col { width: 7%; }
 .heatmap-total-col {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
   width: 70px;
   text-align: center;
 }
@@ -2181,13 +2178,16 @@ body {
   gap: 4px;
 }
 .heatmap-legend-cell {
-  width: 16px; height: 14px; border-radius: 3px;
+  width: 16px;
+  height: 14px;
+  border-radius: var(--radius-1);
   display: inline-block;
 }
 .heatmap-legend-label {
-  margin-left: 8px;
-  font-size: 10.5px;
-  color: var(--label-4);
+  margin-left: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  color: var(--ink-400);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2832,31 +2832,56 @@ body {
 .nav-tab--active { background: rgba(0,122,255,0.1); color: var(--primary); font-weight: 600; }
 .nav-tab--disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* ── insight callouts ── */
+/* ── insight callouts (used by BenchmarkAttribution + CapitalEfficiency) ── */
 .insight-callout {
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 13px;
-  line-height: 1.55;
-  margin-bottom: 14px;
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--space-3);
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-radius: 0;
 }
-.insight-callout--warn    { background: rgba(255,59,48,0.08);  color: #c0392b; border: 0.5px solid rgba(255,59,48,0.2); }
-.insight-callout--info    { background: rgba(0,122,255,0.08);  color: #004eb3; border: 0.5px solid rgba(0,122,255,0.2); }
-.insight-callout--good    { background: rgba(52,199,89,0.08);  color: #1a7a36; border: 0.5px solid rgba(52,199,89,0.2); }
-.insight-callout--neutral { background: rgba(0,0,0,0.03); color: var(--label-2); border: 0.5px solid var(--border); }
+.insight-callout strong { font-weight: 600; }
+.insight-callout--warn {
+  background: rgba(179, 58, 58, 0.08);
+  color: var(--risk-red);
+  border-left-color: var(--risk-red);
+}
+.insight-callout--info {
+  background: var(--blue-100);
+  color: var(--blue-700);
+  border-left-color: var(--blue-500);
+}
+.insight-callout--good {
+  background: rgba(45, 106, 79, 0.08);
+  color: var(--risk-green);
+  border-left-color: var(--risk-green);
+}
+.insight-callout--neutral {
+  background: var(--ink-50);
+  color: var(--ink-700);
+  border-left-color: var(--ink-300);
+}
 
-/* ── period warning ── */
+/* ── period warning — gold warning panel per §5 banner spec. */
 .period-warning {
-  background: rgba(255,159,10,0.08);
-  border: 0.5px solid rgba(255,159,10,0.3);
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  line-height: 1.55;
+  background: var(--gold-100);
+  border-left: 4px solid var(--gold-300);
+  border-radius: 0;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--gold-700);
+  letter-spacing: -0.005em;
 }
-.period-warning-title { font-weight: 700; color: #9a5700; margin-bottom: 6px; }
-.period-warning-row   { color: #7a4600; margin-bottom: 4px; }
+.period-warning-title { font-weight: 600; color: var(--gold-700); margin-bottom: 6px; }
+.period-warning-row   { color: var(--gold-700); margin-bottom: 4px; }
 .period-warning-note  { color: #9a5700; margin-top: 6px; font-size: 12px; }
 
 .period-info {
@@ -3627,39 +3652,52 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
 }
 .analyze-supplementary-label { margin-bottom: var(--space-2); }
 
-/* ── metrics grid ── */
+/* ── Key Metrics grid (MetricsSummary in supplementary section) ── */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0;
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  overflow: hidden;
 }
 @media (max-width: 640px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .metric-item {
+  padding: var(--space-4) var(--space-2);
+  border-right: var(--border-hairline);
+  background: var(--canvas);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* Body text is left-aligned per §6 — but the value here is a
+     prominent number (Panko-Score-style headline numeral), centered. */
+  align-items: center;
   text-align: center;
-  padding: 20px 8px;
-  border-right: 0.5px solid var(--border-light);
-  background: transparent;
 }
 .metric-item:last-child { border-right: none; }
 .metric-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--label-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 9px;
+  color: var(--ink-400);
 }
 .metric-value {
-  font-size: 1.7rem;
-  font-weight: 700;
-  letter-spacing: -0.035em;
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
   line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
 }
-.metric-value.positive { color: var(--positive); }
-.metric-value.negative { color: var(--negative); }
-.metric-value.neutral  { color: var(--label); }
+/* Data-context risk colors per §4 — positive (gain), negative (loss). */
+.metric-value.positive { color: var(--risk-green); }
+.metric-value.negative { color: var(--risk-red); }
+.metric-value.neutral  { color: var(--ink-900); }
 
 /* ── Analyst Summary — DESIGN_BRIEF.md §7
    Full-width, --ink-50 bg. Drop the legacy blue left border. Risk
@@ -3742,99 +3780,205 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
   letter-spacing: -0.005em;
 }
 
-/* ── chart caption ── */
+/* ── Chart caption (small descriptor under chart headers) ── */
 .chart-caption {
-  font-size: 12px;
-  color: var(--label-3);
-  margin-bottom: 14px;
-  line-height: 1.4;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.005em;
 }
 
-/* ── concentration card ── */
+/* ── ConcentrationCard ── */
 .conc-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
-  margin-bottom: 22px;
-  border: 0.5px solid var(--border-light);
-  border-radius: 10px;
+  margin-bottom: var(--space-5, 20px);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
   overflow: hidden;
 }
 @media (max-width: 640px) { .conc-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .conc-stat {
-  background: transparent;
-  border-right: 0.5px solid var(--border-light);
-  padding: 16px 12px;
+  background: var(--canvas);
+  border-right: var(--border-hairline);
+  padding: var(--space-3) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
   text-align: center;
 }
 .conc-stat:last-child { border-right: none; }
 .conc-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--label-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 7px;
+  color: var(--ink-400);
 }
-.conc-value { font-size: 1.4rem; font-weight: 700; color: var(--label); margin-bottom: 3px; letter-spacing: -0.02em; }
-.conc-sub   { font-size: 10px; color: var(--label-4); }
+.conc-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.conc-sub {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--ink-400);
+  letter-spacing: -0.005em;
+}
 
-.weight-bar-row { display: flex; flex-direction: column; gap: 9px; }
-.weight-bar-item { display: flex; align-items: center; gap: 10px; }
-.weight-bar-label { font-size: 12px; font-weight: 600; color: var(--label-2); width: 38px; flex-shrink: 0; }
-.weight-bar-track { flex: 1; height: 5px; background: rgba(0,0,0,0.06); border-radius: 99px; overflow: hidden; }
-.weight-bar-fill  { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.4s ease; }
-.weight-bar-pct   { font-size: 12px; font-weight: 600; color: var(--label-2); width: 40px; text-align: right; }
+.weight-bar-row { display: flex; flex-direction: column; gap: var(--space-2); }
+.weight-bar-item { display: flex; align-items: center; gap: var(--space-3); }
+.weight-bar-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  font-weight: 600;
+  color: var(--ink-700);
+  width: 44px;
+  flex-shrink: 0;
+}
+.weight-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--ink-100);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+}
+.weight-bar-fill {
+  height: 100%;
+  background: var(--blue-700);
+  border-radius: var(--radius-1);
+  transition: width 400ms ease-out;
+}
+.weight-bar-pct {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+  width: 48px;
+  text-align: right;
+}
 
-/* ── portfolio DNA ── */
+/* ── PortfolioDNA — keep its dark-card identity but use brief tokens.
+   This is NOT a brief-mandated section; we already have ONE dark
+   inverted section on the Plan page per §4. PortfolioDNA appears on
+   Analyze (different page) so it's allowed its own dark treatment. */
 .dna-card {
-  background: linear-gradient(135deg, #0a0f1a 0%, #1a1f3a 100%) !important;
+  background: var(--blue-900) !important;
   backdrop-filter: none !important;
-  color: white;
-  border: 0.5px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 8px 32px rgba(10, 15, 26, 0.25) !important;
+  color: var(--canvas);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
 }
 .dna-card:hover {
-  background: linear-gradient(135deg, #0a0f1a 0%, #1a1f3a 100%) !important;
-  box-shadow: 0 14px 44px rgba(10, 15, 26, 0.35) !important;
+  background: var(--blue-900) !important;
+  box-shadow: none !important;
 }
 .dna-card h2 { display: none; }
-.dna-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.dna-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
 .dna-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.1em; color: #3d4f6b;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-300);
 }
 .dna-type {
-  font-size: 1.15rem; font-weight: 700; color: #f0f4ff;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--canvas);
+  letter-spacing: -0.01em;
 }
-.dna-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.dna-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
 @media (max-width: 640px) { .dna-grid { grid-template-columns: 1fr; } }
 .dna-section-label {
-  font-size: 10px; font-weight: 600; color: #3d4f6b;
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--ink-300);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  margin-bottom: var(--space-3);
 }
 .dna-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .dna-pill {
-  font-size: 12px; font-weight: 500; padding: 5px 12px;
-  border-radius: 99px; white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: 500;
+  padding: 4px var(--space-3);
+  border-radius: var(--radius-1);
+  white-space: nowrap;
+  letter-spacing: -0.005em;
 }
-.dna-pill--driver { background: rgba(0,122,255,0.2); color: #60a5fa; }
-.dna-pill--vuln   { background: rgba(255,59,48,0.2);  color: #f87171; }
+.dna-pill--driver {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--canvas);
+}
+.dna-pill--vuln {
+  background: rgba(179, 58, 58, 0.20);
+  color: #FCA5A5;
+}
 
-/* ── ENP gap bar ── */
-.enp-gap-bar { margin-top: 20px; padding-top: 18px; border-top: 0.5px solid var(--border-light); }
-.enp-gap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.enp-gap-label { font-size: 11px; color: var(--label-3); width: 110px; flex-shrink: 0; }
-.enp-bar-track { flex: 1; height: 5px; background: rgba(0,0,0,0.06); border-radius: 99px; overflow: hidden; }
-.enp-bar-fill { height: 100%; border-radius: 99px; }
-.enp-bar--nominal  { background: rgba(0,122,255,0.28); }
-.enp-bar--adjusted { background: var(--primary); }
-.enp-gap-val { font-size: 12px; font-weight: 600; color: var(--label-2); width: 28px; text-align: right; }
+/* ── ENP gap bar (inside ConcentrationCard) ── */
+.enp-gap-bar {
+  margin-top: var(--space-5, 20px);
+  padding-top: var(--space-4);
+  border-top: var(--border-hairline);
+}
+.enp-gap-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: 6px; }
+.enp-gap-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-500);
+  width: 120px;
+  flex-shrink: 0;
+}
+.enp-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--ink-100);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+}
+.enp-bar-fill { height: 100%; border-radius: var(--radius-1); }
+.enp-bar--nominal  { background: var(--blue-300); }
+.enp-bar--adjusted { background: var(--blue-700); }
+.enp-gap-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  font-weight: 600;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  width: 32px;
+  text-align: right;
+}
 .enp-gap-note {
-  font-size: 11px; color: var(--label-3); line-height: 1.5;
-  margin-top: 10px; font-style: italic;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  margin-top: var(--space-2);
+  font-style: italic;
 }
 
 /* ── Stress Scenarios — DESIGN_BRIEF.md §7 ("row of 4 small cards")
@@ -3958,95 +4102,228 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
   /* Bg + color set per-cell from the JS ramp (§5 blue-only). */
 }
 
-/* ── exposures card ── */
-.exposures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+/* ── ExposuresCard (factor + sector exposure bars) ── */
+.exposures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
 @media (max-width: 640px) { .exposures-grid { grid-template-columns: 1fr; } }
-
 .exposures-header {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--label-3); margin-bottom: 12px;
-}
-.exposure-bars { display: flex; flex-direction: column; gap: 9px; }
-.exposure-row  { display: flex; align-items: center; gap: 8px; }
-.exposure-label { font-size: 12px; color: var(--label-2); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.exposure-track { flex: 1; height: 5px; background: rgba(0,0,0,0.06); border-radius: 99px; overflow: hidden; }
-.exposure-fill  { height: 100%; background: var(--primary); border-radius: 99px; }
-.exposure-fill--sector { background: var(--purple); }
-.exposure-pct   { font-size: 11px; font-weight: 600; color: var(--label-2); width: 32px; text-align: right; }
-
-/* ── historical periods ── */
-.periods-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-@media (max-width: 640px) { .periods-grid { grid-template-columns: 1fr; } }
-
-.periods-header {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  margin-bottom: var(--space-3);
 }
-.periods-header--bad  { color: var(--negative); }
-.periods-header--good { color: var(--positive); }
-
-.text-red   { color: var(--negative); }
-.text-green { color: var(--positive); }
-
-/* ── diff card ── */
-.diff-card { border-left: 3px solid var(--primary); }
-.diff-header { margin-bottom: 8px; }
-.diff-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); }
-.diff-summary { font-size: 13px; color: var(--label-2); margin-bottom: 14px; line-height: 1.5; }
-.diff-metrics { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
-.diff-metric-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-.diff-icon { width: 16px; text-align: center; flex-shrink: 0; font-size: 12px; }
-.diff-label { flex: 1; color: var(--label-2); }
-.diff-values { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.diff-prev { color: var(--label-4); }
-.diff-arrow { color: var(--label-4); font-size: 11px; }
-.diff-curr { font-weight: 700; }
-.diff-composition { border-top: 0.5px solid var(--border-light); padding-top: 12px; }
-.diff-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--label-4); margin-bottom: 8px; }
-.diff-comp-row { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 5px; }
-.diff-comp-detail { color: var(--label-3); font-size: 12px; }
-
-/* ── benchmark attribution ── */
-.attr-decomp { margin-bottom: 16px; }
-.attr-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 0.5px solid var(--border-light); }
-.attr-row--total { font-weight: 700; font-size: 15px; }
-.attr-indent { padding-left: 20px; }
-.attr-label { font-size: 14px; color: var(--label-2); }
-.attr-value { font-size: 14px; font-weight: 600; }
-.attr-value--muted { color: var(--label-3); font-weight: 500; }
-.attr-note { font-size: 11px; color: var(--label-4); font-weight: 400; }
-.attr-stats { display: flex; gap: 0; margin-bottom: 16px; border: 0.5px solid var(--border-light); border-radius: 10px; overflow: hidden; }
-.attr-stat { flex: 1; padding: 14px 10px; text-align: center; border-right: 0.5px solid var(--border-light); }
-.attr-stat:last-child { border-right: none; }
-.attr-stat-label { font-size: 10px; font-weight: 600; color: var(--label-4); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
-.attr-stat-value { font-size: 1.25rem; font-weight: 700; color: var(--label); letter-spacing: -0.02em; }
-.attr-callout {
-  background: rgba(0,122,255,0.07);
-  border: 0.5px solid rgba(0,122,255,0.2);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 13px;
-  color: #004eb3;
-  line-height: 1.55;
+.exposure-bars { display: flex; flex-direction: column; gap: var(--space-2); }
+.exposure-row  { display: flex; align-items: center; gap: var(--space-2); }
+.exposure-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-700);
+  width: 130px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.005em;
 }
-
-/* ── data tables ── */
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.data-table th {
-  font-size: 10px;
+.exposure-track {
+  flex: 1;
+  height: 6px;
+  background: var(--ink-100);
+  border-radius: var(--radius-1);
+  overflow: hidden;
+}
+.exposure-fill { height: 100%; background: var(--blue-700); border-radius: var(--radius-1); }
+.exposure-fill--sector { background: var(--blue-300); }
+.exposure-pct {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
   font-weight: 600;
-  color: var(--label-3);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 8px 12px;
-  text-align: left;
-  border-bottom: 0.5px solid var(--border);
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  width: 40px;
+  text-align: right;
 }
-.data-table td { padding: 10px 12px; border-bottom: 0.5px solid var(--border-light); }
+
+/* ── Historical periods (WorstPeriodsTable / BestPeriodsTable headers) ── */
+.periods-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+@media (max-width: 640px) { .periods-grid { grid-template-columns: 1fr; } }
+.periods-header {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  margin-bottom: var(--space-3);
+}
+.periods-header--bad  { color: var(--risk-red); }
+.periods-header--good { color: var(--risk-green); }
+.text-red   { color: var(--risk-red); }
+.text-green { color: var(--risk-green); }
+
+/* ── DiffCard (when comparing snapshots) ── */
+.diff-card { border-left: 2px solid var(--gold-500); }
+.diff-header { margin-bottom: var(--space-2); }
+.diff-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--gold-700);
+}
+.diff-summary {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.005em;
+}
+.diff-metrics { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-3); }
+.diff-metric-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  letter-spacing: -0.005em;
+}
+.diff-icon { width: 16px; text-align: center; flex-shrink: 0; font-family: var(--font-sans); font-weight: 600; }
+.diff-label { flex: 1; color: var(--ink-700); }
+.diff-values {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  font-variant-numeric: tabular-nums;
+}
+.diff-prev { color: var(--ink-400); }
+.diff-arrow { color: var(--ink-400); }
+.diff-curr { font-weight: 600; }
+.diff-composition { border-top: var(--border-hairline); padding-top: var(--space-3); }
+.diff-section-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  margin-bottom: var(--space-2);
+}
+.diff-comp-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  margin-bottom: 5px;
+}
+.diff-comp-detail {
+  color: var(--ink-500);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+}
+
+/* ── BenchmarkAttribution decomposition + stats ── */
+.attr-decomp { margin-bottom: var(--space-4); }
+.attr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-hairline);
+  font-family: var(--font-sans);
+}
+.attr-row--total { font-weight: 600; font-size: var(--text-body-lg-size); }
+.attr-indent { padding-left: var(--space-5, 20px); }
+.attr-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  color: var(--ink-700);
+  letter-spacing: -0.005em;
+}
+.attr-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-900);
+}
+.attr-value--muted { color: var(--ink-500); font-weight: 500; }
+.attr-note {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  color: var(--ink-400);
+  font-weight: 400;
+}
+.attr-stats {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--space-4);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  overflow: hidden;
+}
+.attr-stat {
+  flex: 1;
+  padding: var(--space-3) var(--space-3);
+  border-right: var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+  background: var(--canvas);
+}
+.attr-stat:last-child { border-right: none; }
+.attr-stat-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+}
+.attr-stat-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-lg-size);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── .data-table (CapitalEfficiency, Exposures, WorstPeriods, Simulate
+   compare, etc. — legacy class still used by several sub-components). */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-900);
+}
+.data-table th {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  color: var(--ink-400);
+  text-transform: uppercase;
+  letter-spacing: var(--text-caption-tracking);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: var(--border-hairline);
+  background: var(--ink-50);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: var(--border-hairline);
+  vertical-align: middle;
+}
 .data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--ink-50); }
 
 /* ─────────────────────────────────────────────────────────────────────
    Improve page — DESIGN_BRIEF.md §7

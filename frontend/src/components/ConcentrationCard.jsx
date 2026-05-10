@@ -1,9 +1,9 @@
 import { num, pct } from "../utils/formatters";
 
 function hhiLabel(hhi) {
-  if (hhi > 0.5) return { text: "High", color: "#dc2626" };
-  if (hhi > 0.25) return { text: "Moderate", color: "#d97706" };
-  return { text: "Low", color: "#16a34a" };
+  if (hhi > 0.5)  return { text: "High",     color: "var(--risk-red)"   };
+  if (hhi > 0.25) return { text: "Moderate", color: "var(--risk-amber)" };
+  return            { text: "Low",      color: "var(--risk-green)" };
 }
 
 export default function ConcentrationCard({ concentration, results }) {
@@ -13,8 +13,8 @@ export default function ConcentrationCard({ concentration, results }) {
 
   const captureColor = (v, goodBelow1) =>
     goodBelow1
-      ? v <= 1 ? "#16a34a" : "#dc2626"
-      : v >= 1 ? "#16a34a" : "#dc2626";
+      ? v <= 1 ? "var(--risk-green)" : "var(--risk-red)"
+      : v >= 1 ? "var(--risk-green)" : "var(--risk-red)";
 
   return (
     <div className="card">
@@ -32,19 +32,19 @@ export default function ConcentrationCard({ concentration, results }) {
         </div>
         <div className="conc-stat">
           <div className="conc-label">Corr-Adjusted Positions</div>
-          <div className="conc-value" style={{ color: gapPct > 0.2 ? "#d97706" : "#111" }}>
+          <div className="conc-value" style={{ color: gapPct > 0.2 ? "var(--risk-amber)" : "var(--ink-900)" }}>
             {enp_risk?.toFixed(1) ?? "—"}
           </div>
           <div className="conc-sub">true independent bets</div>
         </div>
         <div className="conc-stat">
           <div className="conc-label">VaR 95% (Monthly)</div>
-          <div className="conc-value" style={{ color: "#dc2626" }}>{pct(results.var_95)}</div>
+          <div className="conc-value" style={{ color: "var(--risk-red)" }}>{pct(results.var_95)}</div>
           <div className="conc-sub">1-in-20 month loss</div>
         </div>
         <div className="conc-stat">
           <div className="conc-label">CVaR 95% (Monthly)</div>
-          <div className="conc-value" style={{ color: "#dc2626" }}>{pct(results.cvar_95)}</div>
+          <div className="conc-value" style={{ color: "var(--risk-red)" }}>{pct(results.cvar_95)}</div>
           <div className="conc-sub">expected worst-case</div>
         </div>
         <div className="conc-stat">

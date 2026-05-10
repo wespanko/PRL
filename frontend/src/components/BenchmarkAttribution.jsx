@@ -6,8 +6,8 @@ export default function BenchmarkAttribution({ attribution, benchmark }) {
           pct_from_beta, tracking_error, information_ratio, beta } = attribution;
 
   const total = alpha_annualized + beta_contribution;
-  const alphaColor = alpha_annualized >= 0 ? "#16a34a" : "#dc2626";
-  const irColor = information_ratio >= 0 ? "#16a34a" : "#dc2626";
+  const alphaColor = alpha_annualized >= 0 ? "var(--risk-green)" : "var(--risk-red)";
+  const irColor = information_ratio >= 0 ? "var(--risk-green)" : "var(--risk-red)";
   const betaPct = Math.abs(pct_from_beta ?? 0);
 
   const highBeta = betaPct > 0.8;
