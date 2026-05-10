@@ -1682,86 +1682,79 @@ body {
 }
 .infotip-learn-more:hover { text-decoration: underline; }
 
-/* ── Learn page ── */
-.learn-hero {
-  margin-bottom: 22px;
-}
-.learn-hero-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 6px;
-}
-.learn-hero-subtitle {
-  font-size: 14px;
-  color: var(--label-3);
-  line-height: 1.55;
-  letter-spacing: -0.005em;
-  max-width: 640px;
-}
+/* ─────────────────────────────────────────────────────────────────────
+   Learn page (glossary) — DESIGN_BRIEF.md §7
+   Category chips horizontal scroll, sticky under header. Collapsed:
+   heading-md term + body-sm one-liner. Expanded: body explanation,
+   "Why it matters" in --ink-50 panel, "Common misconceptions" italic
+   --ink-500.
+   ───────────────────────────────────────────────────────────────────── */
 
-.learn-toolbar {
-  margin-bottom: 14px;
-}
-.learn-search {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--label);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.03);
-  transition: all 0.18s;
-}
-.learn-search:focus {
-  background: white;
-  border-color: var(--primary);
-  outline: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 0 0 3px rgba(0, 122, 255, 0.12);
-}
+.learn-page { padding-top: var(--space-6); }
+.learn-header { margin-bottom: var(--space-4); }
+.learn-header-sub { max-width: 720px; margin-top: var(--space-2); }
 
+.learn-search-row { margin-bottom: var(--space-3); }
+
+/* §7: chips sticky under the 64px header. Horizontal scroll when wide. */
 .learn-categories {
+  position: sticky;
+  top: 64px;                       /* height of the persistent metric ribbon (§3) */
+  z-index: 20;
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
+  gap: var(--space-2);
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  padding: var(--space-3) 0 var(--space-3);
+  margin: 0 calc(-1 * var(--space-8));
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+  background: var(--paper);
+  border-bottom: var(--border-hairline);
+  margin-bottom: var(--space-4);
+  /* hide scrollbar but keep functionality */
+  scrollbar-width: thin;
 }
-.learn-category {
+@media (max-width: 600px) {
+  .learn-categories {
+    margin: 0 calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+/* Chip — pill shape allowed by §6 ("No pill buttons except tag chips"). */
+.learn-chip {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  padding: 6px 14px;
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
   border-radius: 99px;
-  font-size: 12.5px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
   font-weight: 500;
-  color: var(--label-2);
+  color: var(--ink-700);
   cursor: pointer;
-  font-family: inherit;
   letter-spacing: -0.005em;
-  transition: all 0.15s;
+  transition: background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
-.learn-category:hover {
-  background: white;
-  color: var(--primary);
+.learn-chip:hover:not(.is-active) {
+  background: var(--ink-50);
+  border-color: var(--ink-300);
 }
-.learn-category--active {
-  background: var(--label);
-  color: white;
-  border-color: var(--label);
+.learn-chip.is-active {
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+  color: var(--canvas);
+  font-weight: 600;
 }
-.learn-category--active:hover { color: white; }
-.learn-category-icon {
+.learn-chip-icon {
+  font-family: var(--font-sans);
   font-size: 12px;
   display: inline-flex;
   align-items: center;
@@ -1771,135 +1764,150 @@ body {
 .learn-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-2);
 }
+
+/* Each metric card: flat .pk-card surface, expand on click. */
 .learn-card {
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
   overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.03);
-  transition: box-shadow 0.2s;
+  transition: border-color 150ms ease-out;
 }
-.learn-card--open {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 12px 36px rgba(15, 23, 42, 0.08);
-}
+.learn-card.is-open { border-color: var(--ink-300); }
+
 .learn-card-header {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 14px;
-  padding: 16px 20px;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5, 20px);
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
   font-family: inherit;
 }
+.learn-card-header:hover { background: var(--ink-50); }
 .learn-card-header-text { flex: 1; min-width: 0; }
-.learn-card-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.015em;
-  margin-bottom: 4px;
-}
-.learn-card-tagline {
-  font-size: 13px;
-  color: var(--label-3);
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-}
+.learn-card-title { letter-spacing: -0.01em; margin-bottom: 2px; }
+.learn-card-tagline { letter-spacing: -0.005em; }
+
+/* Chevron — square with 2px radius (input/badge family per §2). */
 .learn-card-chevron {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--label-2);
+  width: 24px; height: 24px;
+  border-radius: var(--radius-1);
+  background: var(--ink-50);
+  color: var(--ink-700);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
   font-weight: 600;
   flex-shrink: 0;
+  font-family: var(--font-sans);
+  transition: background 150ms ease-out, color 150ms ease-out;
 }
-.learn-card--open .learn-card-chevron {
-  background: var(--primary);
-  color: white;
+.learn-card.is-open .learn-card-chevron {
+  background: var(--blue-700);
+  color: var(--canvas);
 }
+
 .learn-card-body {
-  padding: 4px 20px 20px;
-  border-top: 0.5px solid rgba(0, 0, 0, 0.05);
+  padding: 0 var(--space-5, 20px) var(--space-4);
+  border-top: var(--border-hairline);
   margin-top: 2px;
+  padding-top: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-4);
 }
+
+/* §7: body explanation — plain prose, ink-700. */
+.learn-card-explanation {
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+
+/* §7: "Why it matters" in --ink-50 panel. */
+.learn-card-why {
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.learn-card-eyebrow {
+  letter-spacing: var(--text-caption-tracking);
+}
+.learn-card-why p { margin: 0; letter-spacing: -0.005em; }
+
+/* §7: "Common misconceptions" italic --ink-500. */
+.learn-card-misconception {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-style: italic;
+  color: var(--ink-500);
+  letter-spacing: -0.005em;
+  margin: 0;
+}
+.learn-card-misconception-label {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink-700);
+}
+
+/* Supplementary — kept from existing functionality. */
 .learn-card-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.learn-card-section-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-}
-.learn-card-section p {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--label-2);
-  letter-spacing: -0.005em;
-}
-.learn-card-grid {
+.learn-card-section p { margin: 0; letter-spacing: -0.005em; }
+
+.learn-card-pills {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 4px;
+  gap: var(--space-2);
 }
-@media (max-width: 600px) { .learn-card-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .learn-card-pills { grid-template-columns: 1fr; } }
 .learn-card-pill {
-  background: rgba(0, 0, 0, 0.025);
-  border: 0.5px solid rgba(0, 0, 0, 0.04);
-  border-radius: 10px;
-  padding: 10px 12px;
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-.learn-card-pill-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-  margin-bottom: 6px;
-}
-.learn-card-pill-value {
-  font-size: 12px;
-  color: var(--label-2);
-  line-height: 1.5;
-}
-.learn-card-pill-formula {
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-  font-size: 12px;
-  color: var(--primary);
-  font-feature-settings: "tnum";
+.learn-card-formula {
+  letter-spacing: 0;
+  word-break: break-word;
 }
 
+/* Empty result state inside the list (no matches). */
+.learn-empty {
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+}
+.learn-empty-title { /* uses .pk-text-heading-md */ }
+.learn-empty-body { max-width: 420px; text-align: center; margin: 0; }
+
 .learn-footer {
-  margin-top: 22px;
-  padding: 14px 16px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 10px;
-  font-size: 12px;
-  color: var(--label-3);
-  line-height: 1.5;
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
   letter-spacing: -0.005em;
 }
 
