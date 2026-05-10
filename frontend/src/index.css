@@ -59,10 +59,14 @@ body {
   letter-spacing: -0.005em;
 }
 
+/* §3: Max content width 1280px, centered. Page padding 32px desktop, 16px mobile. */
 .container {
-  max-width: 1040px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 36px 28px 96px;
+  padding: var(--space-8) var(--space-8) var(--space-16);
+}
+@media (max-width: 600px) {
+  .container { padding: var(--space-6) var(--space-4) var(--space-12); }
 }
 
 /* ── Plan tab (Debt + Projection + Drawdown explainer) ── */
@@ -1024,174 +1028,116 @@ body {
   letter-spacing: -0.005em;
 }
 
-/* ── Dashboard: refined light hero ── */
-.dash-page { margin: 0; padding: 0; }
+/* ─────────────────────────────────────────────────────────────────────
+   Dashboard — DESIGN_BRIEF.md §7
+   Strict spec: Panko Score hero (§5) + 3-column grid + see-more link.
+   No ticker strip, no period tabs, no chart, no sparkline — none of
+   those are in §7 Dashboard. Charts live on Analyze.
+   ───────────────────────────────────────────────────────────────────── */
 
-.dash-hero {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 40px 28px 0;
-  position: relative;
-}
-.dash-hero-inner {
-  position: relative;
-  z-index: 2;
-}
-.dash-hero-greeting {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--label-3);
-  letter-spacing: -0.01em;
-  margin-bottom: 6px;
-}
-.dash-hero-tickers {
-  font-size: 12px;
-  color: var(--label-4);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
-  margin-bottom: 28px;
-  font-weight: 500;
-}
-.dash-hero-tickers-sep { margin: 0 8px; opacity: 0.5; }
-
-.dash-hero-amount-row {
-  display: flex;
-  align-items: baseline;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-}
-.dash-hero-amount {
-  font-size: 4.25rem;
-  font-weight: 700;
-  letter-spacing: -0.055em;
-  line-height: 0.95;
-  color: var(--label);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum", "ss01";
-}
-.dash-hero-delta {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 10px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.015em;
-}
-.dash-hero-delta.is-pos { color: var(--positive); }
-.dash-hero-delta.is-neg { color: var(--negative); }
-.dash-hero-delta-arrow {
-  font-size: 12px;
-  position: relative;
-  top: -3px;
-}
-.dash-hero-delta-pct {
-  font-size: 1.35rem;
-  font-weight: 600;
-}
-.dash-hero-delta-vs {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-  margin-left: 4px;
-}
-
-.dash-hero-period-row { margin-bottom: 16px; }
-.dash-hero-period-tabs {
-  display: inline-flex;
-  gap: 0;
-  padding: 3px;
-  background: var(--surface-2);
-  border: 0.5px solid var(--border);
-  border-radius: 9px;
-}
-.dash-hero-period-tab {
-  background: none;
-  border: none;
-  color: var(--label-3);
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 5px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
-  font-variant-numeric: tabular-nums;
-}
-.dash-hero-period-tab:hover { color: var(--label); }
-.dash-hero-period-tab.is-active {
-  background: var(--surface);
-  color: var(--label);
-  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.06);
-}
-
-.dash-hero-chart-wrap {
-  position: relative;
-  margin: 4px -28px 0;
-  height: 180px;
-  z-index: 1;
-}
-.dash-hero-chart { display: block; width: 100%; height: 100%; }
-
-.dash-body {
-  margin-top: 8px;
-  position: relative;
-}
-
-/* ── Stat strip (under hero) ── */
-.dash-stat-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border-light);
-  border: 0.5px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-}
-.dash-stat-strip-item {
-  background: var(--surface);
-  padding: 16px 20px 18px;
+/* §5 Panko Score: 96px Libre Baskerville gold-500, /100 32px ink-300,
+   caption below, ≥64px breathing room, no card, centered.
+   §6 forbids non-mono numbers — the score is the explicit exception
+   per §5 ("Score at 96px Libre Baskerville"). */
+.dash-score-hero {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+  align-items: center;
+  padding: var(--space-16) 0;            /* 64px breathing room top/bottom */
+  gap: var(--space-3);
 }
-.dash-stat-strip-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--label-4);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
+.dash-score-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
 }
-.dash-stat-strip-value {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+.dash-score-num {
+  font-family: var(--font-display);
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 400;
+  color: var(--gold-500);
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--label);
-  line-height: 1.15;
 }
-.dash-stat-strip-value.is-neg { color: var(--negative); }
-.dash-stat-strip-value.is-pos { color: var(--positive); }
-.dash-stat-strip-sub {
-  font-size: 11px;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
+.dash-score-denom {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 400;
+  color: var(--ink-300);
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+}
+.dash-score-caption { color: var(--ink-400); }
+
+/* §7: Three-column grid below the hero. */
+.dash-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);                   /* 24px between cards (§3) */
+  margin-bottom: var(--space-12);        /* 48px before next section */
+}
+@media (max-width: 900px) {
+  .dash-3col { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 760px) {
-  .dash-stat-strip { grid-template-columns: repeat(2, 1fr); }
+/* Each metric card: heading-sm label, mono-lg figure, body description. */
+.dash-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
+.dash-metric-label { /* label sits flush top */ }
+.dash-metric-figure {
+  /* Pulled-out figure: own line, more breathing room than body. */
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+/* Tertiary "See full breakdown" — inline link, end of page. */
+.dash-deepdive {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Empty state: gold CTA + secondary, centered block ≤480px (§7 Monitor
+   spec set this width; reusing for Dashboard's empty since the rule is
+   consistent in spirit — center-aligned hero block, single secondary CTA
+   plus a single gold one for the page's most important action). */
+.dash-empty-state {
+  max-width: 480px;
+  margin: var(--space-16) auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+.dash-empty-headline { /* uses .pk-text-display-lg */ }
+.dash-empty-body {
+  /* No center-aligned body in general (§6) — but inside a centered
+     empty-hero block this is the headline+lead pattern, treated as the
+     hero unit per the brief's Monitor empty-state precedent. */
+  text-align: center;
+  margin: 0;
+}
+.dash-empty-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-2);
+}
+.dash-empty-note {
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
 @media (max-width: 720px) {
-  .dash-hero-amount { font-size: 3rem; }
-  .dash-hero-delta-pct { font-size: 1.15rem; }
-  .dash-hero-delta-vs { display: block; margin-left: 0; flex-basis: 100%; }
-  .dash-hero-inner { padding: 22px 18px 0; }
-  .dash-hero-chart-wrap { height: 110px; }
+  .dash-score-num { font-size: 72px; }
+  .dash-score-denom { font-size: 24px; }
+  .dash-score-hero { padding: var(--space-12) 0; }
 }
 
 /* ── Build page: Quick-start goal cards ── */
@@ -1259,58 +1205,8 @@ body {
   transform: translateX(3px);
 }
 
-/* ── Dashboard "see full breakdown" link ── */
-.dash-deepdive-link {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 20px;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.025);
-  column-gap: 16px;
-}
-.dash-deepdive-text {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.015em;
-  grid-column: 1;
-  grid-row: 1;
-}
-.dash-deepdive-sub {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-  grid-column: 1;
-  grid-row: 2;
-  margin-top: 2px;
-}
-.dash-deepdive-arrow {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  font-size: 18px;
-  color: var(--label-4);
-  transition: transform 0.16s ease, color 0.16s ease;
-}
-.dash-deepdive-link:hover {
-  border-color: rgba(0, 122, 255, 0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-}
-.dash-deepdive-link:hover .dash-deepdive-arrow {
-  color: var(--primary);
-  transform: translateX(3px);
-}
+/* (Legacy .dash-deepdive-link block removed in Step 5 Dashboard refactor —
+   "See full breakdown" is now a tertiary <Button> primitive.) */
 
 /* ── Thesis page ── */
 .thesis-hero { margin-bottom: 16px; }
@@ -3019,149 +2915,10 @@ body {
   .welcome-trust-item { padding: 10px 12px; }
 }
 
-/* ── dashboard page ── */
-.dash-greeting {
-  margin-bottom: 20px;
-}
-.dash-greeting-headline {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: var(--label);
-  margin-bottom: 4px;
-  word-break: break-word;
-  line-height: 1.2;
-}
-.dash-greeting-sub {
-  font-size: 12.5px;
-  color: var(--label-3);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.005em;
-  overflow-wrap: break-word;
-}
-@media (max-width: 480px) {
-  .dash-greeting-headline { font-size: 1.35rem; }
-  .dash-greeting-sub { font-size: 12px; }
-}
-
-.dash-empty-cta { padding: 64px 24px; }
-.dash-empty-cta-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 22px;
-  flex-wrap: wrap;
-}
-.dash-empty-cta-btn { padding: 11px 24px; }
-.dash-empty-cta-note {
-  font-size: 11.5px;
-  color: var(--label-4);
-  margin-top: 16px;
-  letter-spacing: -0.005em;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.5;
-}
-
-.dash-quick-stats {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin-bottom: 18px;
-}
-@media (max-width: 720px) {
-  .dash-quick-stats { grid-template-columns: repeat(2, 1fr); }
-}
-.dash-quick-stat {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  padding: 14px 16px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.03);
-}
-.dash-quick-stat-label {
-  font-size: 9.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-  margin-bottom: 6px;
-}
-.dash-quick-stat-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.025em;
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 18px;
-}
-@media (max-width: 720px) {
-  .dash-actions { grid-template-columns: repeat(2, 1fr); }
-}
-.dash-action-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.03);
-}
-.dash-action-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 8px 24px rgba(15, 23, 42, 0.08);
-}
-.dash-action-icon {
-  width: 32px; height: 32px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 3px 10px rgba(0,122,255,0.24);
-}
-.dash-action-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.dash-action-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.015em;
-}
-.dash-action-sub {
-  font-size: 12px;
-  color: var(--label-3);
-  letter-spacing: -0.005em;
-}
+/* (Legacy .dash-greeting / .dash-empty-cta / .dash-quick-stats / .dash-actions
+   block removed in Step 5 Dashboard refactor — replaced by the brief-spec
+   .dash-empty-state block earlier in this file. Greeting and 5-up
+   quick-stats strip dropped; not in §7 Dashboard.) */
 
 /* ── navbar (legacy — kept in case) ── */
 .navbar {
@@ -4384,284 +4141,10 @@ th.improve-metric-val { text-align: right; }
   .opt-result-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Panko Score card ── */
-.dashboard-card {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: 18px;
-  margin-bottom: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
-}
-
-.dashboard-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 28px 28px 26px;
-  border-bottom: 0.5px solid var(--border-light);
-  gap: 28px;
-}
-.dashboard-hero-left { flex: 1; min-width: 0; }
-.dashboard-hero-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--label-3);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  margin-bottom: 8px;
-}
-
-.dashboard-hero-score-block {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  margin-bottom: 18px;
-}
-.dashboard-hero-ring {
-  position: relative;
-  width: 132px;
-  height: 132px;
-  flex-shrink: 0;
-}
-.dash-score-ring { display: block; }
-.dashboard-hero-ring-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.dashboard-hero-ring-num {
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: var(--label);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
-}
-.dashboard-hero-ring-denom {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--label-4);
-  letter-spacing: 0.02em;
-  margin-top: 4px;
-  text-transform: uppercase;
-}
-.dashboard-hero-score-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-.dashboard-hero-band-pill {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.dashboard-hero-dna {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-variant-numeric: tabular-nums;
-}
-.dashboard-hero-dna-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--label-4);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-}
-.dashboard-hero-dna-type {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.02em;
-}
-.dashboard-hero-gauge {
-  height: 7px;
-  background: rgba(0,0,0,0.06);
-  border-radius: 99px;
-  overflow: hidden;
-  width: 100%;
-  max-width: 320px;
-  margin-top: 4px;
-}
-.dashboard-hero-gauge-fill {
-  height: 100%;
-  border-radius: 99px;
-}
-
-/* ── Panko Score: 5-pillar segmented bar ── */
-.panko-pillar-bar {
-  display: flex;
-  gap: 4px;
-  width: 100%;
-  max-width: 380px;
-  margin-top: 4px;
-  margin-bottom: 12px;
-}
-.panko-pillar-bar-segment {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  position: relative;
-}
-.panko-pillar-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.panko-pillar-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  max-width: 480px;
-  margin-top: 4px;
-}
-.panko-pillar-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  letter-spacing: -0.005em;
-}
-.panko-pillar-legend-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  flex-shrink: 0;
-}
-.panko-pillar-legend-label { color: var(--label-3); font-weight: 500; }
-.panko-pillar-legend-value {
-  color: var(--label);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.panko-pillar-legend-max {
-  color: var(--label-4);
-  font-weight: 500;
-}
-
-@media (max-width: 600px) {
-  .panko-pillar-legend { gap: 6px 12px; }
-  .panko-pillar-legend-item { font-size: 11px; }
-}
-
-.dashboard-hero-right {
-  text-align: right;
-  flex-shrink: 0;
-  max-width: 50%;
-}
-.dashboard-dna-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--label-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-}
-.dashboard-dna-type {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--label);
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-  margin-bottom: 10px;
-}
-.dashboard-dna-drivers {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.dashboard-dna-chip {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--label-2);
-  background: rgba(0,0,0,0.05);
-  border: 0.5px solid var(--border-light);
-  padding: 2px 9px;
-  border-radius: 99px;
-  letter-spacing: -0.005em;
-}
-
-.dashboard-tiles {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border-light);
-}
-.dashboard-tile {
-  padding: 20px 24px 22px;
-  background: var(--surface);
-  min-width: 0;
-  position: relative;
-}
-
-.dashboard-tile-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--label-4);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  margin-bottom: 12px;
-}
-.dashboard-tile-headline {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-  line-height: 1.25;
-  font-variant-numeric: tabular-nums;
-}
-.dashboard-tile-headline--muted { color: var(--label-3); font-weight: 600; }
-.dashboard-tile-headline--warn  { color: var(--warning); }
-.dashboard-tile-body {
-  font-size: 12.5px;
-  color: var(--label-3);
-  line-height: 1.5;
-  letter-spacing: -0.005em;
-}
-.dashboard-tile-flag { color: var(--warning); font-weight: 600; }
-.dashboard-tile-arrow { color: var(--label-4); margin: 0 4px; }
-
-.dashboard-tile--warn::before,
-.dashboard-tile--watch::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-}
-.dashboard-tile--warn::before  { background: var(--negative); }
-.dashboard-tile--watch::before { background: var(--warning); }
-
-@media (max-width: 720px) {
-  .dashboard-hero { flex-direction: column; align-items: flex-start; gap: 16px; padding: 22px 20px 20px; }
-  .dashboard-hero-right { text-align: left; max-width: 100%; align-self: stretch; }
-  .dashboard-dna-drivers { justify-content: flex-start; }
-  .dashboard-tiles { grid-template-columns: 1fr; }
-  .dashboard-tile { padding: 18px 20px; }
-  .dashboard-hero-num { font-size: 2.6rem; }
-  .dashboard-hero-band-pill { margin-left: 0; margin-top: 6px; }
-  .dashboard-hero-score { flex-wrap: wrap; gap: 4px; }
-}
-@media (max-width: 420px) {
-  .dashboard-hero-num { font-size: 2.4rem; }
-  .dashboard-hero-denom { font-size: 1.2rem; }
-  .dashboard-dna-type { font-size: 1.05rem; }
-  .container { padding: 22px 14px 88px; }
-}
+/* (Legacy .dashboard-card / .dashboard-hero / .panko-pillar / .dashboard-tile
+   block removed in Step 5 Dashboard refactor — all dashboard rendering
+   now lives in the .dash-score-hero / .dash-3col / .dash-metric-card
+   block earlier in this file.) */
 
 /* ── OR divider (parallel options, not steps) ── */
 .or-divider {
