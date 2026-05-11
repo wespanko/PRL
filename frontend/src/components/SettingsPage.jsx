@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { updateProfile } from "../utils/profile";
 import { clearAllLocalData } from "../utils/schemaVersion";
+import { Button } from "./ui";
 
 const RISK_LEVELS = [
   { id: "conservative", label: "Conservative", body: "Capital preservation first" },
@@ -131,22 +132,23 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
         </div>
 
         {experience === "beginner" && (
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm settings-restart-btn"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleRestartOnboarding}
+            className="settings-restart-btn"
           >
             Restart guided onboarding →
-          </button>
+          </Button>
         )}
       </div>
 
       {error && <div className="error">{error}</div>}
 
       <div className="settings-actions">
-        <button className="btn btn-primary" onClick={handleSave}>
+        <Button variant="primary" onClick={handleSave}>
           Save changes
-        </button>
+        </Button>
         {savedFlash && <span className="settings-saved">✓ Saved</span>}
       </div>
 
@@ -157,9 +159,8 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           Useful for starting fresh or if you're handing the link to someone
           else on the same device.
         </p>
-        <button
-          type="button"
-          className="btn btn-secondary"
+        <Button
+          variant="secondary"
           onClick={() => {
             if (!window.confirm(
               "Erase your profile, snapshots, and last analysis from this browser? This cannot be undone."
@@ -169,7 +170,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           }}
         >
           Clear all my data
-        </button>
+        </Button>
       </div>
 
       <div className="settings-meta">

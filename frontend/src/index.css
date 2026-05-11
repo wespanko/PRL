@@ -768,89 +768,108 @@ body {
   .wizard-goal-label { font-size: var(--text-body-size); }
 }
 
-/* ── Settings page ── */
-.settings-hero { margin-bottom: 18px; }
+/* ─────────────────────────────────────────────────────────────────────
+   Settings page — auxiliary surface, brief-tokenized.
+   No gold (no marquee CTA on a settings panel).
+   ───────────────────────────────────────────────────────────────────── */
+
+.settings-hero { margin-bottom: var(--space-6); }
 .settings-hero-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-lg-size);
+  line-height: var(--text-heading-lg-line);
+  font-weight: var(--text-heading-lg-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-2);
 }
 .settings-hero-sub {
-  font-size: 13px;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
 .settings-section-label {
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-3);
-  margin-bottom: 10px;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  margin-bottom: var(--space-3);
 }
 .settings-section-help {
-  font-size: 12.5px;
-  color: var(--label-3);
-  line-height: 1.5;
-  margin-bottom: 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  margin-bottom: var(--space-3);
   letter-spacing: -0.005em;
 }
 .settings-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
 }
 .settings-field:last-child { margin-bottom: 0; }
 .settings-label {
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--label-3);
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
 }
 .settings-label-optional {
   font-weight: 400;
   text-transform: none;
   letter-spacing: -0.005em;
-  color: var(--label-4);
+  color: var(--ink-400);
 }
+
+/* Custom radio rows (risk-style / experience-level). Matches the
+   sidebar / monitor pinned / welcome risk-card gold-bar pattern. */
 .settings-radio-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .settings-radio {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-2);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: all 0.15s;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
 }
-.settings-radio:hover { border-color: rgba(0, 122, 255, 0.3); }
+.settings-radio:hover:not(.settings-radio--active) {
+  background: var(--ink-50);
+  border-color: var(--ink-300);
+}
 .settings-radio--active {
-  background: rgba(0, 122, 255, 0.06);
-  border-color: var(--primary);
+  background: var(--ink-50);
+  border-color: var(--ink-200);
+  border-left-color: var(--gold-500);
 }
 .settings-radio-dot {
   width: 14px; height: 14px;
   border-radius: 50%;
-  border: 1.5px solid var(--label-4);
+  border: 1.5px solid var(--ink-400);
   flex-shrink: 0;
-  margin-top: 2px;
-  transition: all 0.15s;
+  margin-top: 3px;
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
 }
 .settings-radio--active .settings-radio-dot {
-  border-color: var(--primary);
-  box-shadow: inset 0 0 0 4px var(--primary);
+  border-color: var(--blue-700);
+  box-shadow: inset 0 0 0 4px var(--blue-700);
 }
 .settings-radio-text {
   display: flex;
@@ -858,35 +877,42 @@ body {
   gap: 2px;
 }
 .settings-radio-label {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
-}
-.settings-radio-body {
-  font-size: 12px;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--ink-900);
   letter-spacing: -0.005em;
 }
-.settings-restart-btn { margin-top: 14px; }
+.settings-radio-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  letter-spacing: -0.005em;
+}
+
+.settings-restart-btn { margin-top: var(--space-4); }
 .settings-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 4px;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
 }
 .settings-saved {
-  font-size: 13px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
   font-weight: 600;
-  color: var(--positive);
+  color: var(--risk-green);
   letter-spacing: -0.005em;
 }
 .settings-meta {
-  font-size: 11.5px;
-  color: var(--label-4);
-  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  color: var(--ink-400);
+  margin-top: var(--space-4);
   text-align: center;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Beginner welcome page ── */
