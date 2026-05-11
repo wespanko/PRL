@@ -1488,61 +1488,78 @@ body {
 /* (Legacy .advisor-callout / .risk-disclosure blocks removed in the
    Step 5 cleanup pass — replaced everywhere by <Banner> primitive.) */
 
-/* ── Legal pages (Terms / Privacy) ── */
-.legal-hero { margin-bottom: 18px; }
+/* ─────────────────────────────────────────────────────────────────────
+   Legal pages (Terms / Privacy) — auxiliary surface, brief-tokenized.
+   No gold (no marquee CTA on legal docs).
+   ───────────────────────────────────────────────────────────────────── */
+.legal-hero { margin-bottom: var(--space-6); }
 .legal-hero-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-lg-size);
+  line-height: var(--text-heading-lg-line);
+  font-weight: var(--text-heading-lg-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-2);
 }
 .legal-hero-meta {
-  font-size: 12px;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
-.legal-card { padding: 28px 32px; }
+.legal-card { padding: var(--space-8) var(--space-8); }
 .legal-card p {
-  font-size: 13.5px;
-  color: var(--label-2);
-  line-height: 1.65;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
 }
-.legal-card p strong { color: var(--label); font-weight: 700; }
+.legal-card p strong { color: var(--ink-900); font-weight: 600; }
 .legal-h2 {
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  color: var(--label) !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--text-heading-md-size) !important;
+  line-height: var(--text-heading-md-line) !important;
+  font-weight: var(--text-heading-md-weight) !important;
+  color: var(--ink-900) !important;
   letter-spacing: -0.01em !important;
   text-transform: none !important;
-  margin: 22px 0 8px 0 !important;
+  margin: var(--space-6) 0 var(--space-2) 0 !important;
 }
 .legal-list {
-  margin: 0 0 14px 22px;
-  font-size: 13.5px;
-  color: var(--label-2);
-  line-height: 1.7;
+  margin: 0 0 var(--space-3) var(--space-6);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
 }
 .legal-list li { margin-bottom: 4px; }
-.legal-list strong { color: var(--label); font-weight: 700; }
+.legal-list strong { color: var(--ink-900); font-weight: 600; }
+
+/* Template-warning callout at the bottom of each page — §5 gold banner. */
 .legal-footer-note {
-  margin-top: 22px;
-  padding: 14px 16px;
-  background: rgba(255, 159, 10, 0.07);
-  border: 0.5px solid rgba(255, 159, 10, 0.22);
-  border-radius: 10px;
-  font-size: 12px;
-  color: #6b3d00;
-  line-height: 1.55;
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--gold-100);
+  border-left: 4px solid var(--gold-300);
+  border-radius: var(--radius-0);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--gold-700);
+  letter-spacing: -0.005em;
 }
+.legal-footer-note strong { color: var(--gold-700); font-weight: 600; }
+
 .legal-back-row {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 16px;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
   flex-wrap: wrap;
 }
 

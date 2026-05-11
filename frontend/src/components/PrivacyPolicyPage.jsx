@@ -1,3 +1,5 @@
+import { Button } from "./ui";
+
 export default function PrivacyPolicyPage({ setActiveTab }) {
   return (
     <div className="container">
@@ -98,20 +100,12 @@ export default function PrivacyPolicyPage({ setActiveTab }) {
       </div>
 
       <div className="legal-back-row">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setActiveTab("dashboard")}
-        >
+        <Button variant="secondary" onClick={() => setActiveTab("dashboard")}>
           ← Back to dashboard
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setActiveTab("terms")}
-        >
+        </Button>
+        <Button variant="secondary" onClick={() => setActiveTab("terms")}>
           Terms of Service →
-        </button>
+        </Button>
       </div>
     </div>
   );
