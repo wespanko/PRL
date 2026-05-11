@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { saveProfile } from "../utils/profile";
 
+// Icons restricted to §6-approved geometric glyphs: ◍ ◎ ▲ ◆ ↕ ◐
+// (plus typographic ↻).
 const FEATURES = [
   {
     icon: "◎",
@@ -8,7 +10,7 @@ const FEATURES = [
     body: "Sharpe, beta, drawdown, VaR, downside capture — computed in Python (pandas/NumPy) on real price history. No LLM guessing.",
   },
   {
-    icon: "✦",
+    icon: "▲",
     title: "Optimized rebalancing",
     body: "Constrained grid-search optimizer finds the trade that mathematically improves your Panko Score subject to a Sharpe-preserving floor.",
   },
@@ -24,10 +26,13 @@ const FEATURES = [
   },
 ];
 
+// §6: no emoji. Trust badges are text-only — the labels carry the
+// meaning ("100% local", "Deterministic math", "Transparent") without
+// needing an icon glyph.
 const TRUST_BADGES = [
-  { icon: "🔒", label: "100% local", body: "Your data never leaves your browser" },
-  { icon: "🧮", label: "Deterministic math", body: "Pure Python, not chatbot output" },
-  { icon: "📖", label: "Transparent", body: "Every formula is documented in Learn" },
+  { label: "100% local",         body: "Your data never leaves your browser" },
+  { label: "Deterministic math", body: "Pure Python, not chatbot output" },
+  { label: "Transparent",        body: "Every formula is documented in Learn" },
 ];
 
 const RISK_LEVELS = [
@@ -40,7 +45,7 @@ const EXPERIENCE_LEVELS = [
   {
     id: "beginner",
     label: "I'm new to investing",
-    icon: "✦",
+    icon: "◍",
     body: "I'll get a guided tour, plain-English explanations, and help building a starter portfolio.",
   },
   {
@@ -96,8 +101,7 @@ export default function WelcomePage({ onSignIn }) {
         {step === "hero" && (
           <div className="welcome-hero">
             <div className="welcome-brand">
-              <span className="welcome-brand-mark">P</span>
-              <span className="welcome-brand-name">Panko</span>
+              <img src="/logo.png" alt="Panko" className="welcome-brand-logo" />
             </div>
 
             <h1 className="welcome-headline">
@@ -118,7 +122,6 @@ export default function WelcomePage({ onSignIn }) {
             <div className="welcome-trust-row">
               {TRUST_BADGES.map((b) => (
                 <div key={b.label} className="welcome-trust-item">
-                  <span className="welcome-trust-icon" aria-hidden="true">{b.icon}</span>
                   <div className="welcome-trust-text">
                     <div className="welcome-trust-label">{b.label}</div>
                     <div className="welcome-trust-body">{b.body}</div>
@@ -156,8 +159,7 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-step">3 — Experience</span>
             </div>
             <div className="welcome-brand welcome-brand--small">
-              <span className="welcome-brand-mark">P</span>
-              <span className="welcome-brand-name">Panko</span>
+              <img src="/logo.png" alt="Panko" className="welcome-brand-logo" />
             </div>
 
             <h2 className="welcome-signin-title">Let's set you up</h2>
@@ -223,8 +225,7 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-step">3 — Experience</span>
             </div>
             <div className="welcome-brand welcome-brand--small">
-              <span className="welcome-brand-mark">P</span>
-              <span className="welcome-brand-name">Panko</span>
+              <img src="/logo.png" alt="Panko" className="welcome-brand-logo" />
             </div>
 
             <h2 className="welcome-signin-title">What's your risk style?</h2>
@@ -282,8 +283,7 @@ export default function WelcomePage({ onSignIn }) {
               <span className="welcome-step welcome-step--active">3 — Experience</span>
             </div>
             <div className="welcome-brand welcome-brand--small">
-              <span className="welcome-brand-mark">P</span>
-              <span className="welcome-brand-name">Panko</span>
+              <img src="/logo.png" alt="Panko" className="welcome-brand-logo" />
             </div>
 
             <h2 className="welcome-signin-title">How familiar are you with investing?</h2>
