@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { buildPortfolioContext } from "../utils/portfolioContext";
+import { Button } from "./ui";
 
 const SUGGESTED = [
   "Why is my downside capture so high?",
@@ -111,7 +112,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                   </div>
                 </>
               ) : (
-                <p className="assistant-empty-title" style={{ color: "#9ca3af" }}>
+                <p className="assistant-empty-title assistant-empty-title--muted">
                   Run an analysis first, then come back to ask questions about your portfolio.
                 </p>
               )}
@@ -137,9 +138,14 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
             disabled={streaming || !hasPortfolio}
           />
-          <button className="btn btn-primary btn-sm" type="submit" disabled={!input.trim() || streaming || !hasPortfolio}>
+          <Button
+            variant="primary"
+            size="sm"
+            type="submit"
+            disabled={!input.trim() || streaming || !hasPortfolio}
+          >
             {streaming ? <span className="spinner" /> : "→"}
-          </button>
+          </Button>
         </form>
       </div>
     </>

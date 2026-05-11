@@ -3264,104 +3264,111 @@ body {
 .monitor-change-label { flex: 1; min-width: 120px; letter-spacing: -0.005em; }
 .monitor-change-arrow { letter-spacing: 0; }
 
-/* ── assistant fab + drawer ── */
+/* ─────────────────────────────────────────────────────────────────────
+   Assistant — floating ⌘K-style command bar + side drawer.
+   Per §5 ("AI command bar (⌘K) — pinned bottom, floating 24px from
+   edge, centered, max-width 720px. White bg, 8px radius, --ink-200
+   border, elevated shadow. Suggested prompt chips in body-sm, 1px
+   --ink-200 border, 2px radius, hover --ink-50.").
+   ───────────────────────────────────────────────────────────────────── */
+
+/* §5 ⌘K command bar — flat canvas, hairline border, --shadow-elevated. */
 .assistant-fab {
   position: fixed;
-  bottom: 24px;
+  bottom: var(--space-6);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  color: var(--label-2);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 999px;
-  padding: 12px 18px 12px 16px;
-  font-size: 14px;
+  background: var(--canvas);
+  color: var(--ink-700);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-3);                /* 8px per §5 */
+  padding: 10px var(--space-4) 10px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
   font-weight: 500;
   cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 12px 36px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--shadow-elevated);
   z-index: 200;
-  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-  letter-spacing: -0.01em;
-  font-family: inherit;
-  min-width: 280px;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+  letter-spacing: -0.005em;
+  min-width: 320px;
+  max-width: 720px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
 }
 .assistant-fab:hover {
-  background: rgba(255, 255, 255, 0.92);
-  transform: translateX(-50%) translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 2px 4px rgba(15, 23, 42, 0.06),
-    0 18px 48px rgba(15, 23, 42, 0.16);
-  color: var(--label);
+  border-color: var(--ink-300);
+  color: var(--ink-900);
 }
+/* §5 explicitly: no decorative motion beyond 150ms ease-out. */
+
+/* Tile glyph — flat ink-50 chip, no gradient, no shadow. */
 .assistant-fab-icon {
   width: 22px; height: 22px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
+  border-radius: var(--radius-1);
+  background: var(--ink-50);
+  color: var(--blue-700);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-sans);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,122,255,0.3);
 }
 .assistant-fab-label {
   flex: 1;
   text-align: left;
-  color: var(--label-3);
+  color: var(--ink-500);
 }
-.assistant-fab:hover .assistant-fab-label { color: var(--label-2); }
+.assistant-fab:hover .assistant-fab-label { color: var(--ink-700); }
+
+/* ⌘K shortcut chip — mono. */
 .assistant-fab-shortcut {
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
   font-weight: 600;
-  color: var(--label-4);
-  background: rgba(0, 0, 0, 0.05);
-  padding: 3px 7px;
-  border-radius: 5px;
-  letter-spacing: 0.02em;
+  color: var(--ink-500);
+  background: var(--ink-50);
+  padding: 2px 6px;
+  border-radius: var(--radius-1);
+  border: 1px solid var(--ink-200);
+  letter-spacing: 0;
   flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
-  .assistant-fab { min-width: auto; width: calc(100vw - 28px); }
+  .assistant-fab { min-width: auto; width: calc(100vw - 32px); }
 }
 @media (min-width: 901px) {
-  .assistant-fab { left: calc(50% + 116px); }
-  .assistant-fab:hover {
-    transform: translateX(-50%) translateY(-2px);
-  }
+  /* Offset for the 240px sidebar on desktop so the bar stays
+     visually centered inside the .app-main viewport. */
+  .assistant-fab { left: calc(50% + 120px); }
 }
 
+/* Drawer overlay + sheet. */
 .assistant-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(10, 22, 40, 0.28);            /* --ink-900 rgba mirror */
   z-index: 300;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.22s;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease-out;
 }
 .assistant-overlay--open { opacity: 1; pointer-events: all; }
 
 .assistant-drawer {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: min(420px, 100vw);
-  background: var(--surface);
+  width: min(440px, 100vw);
+  background: var(--canvas);
+  border-left: var(--border-hairline);
   z-index: 400;
   display: flex;
   flex-direction: column;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.12);
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  transition: transform 220ms ease-out;
 }
 .assistant-drawer--open { transform: translateX(0); }
 
@@ -3369,84 +3376,139 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 20px 14px;
-  border-bottom: 0.5px solid var(--border);
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5, 20px);
+  border-bottom: var(--border-hairline);
   flex-shrink: 0;
 }
-.assistant-title { font-size: 1rem; font-weight: 700; color: var(--label); letter-spacing: -0.01em; }
-.assistant-context-note { font-size: 11px; color: var(--label-3); margin-top: 2px; }
-.assistant-close {
-  background: rgba(0,0,0,0.06);
-  border: none;
-  border-radius: 50%;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--label-2); cursor: pointer;
-  transition: background 0.15s;
+.assistant-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
 }
-.assistant-close:hover { background: rgba(0,0,0,0.12); }
+.assistant-context-note {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  color: var(--ink-400);
+  margin-top: 2px;
+  letter-spacing: 0;
+}
+.assistant-close {
+  background: var(--ink-50);
+  border: none;
+  border-radius: var(--radius-1);
+  width: 28px; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background 150ms ease-out, color 150ms ease-out;
+  flex-shrink: 0;
+}
+.assistant-close:hover { background: var(--ink-100); color: var(--ink-900); }
 
 .assistant-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5, 20px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
-.assistant-empty { text-align: center; padding: 24px 0; }
-.assistant-empty-title { font-size: 13px; color: var(--label-2); margin-bottom: 16px; }
-.assistant-suggested { display: flex; flex-direction: column; gap: 8px; }
+.assistant-empty { padding: var(--space-6) 0; }
+.assistant-empty-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.005em;
+}
+.assistant-empty-title--muted { color: var(--ink-400); }
+
+/* §5 suggested prompt chips — body-sm, 1px --ink-200 border, 2px radius,
+   hover --ink-50. */
+.assistant-suggested {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 .assistant-suggestion {
-  background: rgba(0,0,0,0.03);
-  border: 0.5px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--label-2);
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);                /* 2px per §5 */
+  padding: 10px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-700);
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
+  letter-spacing: -0.005em;
 }
-.assistant-suggestion:hover { background: rgba(0,122,255,0.07); border-color: rgba(0,122,255,0.3); color: var(--primary); }
+.assistant-suggestion:hover {
+  background: var(--ink-50);
+  border-color: var(--ink-300);
+  color: var(--ink-900);
+}
 
+/* Chat bubbles — 8px radius (max allowed §2 radius), tail-radius 2px. */
 .assistant-message { display: flex; }
 .assistant-message--user { justify-content: flex-end; }
 .assistant-message--assistant { justify-content: flex-start; }
 .assistant-bubble {
   max-width: 86%;
-  padding: 10px 14px;
-  border-radius: 18px;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: 10px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
   white-space: pre-wrap;
+  letter-spacing: -0.005em;
 }
-.assistant-message--user .assistant-bubble      { background: var(--primary); color: white; border-radius: 18px 18px 4px 18px; }
-.assistant-message--assistant .assistant-bubble { background: var(--bg); color: var(--label); border-radius: 18px 18px 18px 4px; }
-.assistant-typing { animation: blink 0.9s infinite; }
+.assistant-message--user .assistant-bubble {
+  background: var(--blue-700);
+  color: var(--canvas);
+  border-radius: 8px 8px 2px 8px;
+}
+.assistant-message--assistant .assistant-bubble {
+  background: var(--ink-50);
+  color: var(--ink-900);
+  border-radius: 8px 8px 8px 2px;
+}
+.assistant-typing { animation: blink 0.9s infinite; color: var(--ink-400); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
+/* Input row at the bottom of the drawer. */
 .assistant-input-row {
   display: flex;
-  gap: 8px;
-  padding: 14px 20px;
-  border-top: 0.5px solid var(--border);
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5, 20px);
+  border-top: var(--border-hairline);
   flex-shrink: 0;
 }
 .assistant-input {
   flex: 1;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 14px;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-1);                /* 2px input per §2 */
+  padding: 8px var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
   outline: none;
-  background: var(--bg);
-  font-family: inherit;
-  color: var(--label);
-  transition: all 0.15s;
+  background: var(--canvas);
+  color: var(--ink-900);
+  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  letter-spacing: -0.005em;
 }
-.assistant-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+.assistant-input:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(43, 85, 130, 0.14);
+}
 
 /* ── typography ── */
 h1 {

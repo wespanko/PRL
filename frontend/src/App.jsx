@@ -206,7 +206,7 @@ export default function App() {
         onClick={() => setAssistantOpen(true)}
         title="Ask the assistant about your portfolio"
       >
-        <span className="assistant-fab-icon">✦</span>
+        <span className="assistant-fab-icon" aria-hidden="true">◍</span>
         <span className="assistant-fab-label">Ask about your portfolio…</span>
         <span className="assistant-fab-shortcut">⌘K</span>
       </button>
