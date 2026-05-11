@@ -2,7 +2,9 @@ import { useState } from "react";
 import { generateThesis } from "../api/client";
 import { profileFirstName } from "../utils/profile";
 import { normalizeWeights } from "../utils/normalizeWeights";
+import { Button, Badge } from "./ui";
 
+// Icons restricted to §6-approved geometric glyphs.
 const GOALS = [
   {
     id: "long_term_growth",
@@ -22,7 +24,7 @@ const GOALS = [
   },
   {
     id: "tech_growth",
-    icon: "✦",
+    icon: "◍",
     label: "Bet on tech and AI",
     sub: "I think the next decade is AI, semis, and cloud. I want exposure but not unhedged.",
     thesis:
@@ -125,9 +127,9 @@ export default function BeginnerPortfolioWizard({
           ))}
         </div>
 
-        <button type="button" className="wizard-skip" onClick={onSkip}>
+        <Button variant="tertiary" onClick={onSkip} className="wizard-skip">
           Skip — show me the full app instead
-        </button>
+        </Button>
       </div>
     );
   }
@@ -150,17 +152,12 @@ export default function BeginnerPortfolioWizard({
   if (step === "error") {
     return (
       <div className="container">
-        <div className="empty-state">
-          <div className="empty-state-icon">⚠</div>
-          <div className="empty-state-title">Something went wrong</div>
-          <div className="empty-state-body">{error}</div>
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: 18 }}
-            onClick={() => setStep("goal")}
-          >
+        <div className="wizard-error">
+          <h2 className="pk-text-heading-lg pk-ink-900">Something went wrong</h2>
+          <p className="pk-text-body pk-ink-500 wizard-error-body">{error}</p>
+          <Button variant="primary" onClick={() => setStep("goal")}>
             Try a different goal
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -176,7 +173,7 @@ export default function BeginnerPortfolioWizard({
         {themes.length > 0 && (
           <div className="wizard-themes">
             {themes.map((t) => (
-              <span key={t} className="thesis-theme-pill">{t}</span>
+              <Badge key={t} variant="blue">{t}</Badge>
             ))}
           </div>
         )}
@@ -206,21 +203,17 @@ export default function BeginnerPortfolioWizard({
       </div>
 
       <div className="wizard-actions">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setStep("goal")}
-        >
+        <Button variant="secondary" onClick={() => setStep("goal")}>
           ← Back
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary wizard-go-btn"
+        </Button>
+        <Button
+          variant="gold"
           onClick={buildAndAnalyze}
           disabled={suggestions.length === 0}
+          className="wizard-go-btn"
         >
           Analyze this portfolio →
-        </button>
+        </Button>
       </div>
     </div>
   );

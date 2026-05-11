@@ -524,32 +524,40 @@ body {
 .plan-tip--dark[open] > summary { border-bottom-color: rgba(255, 255, 255, 0.08); }
 .plan-tip--dark > p { border-bottom-color: rgba(255, 255, 255, 0.06); color: var(--ink-300); }
 
-/* ── Beginner Portfolio Wizard ── */
-.wizard-hero { margin-bottom: 22px; }
+/* ─────────────────────────────────────────────────────────────────────
+   Beginner Portfolio Wizard — auxiliary onboarding flow.
+   Brief tokens throughout; gold reserved for the page's one CTA
+   ("Analyze this portfolio →" on the review step).
+   ───────────────────────────────────────────────────────────────────── */
+
+.wizard-hero { margin-bottom: var(--space-6); }
 .wizard-step-pill {
   display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  background: rgba(0, 122, 255, 0.12);
-  color: var(--primary);
-  padding: 4px 11px;
-  border-radius: 99px;
-  margin-bottom: 14px;
+  background: var(--blue-100);
+  color: var(--blue-700);
+  padding: 3px 10px;
+  border-radius: var(--radius-1);
+  margin-bottom: var(--space-3);
 }
 .wizard-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--label);
-  margin-bottom: 8px;
-  line-height: 1.15;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-lg-size);
+  line-height: var(--text-heading-lg-line);
+  font-weight: var(--text-heading-lg-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-2);
 }
 .wizard-sub {
-  font-size: 14.5px;
-  color: var(--label-2);
-  line-height: 1.6;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
   max-width: 680px;
 }
@@ -557,124 +565,129 @@ body {
 .wizard-goals {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 .wizard-goal-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5, 20px);
+  background: var(--canvas);
+  border: 1px solid var(--ink-200);
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-2);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 2px rgba(15, 23, 42, 0.03);
+  transition: background 150ms ease-out, border-color 150ms ease-out;
 }
 .wizard-goal-card:hover {
-  transform: translateY(-2px);
-  background: white;
-  border-color: rgba(0, 122, 255, 0.35);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 12px 32px rgba(0, 122, 255, 0.12);
+  background: var(--ink-50);
+  border-color: var(--ink-300);
+  border-left-color: var(--gold-500);
 }
 .wizard-goal-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary), #7c3aed);
-  color: white;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-2);
+  background: var(--ink-50);
+  color: var(--ink-700);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-sans);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   flex-shrink: 0;
-  box-shadow: 0 5px 14px rgba(0, 122, 255, 0.28);
 }
-.wizard-goal-text {
-  flex: 1;
-  min-width: 0;
+.wizard-goal-card:hover .wizard-goal-icon {
+  background: var(--blue-700);
+  color: var(--canvas);
 }
+.wizard-goal-text { flex: 1; min-width: 0; }
 .wizard-goal-label {
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
   margin-bottom: 4px;
 }
 .wizard-goal-sub {
-  font-size: 13px;
-  color: var(--label-3);
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
 .wizard-goal-arrow {
-  font-size: 20px;
-  color: var(--label-4);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  color: var(--ink-400);
   flex-shrink: 0;
-  transition: all 0.2s;
+  transition: color 150ms ease-out, transform 150ms ease-out;
 }
 .wizard-goal-card:hover .wizard-goal-arrow {
-  color: var(--primary);
-  transform: translateX(4px);
+  color: var(--blue-700);
+  transform: translateX(3px);
 }
 
 .wizard-skip {
   display: block;
-  margin: 4px auto 0;
-  background: none;
-  border: none;
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  letter-spacing: -0.005em;
-  padding: 8px;
+  margin: var(--space-4) auto 0;
+  text-align: center;
 }
-.wizard-skip:hover { text-decoration: underline; }
 
+/* Loading state. */
 .wizard-loading {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 18px;
-  padding: 64px 28px;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-16) var(--space-6);
   text-align: center;
 }
 .wizard-loading-spinner {
   width: 28px; height: 28px;
   border-width: 3px;
-  margin: 0 auto 18px;
+  margin: 0 auto var(--space-4);
 }
 .wizard-loading-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--label);
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: var(--text-heading-md-size);
+  line-height: var(--text-heading-md-line);
+  font-weight: var(--text-heading-md-weight);
+  color: var(--ink-900);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.01em;
 }
 .wizard-loading-body {
-  font-size: 13.5px;
-  color: var(--label-3);
-  max-width: 360px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-500);
+  max-width: 420px;
   margin: 0 auto;
-  line-height: 1.55;
+  letter-spacing: -0.005em;
 }
+
+/* Error state. */
+.wizard-error {
+  max-width: 480px;
+  margin: var(--space-16) auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.wizard-error-body { text-align: center; margin: 0; }
 
 .wizard-themes {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .wizard-suggestions {
@@ -684,72 +697,75 @@ body {
   padding: 4px 0;
 }
 .wizard-holding {
-  padding: 14px 18px;
-  border-bottom: 0.5px solid var(--border-light);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-hairline);
 }
 .wizard-holding:last-child { border-bottom: none; }
 .wizard-holding-line {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: var(--space-3);
   margin-bottom: 4px;
   flex-wrap: wrap;
 }
 .wizard-holding-ticker {
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-  font-size: 14.5px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: -0.02em;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  font-weight: 600;
+  color: var(--blue-700);
+  letter-spacing: -0.01em;
 }
 .wizard-holding-name {
-  font-size: 13px;
-  color: var(--label-2);
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-700);
+  font-weight: 500;
   letter-spacing: -0.005em;
 }
 .wizard-holding-weight {
   margin-left: auto;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  font-weight: 600;
+  color: var(--ink-900);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 .wizard-holding-reason {
-  font-size: 12.5px;
-  color: var(--label-3);
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
   letter-spacing: -0.005em;
 }
 
+/* "Why equal weights" explainer panel — informational ink-50 panel. */
 .wizard-explain {
-  background: rgba(52, 199, 89, 0.07);
-  border: 0.5px solid rgba(52, 199, 89, 0.2);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 13px;
-  color: var(--label-2);
-  line-height: 1.55;
+  background: var(--ink-50);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
   letter-spacing: -0.005em;
-  margin-bottom: 18px;
-  margin-top: 14px;
+  margin-bottom: var(--space-4);
+  margin-top: var(--space-3);
 }
-.wizard-explain strong { color: var(--label); }
+.wizard-explain strong { color: var(--ink-900); font-weight: 600; }
 
 .wizard-actions {
   display: flex;
-  gap: 10px;
+  gap: var(--space-3);
   align-items: center;
 }
 .wizard-go-btn { flex: 1; }
 
 @media (max-width: 600px) {
-  .wizard-title { font-size: 1.5rem; }
-  .wizard-goal-card { padding: 14px 16px; gap: 12px; }
-  .wizard-goal-icon { width: 38px; height: 38px; font-size: 16px; }
-  .wizard-goal-label { font-size: 0.95rem; }
-  .wizard-goal-sub { font-size: 12px; }
+  .wizard-title { font-size: var(--text-heading-md-size); }
+  .wizard-goal-card { padding: var(--space-3) var(--space-4); gap: var(--space-3); }
+  .wizard-goal-icon { width: 36px; height: 36px; font-size: 16px; }
+  .wizard-goal-label { font-size: var(--text-body-size); }
 }
 
 /* ── Settings page ── */
