@@ -1618,105 +1618,126 @@ body {
   letter-spacing: -0.005em;
 }
 
-/* ── InfoTip ("?" popover) ── */
+/* ─────────────────────────────────────────────────────────────────────
+   InfoTip — small "?" affordance + popover anchored to a metric label.
+   Brief tokens; popover uses --shadow-elevated per §2 (modals/dropdowns).
+   ───────────────────────────────────────────────────────────────────── */
 .infotip-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
   margin-left: 5px;
 }
+
+/* "?" affordance — circular 16px chip. The 50% radius is the §6 "rounded-full ...
+   avatars excepted" allowance; a single-character info chip reads as an
+   avatar-class element. No transform scale on hover (§6 motion rule). */
 .infotip-trigger {
   width: 16px; height: 16px;
   border-radius: 50%;
-  background: rgba(0, 122, 255, 0.10);
-  color: var(--primary);
+  background: var(--ink-50);
+  color: var(--ink-500);
   border: none;
+  font-family: var(--font-sans);
   font-size: 10.5px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: inherit;
-  transition: all 0.15s;
+  transition: background 150ms ease-out, color 150ms ease-out;
   line-height: 1;
 }
 .infotip-trigger:hover {
-  background: var(--primary);
-  color: white;
-  transform: scale(1.1);
+  background: var(--blue-700);
+  color: var(--canvas);
 }
 .infotip-trigger--open {
-  background: var(--primary);
-  color: white;
+  background: var(--blue-700);
+  color: var(--canvas);
 }
+
+/* Popover — elevated surface per §2. Treated as a dropdown (§3
+   "Elevated (modals, dropdowns): 0 4px 24px rgba(10, 22, 40, 0.08)"
+   exposed as --shadow-elevated). 8px radius per §2 modal tier. */
 .infotip-popover {
   position: absolute;
   z-index: 250;
   width: 280px;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 0.5px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  padding: 12px 14px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 12px 36px rgba(15, 23, 42, 0.16);
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-3);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-elevated);
   text-align: left;
+  font-family: var(--font-sans);
   font-weight: 400;
   letter-spacing: -0.005em;
   text-transform: none;
 }
 .infotip-popover--top {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + var(--space-2));
   left: 50%;
   transform: translateX(-50%);
 }
 .infotip-popover--bottom {
-  top: calc(100% + 8px);
+  top: calc(100% + var(--space-2));
   left: 50%;
   transform: translateX(-50%);
 }
+
 .infotip-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
-  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--space-2);
 }
 .infotip-body {
-  font-size: 12px;
-  color: var(--label-2);
-  line-height: 1.5;
-  margin-bottom: 8px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-700);
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.005em;
 }
 .infotip-range {
-  font-size: 11px;
-  color: var(--label-3);
-  line-height: 1.5;
-  padding-top: 8px;
-  border-top: 0.5px solid rgba(0, 0, 0, 0.06);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
+  color: var(--ink-500);
+  padding-top: var(--space-2);
+  border-top: var(--border-hairline);
+  letter-spacing: -0.005em;
 }
 .infotip-range-label {
-  font-weight: 700;
-  color: var(--label-2);
+  font-family: var(--font-sans);
+  font-weight: var(--text-caption-weight);
+  color: var(--ink-400);
   text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 0.07em;
+  font-size: var(--text-caption-size);
+  letter-spacing: var(--text-caption-tracking);
 }
+/* Numeric range value rendered inline after the caption — Plex Mono for the
+   actual digits is preferable; the body span next to .infotip-range-label
+   inherits sans, but the .infotip-range copy is short prose ("0.5 — 2.0")
+   that the body uses sparingly. Flagged as the systemic inline-numeral
+   variance, not patched here. */
+
 .infotip-learn-more {
   display: inline-block;
-  margin-top: 8px;
-  font-size: 11.5px;
+  margin-top: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
   font-weight: 600;
-  color: var(--primary);
+  color: var(--blue-700);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: inherit;
   letter-spacing: -0.005em;
 }
 .infotip-learn-more:hover { text-decoration: underline; }
