@@ -4885,192 +4885,249 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; 
   border-top-color: var(--label-3);
 }
 
-/* ── optimization details (Improve > Optimized Hedge) ── */
+/* ─────────────────────────────────────────────────────────────────────
+   OptimizationDetails — "How this trade was selected" panel inside the
+   Improve page. Section card on --ink-50, hairline border, --radius-2
+   (4px, brief §2 card tier). No gradient, no glass, no shadow. Sub-panels
+   step down to --paper / --radius-1. All formulas in IBM Plex Mono per §6.
+   ───────────────────────────────────────────────────────────────────── */
 .opt-details {
-  background: linear-gradient(135deg, rgba(0,122,255,0.04), rgba(88,86,214,0.03));
-  border: 0.5px solid rgba(0,122,255,0.18);
-  border-radius: 14px;
-  padding: 18px 20px 20px;
-  margin-bottom: 22px;
+  background: var(--ink-50);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  margin-bottom: var(--space-6);
 }
 .opt-details-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
+/* Badge — brief §5 pattern: 2px radius, mono caption. Pill ditched in favor
+   of the rectangular badge primitive used elsewhere in the app. */
 .opt-details-badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  letter-spacing: var(--text-caption-tracking);
   text-transform: uppercase;
-  background: var(--primary);
-  color: white;
-  padding: 3px 9px;
-  border-radius: 99px;
+  background: var(--blue-700);
+  color: var(--canvas);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-1);
 }
 .opt-details-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--label);
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: -0.005em;
 }
 
+/* Formula sub-panel — steps down to --paper for visual hierarchy inside
+   the section card. radius-1 (2px) per inputs/code tier. */
 .opt-details-formula {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
-  background: rgba(255,255,255,0.7);
-  border-radius: 10px;
-  margin-bottom: 14px;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper);
+  border: var(--border-hairline);
+  border-radius: var(--radius-1);
+  margin-bottom: var(--space-4);
 }
 .opt-formula-line {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line);
 }
 .opt-formula-label {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-  min-width: 78px;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  min-width: 80px;
 }
 .opt-formula-line code {
-  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
-  font-size: 12px;
-  color: var(--label);
-  background: rgba(0,0,0,0.04);
-  padding: 2px 7px;
-  border-radius: 5px;
-  letter-spacing: -0.01em;
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  color: var(--ink-900);
+  background: var(--ink-50);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-1);
+  letter-spacing: 0;
 }
 .opt-formula-aside {
-  font-size: 11px;
-  color: var(--label-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-500);
 }
 
 .opt-details-result {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 .opt-result-row {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 .opt-result-label {
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-  min-width: 78px;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  min-width: 80px;
 }
 .opt-result-value {
-  font-size: 14px;
-  color: var(--label);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--ink-700);
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
 }
+/* Selected ticker — mono for the symbol per brief §6 "tickers in mono". */
 .opt-result-value strong {
-  font-weight: 700;
-  color: var(--primary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink-900);
+  letter-spacing: 0;
 }
 .opt-result-aside {
-  font-size: 12px;
-  color: var(--label-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--ink-500);
   font-weight: 400;
-  margin-left: 4px;
+  margin-left: var(--space-1);
 }
 
 .opt-result-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: var(--space-3);
 }
+/* Metric tile — mini-card on --canvas. radius-2 (4px) card tier. */
 .opt-result-tile {
-  background: rgba(255,255,255,0.85);
-  border: 0.5px solid var(--border-light);
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: var(--canvas);
+  border: var(--border-hairline);
+  border-radius: var(--radius-2);
+  padding: var(--space-3) var(--space-4);
 }
 .opt-result-tile-label {
-  font-size: 9.5px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--label-4);
-  margin-bottom: 8px;
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  margin-bottom: var(--space-2);
 }
+/* Before → After values rendered in IBM Plex Mono per §6 numeral rule. */
 .opt-result-tile-value {
   display: flex;
   align-items: baseline;
-  gap: 5px;
-  font-size: 13.5px;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-size);
+  line-height: var(--text-mono-line);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   margin-bottom: 4px;
   flex-wrap: wrap;
 }
-.opt-result-tile-from { color: var(--label-3); font-weight: 500; }
-.opt-result-tile-arrow { color: var(--label-4); font-size: 11px; }
-.opt-result-tile-to { font-weight: 700; }
-.opt-result-tile-delta {
-  font-size: 11.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.opt-result-tile-from { color: var(--ink-400); font-weight: 500; }
+.opt-result-tile-arrow {
+  color: var(--ink-300);
+  font-family: var(--font-sans); /* arrow glyph reads cleaner in sans */
+  font-size: var(--text-body-sm-size);
 }
-.opt-pos { color: var(--positive); }
-.opt-neg { color: var(--negative); }
-.opt-neutral { color: var(--label-3); }
+.opt-result-tile-to { font-weight: 600; }
+.opt-result-tile-delta {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.opt-pos { color: var(--risk-green); }
+.opt-neg { color: var(--risk-red); }
+.opt-neutral { color: var(--ink-400); }
 
 .opt-details-frontier {
-  margin-top: 14px;
-  border-top: 0.5px solid var(--border-light);
-  padding-top: 12px;
+  margin-top: var(--space-4);
+  border-top: var(--border-hairline);
+  padding-top: var(--space-3);
 }
 .opt-details-frontier summary {
   cursor: pointer;
-  font-size: 12px;
-  color: var(--primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
+  color: var(--blue-700);
   font-weight: 600;
   letter-spacing: -0.005em;
   user-select: none;
 }
 .opt-details-frontier summary:hover { text-decoration: underline; }
+
+/* Pareto frontier table — brief §5 table spec: 0px corners, hairline rows,
+   --ink-50 header, IBM Plex Mono for numbers and tickers. */
 .opt-frontier-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm-size);
 }
 .opt-frontier-table th {
   text-align: left;
-  font-size: 10px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--label-4);
-  padding: 6px 8px;
-  border-bottom: 0.5px solid var(--border);
+  letter-spacing: var(--text-caption-tracking);
+  color: var(--ink-400);
+  background: var(--ink-50);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--ink-200);
 }
 .opt-frontier-table td {
-  padding: 7px 8px;
-  border-bottom: 0.5px solid var(--border-light);
-  color: var(--label-2);
+  padding: var(--space-2);
+  border-bottom: var(--border-hairline);
+  color: var(--ink-700);
 }
 .opt-frontier-table tr:last-child td { border-bottom: none; }
-.opt-frontier-table .opt-num { text-align: right; }
-.opt-frontier-table th.opt-num { text-align: right; }
-.opt-frontier-best td { background: rgba(0,122,255,0.05); font-weight: 600; color: var(--label); }
+/* Numeric columns use mono + tabular-nums per §6. */
+.opt-frontier-table .opt-num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.opt-frontier-table th.opt-num {
+  text-align: right;
+  font-family: var(--font-sans); /* header label stays sans caption */
+}
+/* Best row — restrained ink-50 highlight + weight bump. No gold (Improve
+   page reserves its single gold for the "Apply trade" CTA). */
+.opt-frontier-best td {
+  background: var(--ink-50);
+  font-weight: 600;
+  color: var(--ink-900);
+}
 
 @media (max-width: 600px) {
   .opt-result-grid { grid-template-columns: 1fr; }
