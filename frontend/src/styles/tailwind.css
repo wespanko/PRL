@@ -1,0 +1,6 @@
+/* Skip @tailwind base — the existing index.css owns the global reset and
+   typography defaults. Including Preflight would stomp h1/p/button styles
+   that the rest of the app depends on. Components + utilities is enough
+   for the experimental cyberpunk Learn page. */
+@tailwind components;
+@tailwind utilities;
