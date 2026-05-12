@@ -1,32 +1,33 @@
+import { AlertTriangle } from "lucide-react";
+
 export default function DisclaimerFooter({ setActiveTab }) {
   const year = new Date().getFullYear();
   return (
-    <footer className="disclaimer-footer">
-      <div className="disclaimer-footer-inner">
-        <div className="disclaimer-footer-strong">
-          Educational tool · Not financial advice · No warranty
+    <footer className="mt-12 px-6 md:px-10 pb-12">
+      <div className="max-w-3xl mx-auto rounded-3xl bg-slate-50 border border-slate-200 p-6 md:p-8">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" strokeWidth={2.5} />
+          <div className="text-xs font-extrabold uppercase tracking-wider text-amber-700">
+            Educational tool · Not financial advice · No warranty
+          </div>
         </div>
-        <div className="disclaimer-footer-body">
-          Panko is provided <strong>"as is"</strong> by <strong>Panko Financial Strategies LLC</strong>{" "}
-          for educational and informational purposes only. It is not investment advice, brokerage,
-          or fiduciary service. Panko Financial Strategies LLC is <strong>not a registered
-          investment adviser</strong> under the Investment Advisers Act of 1940. Numbers are
-          computed from historical price data — <strong>past performance does not guarantee future
-          results</strong>. Forward-looking projections are mathematical models, not forecasts.
-          All investing carries risk of loss including loss of principal. The operator accepts no
-          liability for losses, gains, taxes, or decisions made based on this tool's output.{" "}
-          <strong>Consult a licensed financial advisor before making investment decisions.</strong>
-        </div>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Panko is provided <strong className="text-slate-700">"as is"</strong> by <strong className="text-slate-700">Panko Financial Strategies LLC</strong> for educational and informational purposes only. It is not investment advice, brokerage, or fiduciary service. Panko Financial Strategies LLC is <strong className="text-slate-700">not a registered investment adviser</strong> under the Investment Advisers Act of 1940. Numbers are computed from historical price data — <strong className="text-slate-700">past performance does not guarantee future results</strong>. Forward-looking projections are mathematical models, not forecasts. All investing carries risk of loss including loss of principal. The operator accepts no liability for losses, gains, taxes, or decisions made based on this tool's output. <strong className="text-slate-700">Consult a licensed financial advisor before making investment decisions.</strong>
+        </p>
         {setActiveTab && (
-          <div className="disclaimer-footer-links">
-            <button type="button" onClick={() => setActiveTab("terms")}>Terms of Service</button>
-            <span className="disclaimer-footer-link-divider">·</span>
-            <button type="button" onClick={() => setActiveTab("privacy")}>Privacy Policy</button>
-            <span className="disclaimer-footer-link-divider">·</span>
-            <button type="button" onClick={() => setActiveTab("learn")}>Methodology (Learn tab)</button>
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+            <button type="button" onClick={() => setActiveTab("terms")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+              Terms of Service
+            </button>
+            <button type="button" onClick={() => setActiveTab("privacy")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+              Privacy Policy
+            </button>
+            <button type="button" onClick={() => setActiveTab("learn")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+              Methodology (Learn tab)
+            </button>
           </div>
         )}
-        <div className="disclaimer-footer-copyright">
+        <div className="mt-4 text-[11px] text-slate-400 font-mono">
           © {year} Panko Financial Strategies LLC · All rights reserved
         </div>
       </div>

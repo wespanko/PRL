@@ -1,49 +1,32 @@
 import { useState } from "react";
+import {
+  TrendingUp, ShieldCheck, Cpu, Scale,
+  ArrowRight, ArrowLeft, Loader2, Sparkles,
+} from "lucide-react";
 import { generateThesis } from "../api/client";
 import { profileFirstName } from "../utils/profile";
 import { normalizeWeights } from "../utils/normalizeWeights";
-import { Button, Badge } from "./ui";
 
-// Icons restricted to §6-approved geometric glyphs.
 const GOALS = [
-  {
-    id: "long_term_growth",
-    icon: "▲",
-    label: "Grow my money long-term",
-    sub: "10+ year horizon. I want my money to compound. I can ride out the dips.",
-    thesis:
-      "I'm investing for the long term — 10+ years. I want a portfolio focused on growth, with US and international equity, some technology exposure, and a small bond allocation as a stabilizer. I can tolerate short-term drops to capture long-run compounding.",
-  },
-  {
-    id: "avoid_losses",
-    icon: "◐",
-    label: "Avoid big losses",
-    sub: "Steady growth is fine. I can't stomach a 30% drop.",
-    thesis:
-      "Capital preservation is my main goal. I want steady, modest growth and to cap drawdowns under 15%. I'll accept lower returns to avoid big losses. Bonds, defensive equity, and gold are welcome. I'm okay underperforming the market in good years if it means I can sleep through bad years.",
-  },
-  {
-    id: "tech_growth",
-    icon: "◍",
-    label: "Bet on tech and AI",
-    sub: "I think the next decade is AI, semis, and cloud. I want exposure but not unhedged.",
-    thesis:
-      "I'm bullish on AI infrastructure and US large-cap technology for the next 5-10 years — semis, cloud providers, and the megacaps building the rails. Tilt the portfolio toward this thematic bet but include some hedges (bonds, gold) to soften a tech correction or rate shock.",
-  },
-  {
-    id: "balanced_starter",
-    icon: "◎",
-    label: "I'm not sure — give me a balanced starter",
-    sub: "First-time investor. Build me something reasonable I can learn from.",
-    thesis:
-      "I'm new to investing and want a balanced starter portfolio. Some growth potential from broad equity, some safety from bonds, some diversification from international and gold. Nothing too aggressive or too conservative — a sensible first portfolio that lets me learn how the metrics work.",
-  },
+  { id: "long_term_growth", icon: TrendingUp,  label: "Grow my money long-term",                        sub: "10+ year horizon. I want my money to compound. I can ride out the dips.", thesis: "I'm investing for the long term — 10+ years. I want a portfolio focused on growth, with US and international equity, some technology exposure, and a small bond allocation as a stabilizer. I can tolerate short-term drops to capture long-run compounding." },
+  { id: "avoid_losses",     icon: ShieldCheck, label: "Avoid big losses",                              sub: "Steady growth is fine. I can't stomach a 30% drop.",                       thesis: "Capital preservation is my main goal. I want steady, modest growth and to cap drawdowns under 15%. I'll accept lower returns to avoid big losses. Bonds, defensive equity, and gold are welcome. I'm okay underperforming the market in good years if it means I can sleep through bad years." },
+  { id: "tech_growth",      icon: Cpu,         label: "Bet on tech and AI",                            sub: "I think the next decade is AI, semis, and cloud. I want exposure but not unhedged.", thesis: "I'm bullish on AI infrastructure and US large-cap technology for the next 5-10 years — semis, cloud providers, and the megacaps building the rails. Tilt the portfolio toward this thematic bet but include some hedges (bonds, gold) to soften a tech correction or rate shock." },
+  { id: "balanced_starter", icon: Scale,       label: "I'm not sure — give me a balanced starter",     sub: "First-time investor. Build me something reasonable I can learn from.",     thesis: "I'm new to investing and want a balanced starter portfolio. Some growth potential from broad equity, some safety from bonds, some diversification from international and gold. Nothing too aggressive or too conservative — a sensible first portfolio that lets me learn how the metrics work." },
 ];
+
+function StepPill({ children }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+      <Sparkles className="h-3 w-3" strokeWidth={2.75} />
+      {children}
+    </span>
+  );
+}
 
 export default function BeginnerPortfolioWizard({
   profile, onComplete, onAnalyze, onSkip,
 }) {
-  const [step, setStep] = useState("goal"); // goal | suggesting | review | error
+  const [step, setStep] = useState("goal");
   const [goalId, setGoalId] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [themes, setThemes] = useState([]);
@@ -65,7 +48,7 @@ export default function BeginnerPortfolioWizard({
         setError(
           data.error === "no_api_key"
             ? "AI suggestions are temporarily unavailable. You can still pick tickers manually."
-            : "Something went wrong fetching suggestions. Try a different goal or use the regular Thesis tab."
+            : "Something went wrong fetching suggestions. Try a different goal or use the regular Thesis tab.",
         );
         setStep("error");
         return;
@@ -97,123 +80,143 @@ export default function BeginnerPortfolioWizard({
 
   if (step === "goal") {
     return (
-      <div className="container">
-        <div className="wizard-hero">
-          <span className="wizard-step-pill">Step 1 of 2</span>
-          <h1 className="wizard-title">
+      <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
+        <div className="mb-8">
+          <StepPill>Step 1 of 2</StepPill>
+          <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
             {firstName ? `${firstName}, what` : "What"} do you want from your money?
           </h1>
-          <p className="wizard-sub">
-            Pick whichever feels closest. We'll build a real portfolio for you, run the
-            risk analysis, and explain what the numbers mean.
+          <p className="mt-3 text-slate-500 text-base md:text-lg leading-relaxed">
+            Pick whichever feels closest. We'll build a real portfolio for you, run the risk analysis, and explain what the numbers mean.
           </p>
         </div>
 
-        <div className="wizard-goals">
-          {GOALS.map((g) => (
-            <button
-              key={g.id}
-              type="button"
-              className="wizard-goal-card"
-              onClick={() => pickGoal(g)}
-            >
-              <span className="wizard-goal-icon">{g.icon}</span>
-              <div className="wizard-goal-text">
-                <div className="wizard-goal-label">{g.label}</div>
-                <div className="wizard-goal-sub">{g.sub}</div>
-              </div>
-              <span className="wizard-goal-arrow">→</span>
-            </button>
-          ))}
+        <div className="space-y-3 mb-6">
+          {GOALS.map((g) => {
+            const Icon = g.icon;
+            return (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => pickGoal(g)}
+                className="w-full text-left bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-sm rounded-3xl p-5 flex items-center gap-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                  <Icon className="h-6 w-6" strokeWidth={2.25} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-slate-900">{g.label}</div>
+                  <div className="text-sm text-slate-500 mt-0.5 leading-relaxed">{g.sub}</div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all shrink-0" strokeWidth={2.5} />
+              </button>
+            );
+          })}
         </div>
 
-        <Button variant="tertiary" onClick={onSkip} className="wizard-skip">
+        <button
+          onClick={onSkip}
+          className="block mx-auto text-sm font-bold text-slate-500 hover:text-slate-700"
+        >
           Skip — show me the full app instead
-        </Button>
+        </button>
       </div>
     );
   }
 
   if (step === "suggesting") {
     return (
-      <div className="container">
-        <div className="wizard-loading">
-          <div className="spinner spinner--dark wizard-loading-spinner" />
-          <h2 className="wizard-loading-title">Building your portfolio…</h2>
-          <p className="wizard-loading-body">
-            Mapping your goal to specific tickers from a curated list of broad ETFs
-            and well-known names. Takes about 5 seconds.
-          </p>
+      <div className="px-6 py-16 md:px-10 max-w-2xl mx-auto text-center">
+        <div className="flex justify-center mb-6">
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600">
+            <Loader2 className="h-8 w-8 animate-spin" strokeWidth={2.25} />
+          </div>
         </div>
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 mb-3">
+          Building your portfolio…
+        </h2>
+        <p className="text-slate-500 text-base md:text-lg leading-relaxed">
+          Mapping your goal to specific tickers from a curated list of broad ETFs and well-known names. Takes about 5 seconds.
+        </p>
       </div>
     );
   }
 
   if (step === "error") {
     return (
-      <div className="container">
-        <div className="wizard-error">
-          <h2 className="pk-text-heading-lg pk-ink-900">Something went wrong</h2>
-          <p className="pk-text-body pk-ink-500 wizard-error-body">{error}</p>
-          <Button variant="primary" onClick={() => setStep("goal")}>
-            Try a different goal
-          </Button>
-        </div>
+      <div className="px-6 py-16 md:px-10 max-w-2xl mx-auto text-center">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 mb-3">
+          Something went wrong
+        </h2>
+        <p className="text-slate-500 mb-6 leading-relaxed">{error}</p>
+        <button
+          onClick={() => setStep("goal")}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-colors active:scale-[0.99]"
+        >
+          Try a different goal
+        </button>
       </div>
     );
   }
 
   // step === "review"
   return (
-    <div className="container">
-      <div className="wizard-hero">
-        <span className="wizard-step-pill">Step 2 of 2</span>
-        <h1 className="wizard-title">Here's the portfolio we'd suggest.</h1>
-        <p className="wizard-sub">{summary}</p>
+    <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
+      <div className="mb-6">
+        <StepPill>Step 2 of 2</StepPill>
+        <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+          Here's the portfolio we'd suggest.
+        </h1>
+        <p className="mt-3 text-slate-500 text-base md:text-lg leading-relaxed">{summary}</p>
         {themes.length > 0 && (
-          <div className="wizard-themes">
+          <div className="mt-4 flex flex-wrap gap-1.5">
             {themes.map((t) => (
-              <Badge key={t} variant="blue">{t}</Badge>
+              <span key={t} className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                {t}
+              </span>
             ))}
           </div>
         )}
       </div>
 
-      <div className="card wizard-suggestions">
-        {suggestions.map((s, i) => {
+      <div className="bg-white border border-slate-200 rounded-3xl divide-y divide-slate-100 mb-5">
+        {suggestions.map((s) => {
           const equalPct = ((1 / suggestions.length) * 100).toFixed(1);
           return (
-            <div key={s.ticker} className="wizard-holding">
-              <div className="wizard-holding-line">
-                <span className="wizard-holding-ticker">{s.ticker}</span>
-                <span className="wizard-holding-name">{s.name}</span>
-                <span className="wizard-holding-weight">{equalPct}%</span>
+            <div key={s.ticker} className="p-4 md:p-5">
+              <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                <span className="font-mono font-bold text-slate-900">{s.ticker}</span>
+                <span className="text-sm text-slate-700 font-medium">{s.name}</span>
+                <span className="ml-auto font-mono font-bold text-emerald-600 tabular-nums">{equalPct}%</span>
               </div>
-              <div className="wizard-holding-reason">{s.reason}</div>
+              {s.reason && (
+                <div className="text-sm text-slate-600 leading-relaxed">{s.reason}</div>
+              )}
             </div>
           );
         })}
       </div>
 
-      <div className="wizard-explain">
-        <strong>Why equal weights?</strong> For your first portfolio, dividing evenly
-        across all picks is the simplest baseline. After we run the risk analysis you
-        can adjust any position from the Simulate tab and see exactly how it changes
-        your numbers.
+      <div className="rounded-2xl bg-blue-50 border border-blue-200 p-4 mb-6 text-sm leading-relaxed text-blue-900/90">
+        <strong className="text-blue-950">Why equal weights?</strong> For your first portfolio, dividing evenly across all picks is the simplest baseline. After we run the risk analysis you can adjust any position from the Simulate tab and see exactly how it changes your numbers.
       </div>
 
-      <div className="wizard-actions">
-        <Button variant="secondary" onClick={() => setStep("goal")}>
-          ← Back
-        </Button>
-        <Button
-          variant="gold"
+      <div className="flex gap-3">
+        <button
+          onClick={() => setStep("goal")}
+          className="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+          Back
+        </button>
+        <button
           onClick={buildAndAnalyze}
           disabled={suggestions.length === 0}
-          className="wizard-go-btn"
+          className="flex-1 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200 disabled:shadow-none"
         >
-          Analyze this portfolio →
-        </Button>
+          Analyze this portfolio
+          <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+        </button>
       </div>
     </div>
   );

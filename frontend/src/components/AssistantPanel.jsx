@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { X, Send, Sparkles, Loader2 } from "lucide-react";
 import { buildPortfolioContext } from "../utils/portfolioContext";
-import { Button } from "./ui";
 
 const SUGGESTED = [
   "Why is my downside capture so high?",
@@ -31,7 +31,7 @@ async function* streamChat(messages, context) {
       if (!line.startsWith("data: ")) continue;
       const data = line.slice(6);
       if (data === "[DONE]") return;
-      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore malformed */ }
+      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore */ }
     }
   }
 }
@@ -43,13 +43,8 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
-  }, [isOpen]);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  useEffect(() => { if (isOpen) inputRef.current?.focus(); }, [isOpen]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const context = buildPortfolioContext(lastResults, lastPayload);
   const hasPortfolio = !!context;
@@ -83,69 +78,116 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
 
   return (
     <>
-      <div className={`assistant-overlay ${isOpen ? "assistant-overlay--open" : ""}`} onClick={onClose} />
-      <div className={`assistant-drawer ${isOpen ? "assistant-drawer--open" : ""}`}>
-        <div className="assistant-header">
-          <div>
-            <div className="assistant-title">Assistant</div>
-            {hasPortfolio && (
-              <div className="assistant-context-note">
-                Loaded: {lastResults.tickers.join(", ")}
-              </div>
-            )}
-          </div>
-          <button className="assistant-close" onClick={onClose}>✕</button>
-        </div>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className={`fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 transition-opacity duration-300
+          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      />
 
-        <div className="assistant-messages">
+      {/* Drawer */}
+      <div
+        className={`fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-white border-l border-slate-200 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl
+          ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        {/* Header */}
+        <header className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+              <Sparkles className="h-4 w-4" strokeWidth={2.5} />
+            </div>
+            <div className="min-w-0">
+              <div className="font-extrabold text-slate-900">Assistant</div>
+              {hasPortfolio && (
+                <div className="text-xs text-slate-500 truncate font-mono">
+                  Loaded: {lastResults.tickers.join(", ")}
+                </div>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+          >
+            <X className="h-5 w-5" strokeWidth={2.5} />
+          </button>
+        </header>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
           {messages.length === 0 && (
-            <div className="assistant-empty">
+            <div className="py-6">
               {hasPortfolio ? (
                 <>
-                  <p className="assistant-empty-title">Ask anything about your portfolio.</p>
-                  <div className="assistant-suggested">
+                  <p className="text-base font-bold text-slate-900 mb-1">Ask anything about your portfolio.</p>
+                  <p className="text-sm text-slate-500 mb-4">Try one of these:</p>
+                  <div className="space-y-2">
                     {SUGGESTED.map((s) => (
-                      <button key={s} className="assistant-suggestion" onClick={() => send(s)}>
+                      <button
+                        key={s}
+                        onClick={() => send(s)}
+                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-slate-900 transition-colors"
+                      >
                         {s}
                       </button>
                     ))}
                   </div>
                 </>
               ) : (
-                <p className="assistant-empty-title assistant-empty-title--muted">
-                  Run an analysis first, then come back to ask questions about your portfolio.
-                </p>
+                <div className="text-center py-10">
+                  <div className="flex justify-center mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+                      <Sparkles className="h-6 w-6" strokeWidth={2} />
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Run an analysis first, then come back to ask questions about your portfolio.
+                  </p>
+                </div>
               )}
             </div>
           )}
 
-          {messages.map((m, i) => (
-            <div key={i} className={`assistant-message assistant-message--${m.role}`}>
-              <div className="assistant-bubble">
-                {m.content || (streaming && i === messages.length - 1 ? <span className="assistant-typing">▋</span> : "")}
+          <div className="space-y-3">
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+                    ${m.role === "user"
+                      ? "bg-emerald-500 text-white"
+                      : "bg-slate-100 text-slate-900"}`}
+                >
+                  {m.content || (streaming && i === messages.length - 1 ? (
+                    <span className="inline-flex gap-1">
+                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                    </span>
+                  ) : "")}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
           <div ref={bottomRef} />
         </div>
 
-        <form className="assistant-input-row" onSubmit={handleSubmit}>
+        {/* Input */}
+        <form onSubmit={handleSubmit} className="px-5 py-4 border-t border-slate-200 flex gap-2">
           <input
             ref={inputRef}
-            className="assistant-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
             disabled={streaming || !hasPortfolio}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors disabled:opacity-50"
           />
-          <Button
-            variant="primary"
-            size="sm"
+          <button
             type="submit"
             disabled={!input.trim() || streaming || !hasPortfolio}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-colors active:scale-[0.95]"
           >
-            {streaming ? <span className="spinner" /> : "→"}
-          </Button>
+            {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
+          </button>
         </form>
       </div>
     </>

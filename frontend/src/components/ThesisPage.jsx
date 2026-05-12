@@ -1,58 +1,29 @@
-// Build page — DESIGN_BRIEF.md §7
-//
-// Strict spec: Three-column grid (Quick Start | Pick a Diagnosis |
-// Custom Thesis). Quick Start items are secondary buttons. Custom
-// Thesis textarea uses the brief's "feel like a serious input" spec
-// (ink-50 bg, ink-200 border, 4px radius, body-lg). Risk Tolerance is
-// a segmented control with hairline borders, active filled blue-700.
-// "Generate suggestions" is THE gold CTA — the page's single most
-// important action per §4.
-
 import { useState } from "react";
+import {
+  TrendingUp, ShieldCheck, Cpu, Scale, Target,
+  Flame, AlertTriangle, TrendingDown,
+  ArrowRight, Sparkles, Loader2, Info,
+} from "lucide-react";
 import { generateThesis } from "../api/client";
 import { normalizeWeights } from "../utils/normalizeWeights";
-import { Button, Card, Textarea, Badge, Banner } from "./ui";
 
-// Beginner-friendly goal cards. preset_id matches a curated portfolio in
-// backend/data/preset_portfolios.py — those clicks skip the LLM entirely.
-// Icons use only the geometric glyphs §6 endorses (◍ ◎ ▲ ◆ ↕ ◐).
 const QUICK_START_GOALS = [
-  { id: "long_term_growth", icon: "▲", label: "Grow my money long-term", sub: "10+ year horizon. Compound through dips." },
-  { id: "avoid_losses",     icon: "◐", label: "Avoid big losses",         sub: "Steady is fine. Cap drawdowns under 15%." },
-  { id: "tech_growth",      icon: "◍", label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
-  { id: "balanced_starter", icon: "◎", label: "Balanced starter",         sub: "First-time investor, sensible default." },
-  { id: "stock_picker",     icon: "◆", label: "Pick individual stocks",   sub: "High-conviction names, not ETF-led." },
+  { id: "long_term_growth", icon: TrendingUp,  label: "Grow my money long-term", sub: "10+ year horizon. Compound through dips." },
+  { id: "avoid_losses",     icon: ShieldCheck, label: "Avoid big losses",         sub: "Steady is fine. Cap drawdowns under 15%." },
+  { id: "tech_growth",      icon: Cpu,         label: "Bet on tech and AI",       sub: "Tilt toward AI/semis, with hedges." },
+  { id: "balanced_starter", icon: Scale,       label: "Balanced starter",         sub: "First-time investor, sensible default." },
+  { id: "stock_picker",     icon: Target,      label: "Pick individual stocks",   sub: "High-conviction names, not ETF-led." },
 ];
 
 const DIAGNOSIS_PRESETS = [
-  {
-    id: "retirement_safety",
-    label: "Retirement Safety",
-    icon: "◐",
-    summary: "Capital preservation with some equity participation; cap drawdowns; inflation protection.",
-    text: "I'm 5-7 years from retirement and need capital preservation with some equity participation. Drawdowns over 15% are unacceptable — I don't have time to recover from a 2008 or 2022 again. Inflation protection matters because I'll be drawing from this in real terms. I'm okay underperforming in bull markets if it means I can sleep through bear markets.",
-  },
-  {
-    id: "inflation_defense",
-    label: "Inflation Defense",
-    icon: "▲",
-    summary: "Persistent-inflation hedge: TIPS, gold, commodities, real assets, low-duration.",
-    text: "I'm worried about persistent inflation and rate shocks. I want explicit inflation protection (TIPS, gold, real assets) and a portfolio that doesn't get crushed when long-duration bonds sell off. Equities are fine but not rate-sensitive growth — more value, energy, and pricing-power names.",
-  },
-  {
-    id: "ai_bubble_risk",
-    label: "AI Bubble Risk",
-    icon: "↕",
-    summary: "Hedge concentration in AI/megacap tech without leaving the trade entirely.",
-    text: "I'm worried about an AI / megacap tech valuation bubble. I have meaningful exposure to NVDA, MSFT, GOOGL — I don't want to fully exit that position because the long-term thesis is real, but I need explicit hedges against a violent correction. International, defensive sectors, gold, and bonds that won't crash with tech.",
-  },
-  {
-    id: "recession_shock",
-    label: "Recession Shock",
-    icon: "↻",
-    summary: "Portfolio that holds up in a recession: long-duration treasuries, defensives, gold.",
-    text: "I want a portfolio engineered to hold up specifically in a recession scenario. Long-duration treasuries to benefit from rate cuts, defensive sectors (staples, healthcare, utilities), gold for crisis hedge, minimal cyclical exposure. I'm fine giving up some bull-market upside.",
-  },
+  { id: "retirement_safety", icon: ShieldCheck,    label: "Retirement Safety", summary: "Capital preservation with some equity participation; cap drawdowns; inflation protection.",
+    text: "I'm 5-7 years from retirement and need capital preservation with some equity participation. Drawdowns over 15% are unacceptable — I don't have time to recover from a 2008 or 2022 again. Inflation protection matters because I'll be drawing from this in real terms. I'm okay underperforming in bull markets if it means I can sleep through bear markets." },
+  { id: "inflation_defense", icon: Flame,          label: "Inflation Defense", summary: "Persistent-inflation hedge: TIPS, gold, commodities, real assets, low-duration.",
+    text: "I'm worried about persistent inflation and rate shocks. I want explicit inflation protection (TIPS, gold, real assets) and a portfolio that doesn't get crushed when long-duration bonds sell off. Equities are fine but not rate-sensitive growth — more value, energy, and pricing-power names." },
+  { id: "ai_bubble_risk",    icon: AlertTriangle,  label: "AI Bubble Risk",    summary: "Hedge concentration in AI/megacap tech without leaving the trade entirely.",
+    text: "I'm worried about an AI / megacap tech valuation bubble. I have meaningful exposure to NVDA, MSFT, GOOGL — I don't want to fully exit that position because the long-term thesis is real, but I need explicit hedges against a violent correction. International, defensive sectors, gold, and bonds that won't crash with tech." },
+  { id: "recession_shock",   icon: TrendingDown,   label: "Recession Shock",   summary: "Portfolio that holds up in a recession: long-duration treasuries, defensives, gold.",
+    text: "I want a portfolio engineered to hold up specifically in a recession scenario. Long-duration treasuries to benefit from rate cuts, defensive sectors (staples, healthcare, utilities), gold for crisis hedge, minimal cyclical exposure. I'm fine giving up some bull-market upside." },
 ];
 
 const RISK_LEVELS = [
@@ -61,62 +32,80 @@ const RISK_LEVELS = [
   { id: "aggressive",   label: "Aggressive" },
 ];
 
-function PickButton({ icon, title, sub, onClick, disabled }) {
+// ── pick card ────────────────────────────────────────────────────────
+function PickCard({ icon: Icon, title, sub, onClick, disabled }) {
   return (
     <button
       type="button"
-      className="pk-btn pk-btn--secondary build-pick"
       onClick={onClick}
       disabled={disabled}
+      className="w-full text-left flex items-center gap-3 p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
     >
-      <span className="build-pick-icon" aria-hidden="true">{icon}</span>
-      <span className="build-pick-text">
-        <span className="build-pick-title">{title}</span>
-        <span className="build-pick-sub">{sub}</span>
-      </span>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <Icon className="h-5 w-5" strokeWidth={2.25} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="font-bold text-sm text-slate-900">{title}</div>
+        <div className="text-xs text-slate-500 mt-0.5 leading-snug">{sub}</div>
+      </div>
     </button>
   );
 }
 
+// ── suggestion row ──────────────────────────────────────────────────
 function SuggestionRow({ s }) {
   const [expanded, setExpanded] = useState(false);
   const isStock = s.kind === "stock";
-  const kindLabel = (s.kind || "etf").toUpperCase();
-  const kindVariant = s.kind === "stock" ? "blue" : s.kind === "trust" ? "gold" : "default";
+
+  const kindTone =
+    s.kind === "stock" ? "bg-blue-100 text-blue-700" :
+    s.kind === "trust" ? "bg-amber-100 text-amber-700" :
+                         "bg-slate-100 text-slate-700";
 
   return (
-    <div className="build-sugg">
-      <div className="build-sugg-head">
-        <span className="build-sugg-ticker pk-text-mono">{s.ticker}</span>
-        <Badge variant={kindVariant}>{kindLabel}</Badge>
-        <span className="build-sugg-name">{s.name}</span>
+    <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <span className="font-mono font-bold text-slate-900">{s.ticker}</span>
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${kindTone}`}>
+          {(s.kind || "etf").toUpperCase()}
+        </span>
+        <span className="text-sm text-slate-700 font-medium">{s.name}</span>
         {typeof s.weight === "number" && (
-          <span className="build-sugg-weight pk-text-mono-sm">
+          <span className="ml-auto font-mono font-bold text-emerald-600 tabular-nums">
             {(s.weight * 100).toFixed(0)}%
           </span>
         )}
-        {s.theme && <span className="build-sugg-theme">{s.theme}</span>}
       </div>
-      {s.reason && <div className="build-sugg-reason">{s.reason}</div>}
-      <div className="build-sugg-foot">
-        {s.role && <span className="build-sugg-role">{s.role}</span>}
+      {s.theme && (
+        <div className="text-xs text-slate-500 italic mb-2">{s.theme}</div>
+      )}
+      {s.reason && (
+        <div className="text-sm text-slate-600 leading-relaxed">{s.reason}</div>
+      )}
+      <div className="flex items-center gap-3 mt-3">
+        {s.role && (
+          <span className="text-xs font-semibold text-slate-500">{s.role}</span>
+        )}
         {s.blurb && (
           <button
             type="button"
-            className="pk-btn pk-btn--tertiary"
             onClick={() => setExpanded((v) => !v)}
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 ml-auto"
           >
             {expanded ? "Hide" : `What is ${isStock ? "this company" : "this fund"}?`}
           </button>
         )}
       </div>
       {expanded && s.blurb && (
-        <div className="build-sugg-blurb">{s.blurb}</div>
+        <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+          {s.blurb}
+        </div>
       )}
     </div>
   );
 }
 
+// ── main ────────────────────────────────────────────────────────────
 export default function ThesisPage({ onUseInAnalyze, profile }) {
   const [thesis, setThesis] = useState("");
   const [risk, setRisk] = useState(profile?.riskTolerance ?? "balanced");
@@ -135,11 +124,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
         ...(presetId ? { preset_id: presetId } : {}),
       });
       if (data.error) {
-        setError(
-          data.error === "no_api_key"
-            ? "ANTHROPIC_API_KEY not set in backend/.env."
-            : data.error,
-        );
+        setError(data.error === "no_api_key" ? "ANTHROPIC_API_KEY not set in backend/.env." : data.error);
       } else {
         setResult(data);
       }
@@ -151,139 +136,100 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
   }
 
   async function handleGenerate() {
-    if (!thesis.trim()) {
-      setError("Write your thesis first.");
-      return;
-    }
+    if (!thesis.trim()) { setError("Write your thesis first."); return; }
     await callBackend({ thesis });
   }
 
-  function pickQuickStart(goal) {
-    setThesis("");
-    setError(null);
-    callBackend({ presetId: goal.id });
-  }
-
-  function pickDiagnosis(diag) {
-    setThesis(diag.text);
-    setError(null);
-    callBackend({ presetId: diag.id });
-  }
+  function pickQuickStart(goal) { setThesis(""); setError(null); callBackend({ presetId: goal.id }); }
+  function pickDiagnosis(diag)  { setThesis(diag.text); setError(null); callBackend({ presetId: diag.id }); }
 
   function buildHoldings() {
     if (!result?.suggestions?.length) return [];
-    const hasCuratedWeights = result.suggestions.every(
-      (s) => typeof s.weight === "number" && s.weight > 0,
-    );
+    const hasCuratedWeights = result.suggestions.every((s) => typeof s.weight === "number" && s.weight > 0);
     if (hasCuratedWeights) {
-      return normalizeWeights(
-        result.suggestions.map((s) => ({ ticker: s.ticker, weight: s.weight })),
-      );
+      return normalizeWeights(result.suggestions.map((s) => ({ ticker: s.ticker, weight: s.weight })));
     }
     const n = result.suggestions.length;
-    return normalizeWeights(
-      result.suggestions.map((s) => ({ ticker: s.ticker, weight: 1 / n })),
-    );
+    return normalizeWeights(result.suggestions.map((s) => ({ ticker: s.ticker, weight: 1 / n })));
   }
 
   function handleAddToPortfolio() {
     const holdings = buildHoldings();
-    if (!holdings.length) return;
-    onUseInAnalyze?.(holdings);
+    if (holdings.length) onUseInAnalyze?.(holdings);
   }
 
   return (
-    <div className="container">
-      <header className="build-header">
-        <h1 className="pk-text-heading-lg pk-ink-900">Build a portfolio</h1>
-        <p className="pk-text-body-lg pk-ink-500 build-header-sub">
-          Pick a goal, choose a diagnosis, or write your own thesis — Panko
-          maps it to specific tickers from a curated universe.
+    <div className="px-6 py-10 md:px-10 max-w-6xl mx-auto">
+      <header className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">Build a portfolio</h1>
+        <p className="text-slate-500 text-base md:text-lg leading-relaxed max-w-2xl">
+          Pick a goal, choose a diagnosis, or write your own thesis — Panko maps it to specific tickers from a curated universe.
         </p>
       </header>
 
-      <Banner variant="warning" title="Educational, not financial advice">
-        Suggestions are mechanical mappings to a curated list of broad ETFs and
-        well-known names. Run any idea through Analyze to see real risk numbers
-        before acting.
-      </Banner>
-
-      <div className="build-3col">
-        {/* Column 1: Quick Start — secondary buttons. §7 */}
-        <Card className="build-col">
-          <Card.Eyebrow>Quick start</Card.Eyebrow>
-          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
-            Pick a goal. We'll suggest a curated portfolio.
+      {/* Educational banner */}
+      <div className="mb-8 flex gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
+          <Info className="h-4 w-4" strokeWidth={2.5} />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-amber-900">Educational, not financial advice</p>
+          <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
+            Suggestions are mechanical mappings to a curated list of broad ETFs and well-known names. Run any idea through Analyze to see real risk numbers before acting.
           </p>
-          <div className="build-col-stack">
+        </div>
+      </div>
+
+      {/* 3-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+
+        {/* Quick start */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-5">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Quick start</div>
+          <p className="text-sm text-slate-500 mb-4">Pick a goal. We'll suggest a curated portfolio.</p>
+          <div className="space-y-2">
             {QUICK_START_GOALS.map((g) => (
-              <PickButton
-                key={g.id}
-                icon={g.icon}
-                title={g.label}
-                sub={g.sub}
-                disabled={loading}
-                onClick={() => pickQuickStart(g)}
-              />
+              <PickCard key={g.id} icon={g.icon} title={g.label} sub={g.sub} onClick={() => pickQuickStart(g)} disabled={loading} />
             ))}
           </div>
-        </Card>
+        </section>
 
-        {/* Column 2: Pick a Diagnosis. §7 */}
-        <Card className="build-col">
-          <Card.Eyebrow>Pick a diagnosis</Card.Eyebrow>
-          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
-            A specific risk concern. Pre-fills your thesis below.
-          </p>
-          <div className="build-col-stack">
+        {/* Diagnosis presets */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-5">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Pick a diagnosis</div>
+          <p className="text-sm text-slate-500 mb-4">A specific risk concern. Pre-fills your thesis below.</p>
+          <div className="space-y-2">
             {DIAGNOSIS_PRESETS.map((d) => (
-              <PickButton
-                key={d.id}
-                icon={d.icon}
-                title={d.label}
-                sub={d.summary}
-                disabled={loading}
-                onClick={() => pickDiagnosis(d)}
-              />
+              <PickCard key={d.id} icon={d.icon} title={d.label} sub={d.summary} onClick={() => pickDiagnosis(d)} disabled={loading} />
             ))}
           </div>
-        </Card>
+        </section>
 
-        {/* Column 3: Custom Thesis. §7 */}
-        <Card className="build-col build-col--custom">
-          <Card.Eyebrow>Custom thesis</Card.Eyebrow>
-          <p className="pk-text-body-sm pk-ink-500 build-col-lead">
-            Write what matters to you in your own words.
-          </p>
+        {/* Custom thesis */}
+        <section className="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Custom thesis</div>
+          <p className="text-sm text-slate-500 mb-4">Write what matters to you in your own words.</p>
 
-          <Textarea
+          <textarea
             value={thesis}
-            onChange={(e) => {
-              setThesis(e.target.value);
-              setError(null);
-            }}
+            onChange={(e) => { setThesis(e.target.value); setError(null); }}
             placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."
             rows={8}
             maxLength={4000}
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors resize-none mb-4"
           />
 
-          {/* Risk Tolerance — segmented control, hairline borders,
-              active filled blue-700. §5 */}
-          <div className="build-risk">
-            <div className="pk-text-caption pk-ink-400 build-risk-label">
-              Risk tolerance
-            </div>
-            <div className="build-risk-seg" role="radiogroup" aria-label="Risk tolerance">
+          {/* Risk tolerance */}
+          <div className="mb-4">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Risk tolerance</label>
+            <div className="flex bg-slate-100 rounded-full p-1 gap-1">
               {RISK_LEVELS.map((r) => (
                 <button
                   key={r.id}
                   type="button"
-                  role="radio"
-                  aria-checked={risk === r.id}
-                  className={`build-risk-seg-item ${
-                    risk === r.id ? "is-active" : ""
-                  }`}
                   onClick={() => setRisk(r.id)}
+                  className={`flex-1 px-3 py-2 rounded-full text-xs font-bold transition-colors
+                    ${risk === r.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
                 >
                   {r.label}
                 </button>
@@ -292,64 +238,69 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           </div>
 
           {error && (
-            <div className="build-error">
-              <Banner variant="error">{error}</Banner>
+            <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 mb-4 text-sm font-medium text-rose-900">
+              {error}
             </div>
           )}
 
-          {/* THE gold CTA per §7. */}
-          <Button
-            variant="gold"
+          <button
+            type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="build-generate"
+            className="mt-auto w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200 disabled:shadow-none"
           >
-            {loading ? "Mapping thesis…" : "Generate suggestions →"}
-          </Button>
-        </Card>
+            {loading ? (
+              <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />Mapping thesis…</>
+            ) : (
+              <>Generate suggestions <ArrowRight className="h-4 w-4" strokeWidth={2.5} /></>
+            )}
+          </button>
+        </section>
       </div>
 
+      {/* Results */}
       {result && (
-        <Card className="build-result">
-          <div className="build-result-head">
-            <Card.Eyebrow>Detected themes</Card.Eyebrow>
-            <div className="build-themes">
+        <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-8">
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">Detected themes</div>
+            <div className="flex flex-wrap gap-1.5">
               {result.themes.map((t) => (
-                <Badge key={t} variant="blue">
+                <span key={t} className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {t}
-                </Badge>
+                </span>
               ))}
             </div>
           </div>
 
           {result.summary && (
-            <p className="pk-text-body pk-ink-500 build-result-summary">
-              {result.summary}
-            </p>
+            <p className="text-slate-700 leading-relaxed mb-6">{result.summary}</p>
           )}
 
-          <div className="build-result-section">
-            <Card.Eyebrow>
-              Suggested holdings ({result.suggestions.length})
-            </Card.Eyebrow>
-            <div className="build-suggs">
-              {result.suggestions.map((s) => (
-                <SuggestionRow key={s.ticker} s={s} />
-              ))}
-            </div>
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-3">
+            Suggested holdings ({result.suggestions.length})
+          </div>
+          <div className="space-y-2">
+            {result.suggestions.map((s) => (
+              <SuggestionRow key={s.ticker} s={s} />
+            ))}
           </div>
 
           {result.suggestions.length > 0 && onUseInAnalyze && (
-            <div className="build-result-actions">
-              <Button variant="primary" onClick={handleAddToPortfolio}>
-                Use as starting portfolio (equal-weight) →
-              </Button>
-              <span className="pk-text-body-sm pk-ink-400">
+            <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
+              <button
+                onClick={handleAddToPortfolio}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold px-6 py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200"
+              >
+                <Sparkles className="h-4 w-4" strokeWidth={2.5} />
+                Use as starting portfolio (equal-weight)
+                <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+              </button>
+              <p className="text-xs text-slate-500 leading-relaxed">
                 Loads tickers into the Analyze form at equal weight. Adjust before running.
-              </span>
+              </p>
             </div>
           )}
-        </Card>
+        </section>
       )}
     </div>
   );

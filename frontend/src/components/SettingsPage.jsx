@@ -1,19 +1,67 @@
 import { useState } from "react";
+import {
+  User, ShieldCheck, Scale, Rocket,
+  Sprout, BookOpen, Crosshair,
+  RotateCcw, Trash2, CheckCircle2, AlertTriangle,
+} from "lucide-react";
 import { updateProfile } from "../utils/profile";
 import { clearAllLocalData } from "../utils/schemaVersion";
-import { Button } from "./ui";
 
 const RISK_LEVELS = [
-  { id: "conservative", label: "Conservative", body: "Capital preservation first" },
-  { id: "balanced",     label: "Balanced",     body: "Growth with risk control" },
-  { id: "aggressive",   label: "Aggressive",   body: "Growth-tilted, higher tolerance" },
+  { id: "conservative", icon: ShieldCheck, label: "Conservative", body: "Capital preservation first" },
+  { id: "balanced",     icon: Scale,       label: "Balanced",     body: "Growth with risk control" },
+  { id: "aggressive",   icon: Rocket,      label: "Aggressive",   body: "Growth-tilted, higher tolerance" },
 ];
 
 const EXPERIENCE_LEVELS = [
-  { id: "beginner",  label: "New to investing",   body: "Plain-English explanations + guided onboarding" },
-  { id: "some",      label: "I know the basics",  body: "Standard app, with metric explainers" },
-  { id: "confident", label: "I know what I'm doing", body: "Skip the tour, drop me into the full app" },
+  { id: "beginner",  icon: Sprout,    label: "New to investing",       body: "Plain-English explanations + guided onboarding" },
+  { id: "some",      icon: BookOpen,  label: "I know the basics",      body: "Standard app, with metric explainers" },
+  { id: "confident", icon: Crosshair, label: "I know what I'm doing",  body: "Skip the tour, drop me into the full app" },
 ];
+
+const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors";
+
+function Section({ icon: Icon, title, help, children }) {
+  return (
+    <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-6 mb-4">
+      <div className="flex items-center gap-3 mb-1">
+        {Icon && (
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <Icon className="h-4 w-4" strokeWidth={2.5} />
+          </div>
+        )}
+        <h2 className="text-base font-extrabold text-slate-900">{title}</h2>
+      </div>
+      {help && <p className="text-sm text-slate-500 leading-relaxed mb-4">{help}</p>}
+      {children}
+    </section>
+  );
+}
+
+function RadioCard({ active, icon: Icon, label, body, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+        ${active
+          ? "bg-emerald-50 border-2 border-emerald-500"
+          : "bg-white border border-slate-200 hover:border-slate-300"}`}
+    >
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
+        ${active ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+        <Icon className="h-5 w-5" strokeWidth={2.25} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <div className="font-bold text-sm text-slate-900">{label}</div>
+          {active && <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={2.5} />}
+        </div>
+        <div className="text-xs text-slate-500 mt-0.5 leading-snug">{body}</div>
+      </div>
+    </button>
+  );
+}
 
 export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }) {
   const [name, setName] = useState(profile.name);
@@ -24,21 +72,10 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
   const [error, setError] = useState(null);
 
   function handleSave() {
-    if (!name.trim()) {
-      setError("Name can't be empty.");
-      return;
-    }
-    if (email && !/^\S+@\S+\.\S+$/.test(email)) {
-      setError("That email doesn't look valid.");
-      return;
-    }
+    if (!name.trim()) { setError("Name can't be empty."); return; }
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) { setError("That email doesn't look valid."); return; }
     setError(null);
-    const updated = updateProfile({
-      name: name.trim(),
-      email: email.trim(),
-      riskTolerance,
-      experience,
-    });
+    const updated = updateProfile({ name: name.trim(), email: email.trim(), riskTolerance, experience });
     onProfileUpdated?.(updated);
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1800);
@@ -51,132 +88,129 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
   }
 
   return (
-    <div className="container">
-      <div className="settings-hero">
-        <h1 className="settings-hero-title">Settings</h1>
-        <p className="settings-hero-sub">
+    <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
+      <header className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">Settings</h1>
+        <p className="text-slate-500 text-base md:text-lg leading-relaxed">
           All settings are stored only in your browser. Changing them here doesn't sync anywhere.
         </p>
-      </div>
+      </header>
 
-      <div className="card">
-        <div className="settings-section-label">Profile</div>
-        <div className="settings-field">
-          <label className="settings-label">Display name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => { setName(e.target.value); setError(null); }}
-            maxLength={60}
-          />
+      <Section icon={User} title="Profile">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Display name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setError(null); }}
+              maxLength={60}
+              className={INPUT}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+              Email <span className="text-slate-400 font-medium normal-case tracking-normal">(optional)</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setError(null); }}
+              placeholder="you@example.com"
+              maxLength={120}
+              className={INPUT}
+            />
+          </div>
         </div>
-        <div className="settings-field">
-          <label className="settings-label">
-            Email <span className="settings-label-optional">(optional)</span>
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(null); }}
-            placeholder="you@example.com"
-            maxLength={120}
-          />
-        </div>
-      </div>
+      </Section>
 
-      <div className="card">
-        <div className="settings-section-label">Risk style</div>
-        <p className="settings-section-help">
-          Used by the Improve optimizer (sets how much Sharpe you'll allow giving up to lower risk)
-          and the Thesis tab (tilts suggestions toward your stated tolerance).
-        </p>
-        <div className="settings-radio-list">
+      <Section icon={ShieldCheck} title="Risk style" help="Used by the Improve optimizer (sets how much Sharpe you'll allow giving up to lower risk) and the Thesis tab (tilts suggestions toward your stated tolerance).">
+        <div className="space-y-2">
           {RISK_LEVELS.map((r) => (
-            <button
+            <RadioCard
               key={r.id}
-              type="button"
-              className={`settings-radio ${riskTolerance === r.id ? "settings-radio--active" : ""}`}
+              active={riskTolerance === r.id}
+              icon={r.icon}
+              label={r.label}
+              body={r.body}
               onClick={() => setRiskTolerance(r.id)}
-            >
-              <span className="settings-radio-dot" />
-              <span className="settings-radio-text">
-                <span className="settings-radio-label">{r.label}</span>
-                <span className="settings-radio-body">{r.body}</span>
-              </span>
-            </button>
+            />
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="card">
-        <div className="settings-section-label">Experience level</div>
-        <p className="settings-section-help">
-          Affects what you see when you first open the app. Beginners get a guided onboarding;
-          others skip straight to the dashboard.
-        </p>
-        <div className="settings-radio-list">
+      <Section icon={BookOpen} title="Experience level" help="Affects what you see when you first open the app. Beginners get a guided onboarding; others skip straight to the dashboard.">
+        <div className="space-y-2 mb-3">
           {EXPERIENCE_LEVELS.map((e) => (
-            <button
+            <RadioCard
               key={e.id}
-              type="button"
-              className={`settings-radio ${experience === e.id ? "settings-radio--active" : ""}`}
+              active={experience === e.id}
+              icon={e.icon}
+              label={e.label}
+              body={e.body}
               onClick={() => setExperience(e.id)}
-            >
-              <span className="settings-radio-dot" />
-              <span className="settings-radio-text">
-                <span className="settings-radio-label">{e.label}</span>
-                <span className="settings-radio-body">{e.body}</span>
-              </span>
-            </button>
+            />
           ))}
         </div>
-
         {experience === "beginner" && (
-          <Button
-            variant="secondary"
-            size="sm"
+          <button
+            type="button"
             onClick={handleRestartOnboarding}
-            className="settings-restart-btn"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 mt-2"
           >
-            Restart guided onboarding →
-          </Button>
+            <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
+            Restart guided onboarding
+          </button>
+        )}
+      </Section>
+
+      {error && (
+        <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 mb-4 text-sm font-medium text-rose-900">
+          {error}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 mb-8">
+        <button
+          onClick={handleSave}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200"
+        >
+          Save changes
+        </button>
+        {savedFlash && (
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700">
+            <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
+            Saved
+          </span>
         )}
       </div>
 
-      {error && <div className="error">{error}</div>}
-
-      <div className="settings-actions">
-        <Button variant="primary" onClick={handleSave}>
-          Save changes
-        </Button>
-        {savedFlash && <span className="settings-saved">✓ Saved</span>}
-      </div>
-
-      <div className="card" style={{ marginTop: 14 }}>
-        <div className="settings-section-label">Reset</div>
-        <p className="settings-section-help">
-          Wipes your profile, snapshots, and last analysis from this browser.
-          Useful for starting fresh or if you're handing the link to someone
-          else on the same device.
+      {/* Danger zone */}
+      <section className="bg-rose-50 border border-rose-200 rounded-3xl p-5 md:p-6">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500 text-white">
+            <AlertTriangle className="h-4 w-4" strokeWidth={2.5} />
+          </div>
+          <h2 className="text-base font-extrabold text-rose-900">Reset</h2>
+        </div>
+        <p className="text-sm text-rose-900/80 leading-relaxed mb-4">
+          Wipes your profile, snapshots, and last analysis from this browser. Useful for starting fresh or if you're handing the link to someone else on the same device.
         </p>
-        <Button
-          variant="secondary"
+        <button
           onClick={() => {
-            if (!window.confirm(
-              "Erase your profile, snapshots, and last analysis from this browser? This cannot be undone."
-            )) return;
+            if (!window.confirm("Erase your profile, snapshots, and last analysis from this browser? This cannot be undone.")) return;
             clearAllLocalData();
             window.location.reload();
           }}
+          className="inline-flex items-center gap-2 bg-white border border-rose-300 hover:bg-rose-50 text-rose-700 rounded-2xl font-bold px-5 py-3 text-sm transition-colors"
         >
+          <Trash2 className="h-4 w-4" strokeWidth={2.5} />
           Clear all my data
-        </Button>
-      </div>
+        </button>
+      </section>
 
-      <div className="settings-meta">
-        Profile created {new Date(profile.createdAt).toLocaleDateString("en-US", {
-          year: "numeric", month: "short", day: "numeric",
-        })}
+      <div className="mt-8 text-xs text-slate-400 text-center font-mono">
+        Profile created {new Date(profile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
       </div>
     </div>
   );
