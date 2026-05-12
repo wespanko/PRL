@@ -81,19 +81,25 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 transition-opacity duration-300
-          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 transition-opacity duration-300"
+        style={{
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+        }}
       />
 
-      {/* Drawer */}
+      {/* Drawer — transform via inline style so we don't depend on
+          Tailwind's purge picking up dynamic `translate-x-full` correctly. */}
       <div
-        className={`fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-white border-l border-slate-200 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl
-          ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-white border-l border-slate-200 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl"
+        style={{
+          transform: isOpen ? "translateX(0)" : "translateX(100%)",
+        }}
       >
         {/* Header */}
         <header className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
               <Sparkles className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
@@ -126,7 +132,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                       <button
                         key={s}
                         onClick={() => send(s)}
-                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-slate-900 transition-colors"
+                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-slate-900 transition-colors"
                       >
                         {s}
                       </button>
@@ -154,7 +160,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
                     ${m.role === "user"
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-blue-500 text-white"
                       : "bg-slate-100 text-slate-900"}`}
                 >
                   {m.content || (streaming && i === messages.length - 1 ? (
@@ -179,12 +185,12 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             onChange={(e) => setInput(e.target.value)}
             placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
             disabled={streaming || !hasPortfolio}
-            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors disabled:opacity-50"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || streaming || !hasPortfolio}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-colors active:scale-[0.95]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-colors active:scale-[0.95]"
           >
             {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
           </button>

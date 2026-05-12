@@ -19,14 +19,14 @@ const EXPERIENCE_LEVELS = [
   { id: "confident", icon: Crosshair, label: "I know what I'm doing",  body: "Skip the tour, drop me into the full app" },
 ];
 
-const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors";
+const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors";
 
 function Section({ icon: Icon, title, help, children }) {
   return (
     <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-6 mb-4">
       <div className="flex items-center gap-3 mb-1">
         {Icon && (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
             <Icon className="h-4 w-4" strokeWidth={2.5} />
           </div>
         )}
@@ -45,17 +45,17 @@ function RadioCard({ active, icon: Icon, label, body, onClick }) {
       onClick={onClick}
       className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${active
-          ? "bg-emerald-50 border-2 border-emerald-500"
+          ? "bg-blue-50 border-2 border-blue-500"
           : "bg-white border border-slate-200 hover:border-slate-300"}`}
     >
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-        ${active ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+        ${active ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"}`}>
         <Icon className="h-5 w-5" strokeWidth={2.25} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <div className="font-bold text-sm text-slate-900">{label}</div>
-          {active && <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={2.5} />}
+          {active && <CheckCircle2 className="h-4 w-4 text-blue-500" strokeWidth={2.5} />}
         </div>
         <div className="text-xs text-slate-500 mt-0.5 leading-snug">{body}</div>
       </div>
@@ -156,7 +156,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           <button
             type="button"
             onClick={handleRestartOnboarding}
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 mt-2"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 mt-2"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             Restart guided onboarding
@@ -173,12 +173,12 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={handleSave}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200"
+          className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
         >
           Save changes
         </button>
         {savedFlash && (
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700">
             <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
             Saved
           </span>

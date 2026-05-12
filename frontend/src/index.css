@@ -21,10 +21,10 @@ body { overflow-wrap: break-word; }
   --border:         #E2E8F0;        /* slate-200 — firm 1px hairlines */
   --border-strong:  #CBD5E1;        /* slate-300 — hover state */
   --border-light:   #F1F5F9;        /* slate-100 */
-  --primary:        #10B981;        /* emerald-500 — the Robinhood green */
-  --primary-dark:   #047857;        /* emerald-700 */
-  --positive:       #10B981;        /* emerald-500 */
-  --positive-bg:    #D1FAE5;        /* emerald-100 */
+  --primary:        #3B82F6;        /* blue-500 — Duolingo blue */
+  --primary-dark:   #1D4ED8;        /* blue-700 */
+  --positive:       #3B82F6;        /* blue-500 — was green, now brand-blue */
+  --positive-bg:    #DBEAFE;        /* blue-100 */
   --negative:       #F43F5E;        /* rose-500 */
   --negative-bg:    #FFE4E6;        /* rose-100 */
   --warning:        #F59E0B;        /* amber-500 */

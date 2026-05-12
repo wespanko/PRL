@@ -50,9 +50,9 @@ function StepBar({ current }) {
         return (
           <div key={s.id} className="flex-1 flex items-center gap-2">
             <div className={`h-1.5 rounded-full flex-1 transition-colors duration-500
-              ${active ? "bg-emerald-500" : done ? "bg-emerald-300" : "bg-slate-200"}`} />
+              ${active ? "bg-blue-500" : done ? "bg-blue-300" : "bg-slate-200"}`} />
             <span className={`text-xs font-semibold whitespace-nowrap
-              ${active ? "text-emerald-700" : done ? "text-emerald-600" : "text-slate-400"}`}>
+              ${active ? "text-blue-700" : done ? "text-blue-600" : "text-slate-400"}`}>
               {s.label}
             </span>
           </div>
@@ -69,18 +69,18 @@ function ChoiceCard({ active, icon: Icon, label, body, onClick }) {
       onClick={onClick}
       className={`w-full text-left rounded-3xl p-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${active
-          ? "bg-emerald-50 border-2 border-emerald-500 shadow-sm shadow-emerald-100"
+          ? "bg-blue-50 border-2 border-blue-500 shadow-sm shadow-blue-100"
           : "bg-white border border-slate-200 hover:border-slate-300"}`}
     >
       <div className="flex items-start gap-4">
         <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl
-          ${active ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+          ${active ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"}`}>
           <Icon className="h-6 w-6" strokeWidth={2.25} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-slate-900">{label}</h3>
-            {active && <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={2.5} />}
+            {active && <CheckCircle2 className="h-4 w-4 text-blue-500" strokeWidth={2.5} />}
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">{body}</p>
         </div>
@@ -130,7 +130,7 @@ export default function WelcomePage({ onSignIn }) {
 
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-center text-slate-900 mb-5 leading-tight">
               Your portfolio,<br/>
-              <span className="text-emerald-500">analyzed like a quant.</span>
+              <span className="text-blue-500">analyzed like a quant.</span>
             </h1>
             <p className="text-center text-slate-600 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
               <strong className="text-slate-900">Real risk math.</strong> Optimized rebalancing.
@@ -139,7 +139,7 @@ export default function WelcomePage({ onSignIn }) {
 
             <button
               onClick={() => setStep("name")}
-              className="w-full mb-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-lg py-5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] shadow-md shadow-emerald-200"
+              className="w-full mb-10 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-lg py-5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] shadow-md shadow-blue-200"
             >
               Get started — it's free
               <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
@@ -152,7 +152,7 @@ export default function WelcomePage({ onSignIn }) {
                 return (
                   <div key={b.label} className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
+                      <Icon className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
                       <div className="font-bold text-sm text-slate-900">{b.label}</div>
                     </div>
                     <div className="text-xs text-slate-500 leading-relaxed">{b.body}</div>
@@ -167,7 +167,7 @@ export default function WelcomePage({ onSignIn }) {
                 const Icon = f.icon;
                 return (
                   <div key={f.title} className="rounded-3xl border border-slate-200 p-5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 mb-3">
                       <Icon className="h-5 w-5" strokeWidth={2.25} />
                     </div>
                     <div className="font-bold text-slate-900 mb-1">{f.title}</div>
@@ -208,7 +208,7 @@ export default function WelcomePage({ onSignIn }) {
                   placeholder="Wes Panko"
                   autoFocus
                   maxLength={60}
-                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div>
@@ -221,7 +221,7 @@ export default function WelcomePage({ onSignIn }) {
                   onChange={(e) => { setEmail(e.target.value); setError(null); }}
                   placeholder="you@example.com"
                   maxLength={120}
-                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
 
@@ -241,7 +241,7 @@ export default function WelcomePage({ onSignIn }) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
                 >
                   Next
                   <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -291,7 +291,7 @@ export default function WelcomePage({ onSignIn }) {
               <button
                 type="button"
                 onClick={() => setStep("experience")}
-                className="flex-1 px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 Next
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -334,7 +334,7 @@ export default function WelcomePage({ onSignIn }) {
                 type="checkbox"
                 checked={acknowledged}
                 onChange={(e) => { setAcknowledged(e.target.checked); setError(null); }}
-                className="mt-0.5 h-5 w-5 accent-emerald-500 cursor-pointer"
+                className="mt-0.5 h-5 w-5 accent-blue-500 cursor-pointer"
               />
               <span className="text-sm text-slate-700 leading-relaxed">
                 I understand Panko is for <strong className="text-slate-900">educational purposes only</strong>, is{" "}
@@ -360,7 +360,7 @@ export default function WelcomePage({ onSignIn }) {
               <button
                 type="button"
                 onClick={handleFinish}
-                className="flex-1 px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 Enter Panko
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />

@@ -16,13 +16,13 @@ export default function DisclaimerFooter({ setActiveTab }) {
         </p>
         {setActiveTab && (
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
-            <button type="button" onClick={() => setActiveTab("terms")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+            <button type="button" onClick={() => setActiveTab("terms")} className="font-bold text-blue-700 hover:text-blue-800 hover:underline">
               Terms of Service
             </button>
-            <button type="button" onClick={() => setActiveTab("privacy")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+            <button type="button" onClick={() => setActiveTab("privacy")} className="font-bold text-blue-700 hover:text-blue-800 hover:underline">
               Privacy Policy
             </button>
-            <button type="button" onClick={() => setActiveTab("learn")} className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+            <button type="button" onClick={() => setActiveTab("learn")} className="font-bold text-blue-700 hover:text-blue-800 hover:underline">
               Methodology (Learn tab)
             </button>
           </div>

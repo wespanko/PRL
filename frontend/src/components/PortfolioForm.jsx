@@ -29,7 +29,7 @@ const MODES = [
 ];
 
 // ── shared input class ──────────────────────────────────────────────
-const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors";
+const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors";
 const INPUT_INVALID = "border-rose-300 focus:border-rose-500 focus:ring-rose-100";
 
 export default function PortfolioForm({ onSubmit, loading, initialHoldings, onInitialConsumed }) {
@@ -184,7 +184,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         {/* Title + mode toggle */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600">
               <Sparkles className="h-5 w-5" strokeWidth={2.25} />
             </div>
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Portfolio</h2>
@@ -281,7 +281,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         <button
           type="button"
           onClick={() => setRows([...rows, emptyRow()])}
-          className="w-full flex items-center justify-center gap-1.5 mb-5 py-3 rounded-2xl border border-dashed border-slate-300 text-sm font-bold text-slate-500 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/50 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 mb-5 py-3 rounded-2xl border border-dashed border-slate-300 text-sm font-bold text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Add row
@@ -290,9 +290,9 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         {/* Weight / value indicator */}
         {filledRows.length > 0 && (
           <div className={`rounded-2xl px-5 py-3 mb-5 flex items-center justify-between gap-3 text-sm font-semibold
-            ${sumOk ? "bg-emerald-50 text-emerald-900 border border-emerald-200" : "bg-amber-50 text-amber-900 border border-amber-200"}`}>
+            ${sumOk ? "bg-blue-50 text-blue-900 border border-blue-200" : "bg-amber-50 text-amber-900 border border-amber-200"}`}>
             <div className="flex items-center gap-2">
-              {sumOk && <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" strokeWidth={2.5} />}
+              {sumOk && <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" strokeWidth={2.5} />}
               <span>
                 {mode === "percent" && <>Weights total <span className="font-mono tabular-nums">{numericTotal.toFixed(1)}%</span>{!sumOk && " — must equal 100%"}</>}
                 {mode === "dollars" && <>Portfolio value <span className="font-mono tabular-nums">{fmtMoney(numericTotal)}</span>{!sumOk && " — enter at least one positive amount"}</>}
@@ -361,7 +361,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         <button
           type="submit"
           disabled={!canSubmit}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200 disabled:shadow-none"
+          className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200 disabled:shadow-none"
         >
           {loading ? (
             <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />Analyzing…</>

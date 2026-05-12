@@ -62,18 +62,18 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
               title={disabled ? "Run an analysis first" : item.label}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-colors
                 ${active
-                  ? "bg-emerald-50 text-emerald-700"
+                  ? "bg-blue-50 text-blue-700"
                   : disabled
                     ? "text-slate-300 cursor-not-allowed"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
             >
               <Icon
-                className={`h-5 w-5 shrink-0 ${active ? "text-emerald-600" : ""}`}
+                className={`h-5 w-5 shrink-0 ${active ? "text-blue-600" : ""}`}
                 strokeWidth={2.25}
               />
               <span className="flex-1 text-left">{item.label}</span>
               {active && (
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="h-2 w-2 rounded-full bg-blue-500" />
               )}
             </button>
           );
@@ -112,7 +112,7 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
           className={`w-full flex items-center gap-3 px-2 py-2 rounded-2xl transition-colors
             ${menuOpen ? "bg-slate-100" : "hover:bg-slate-50"}`}
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white text-sm font-bold">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white text-sm font-bold">
             {profileInitials(profile.name)}
           </span>
           <span className="flex-1 min-w-0 text-left">

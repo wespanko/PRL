@@ -71,7 +71,7 @@ function SuggestionRow({ s }) {
         </span>
         <span className="text-sm text-slate-700 font-medium">{s.name}</span>
         {typeof s.weight === "number" && (
-          <span className="ml-auto font-mono font-bold text-emerald-600 tabular-nums">
+          <span className="ml-auto font-mono font-bold text-blue-600 tabular-nums">
             {(s.weight * 100).toFixed(0)}%
           </span>
         )}
@@ -90,7 +90,7 @@ function SuggestionRow({ s }) {
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 ml-auto"
+            className="text-xs font-bold text-blue-700 hover:text-blue-800 ml-auto"
           >
             {expanded ? "Hide" : `What is ${isStock ? "this company" : "this fund"}?`}
           </button>
@@ -185,7 +185,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
         {/* Quick start */}
         <section className="bg-white border border-slate-200 rounded-3xl p-5">
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Quick start</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Quick start</div>
           <p className="text-sm text-slate-500 mb-4">Pick a goal. We'll suggest a curated portfolio.</p>
           <div className="space-y-2">
             {QUICK_START_GOALS.map((g) => (
@@ -196,7 +196,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
         {/* Diagnosis presets */}
         <section className="bg-white border border-slate-200 rounded-3xl p-5">
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Pick a diagnosis</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Pick a diagnosis</div>
           <p className="text-sm text-slate-500 mb-4">A specific risk concern. Pre-fills your thesis below.</p>
           <div className="space-y-2">
             {DIAGNOSIS_PRESETS.map((d) => (
@@ -207,7 +207,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
         {/* Custom thesis */}
         <section className="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col">
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">Custom thesis</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Custom thesis</div>
           <p className="text-sm text-slate-500 mb-4">Write what matters to you in your own words.</p>
 
           <textarea
@@ -216,7 +216,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."
             rows={8}
             maxLength={4000}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-colors resize-none mb-4"
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors resize-none mb-4"
           />
 
           {/* Risk tolerance */}
@@ -247,7 +247,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="mt-auto w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200 disabled:shadow-none"
+            className="mt-auto w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200 disabled:shadow-none"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />Mapping thesis…</>
@@ -262,10 +262,10 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
       {result && (
         <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-8">
           <div className="flex flex-wrap items-center gap-3 mb-5">
-            <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">Detected themes</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-blue-700">Detected themes</div>
             <div className="flex flex-wrap gap-1.5">
               {result.themes.map((t) => (
-                <span key={t} className="bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                <span key={t} className="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {t}
                 </span>
               ))}
@@ -276,7 +276,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             <p className="text-slate-700 leading-relaxed mb-6">{result.summary}</p>
           )}
 
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-3">
+          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-3">
             Suggested holdings ({result.suggestions.length})
           </div>
           <div className="space-y-2">
@@ -289,7 +289,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
               <button
                 onClick={handleAddToPortfolio}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold px-6 py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200"
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold px-6 py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
               >
                 <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                 Use as starting portfolio (equal-weight)

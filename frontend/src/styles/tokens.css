@@ -19,23 +19,25 @@
   --ink-100:  #F1F5F9;  /* slate-100, subtle bg */
   --ink-50:   #F8FAFC;  /* slate-50, hover */
 
-  /* Brand: Robinhood green replaces the legacy navy blue */
-  --blue-900: #064E3B;  /* emerald-900, deepest */
-  --blue-700: #047857;  /* emerald-700 */
-  --blue-500: #10B981;  /* emerald-500, primary brand */
-  --blue-300: #6EE7B7;  /* emerald-300 */
-  --blue-100: #D1FAE5;  /* emerald-100, tint bg */
+  /* Brand: Duolingo blue */
+  --blue-900: #1E3A8A;  /* blue-900, deepest */
+  --blue-700: #1D4ED8;  /* blue-700 */
+  --blue-500: #3B82F6;  /* blue-500, primary brand */
+  --blue-300: #93C5FD;  /* blue-300 */
+  --blue-100: #DBEAFE;  /* blue-100, tint bg */
 
-  /* Gold reassigned to emerald — Panko Score is now green per rollout */
-  --gold-700: #047857;
-  --gold-500: #10B981;
-  --gold-300: #6EE7B7;
-  --gold-100: #D1FAE5;
+  /* Gold reassigned to blue — Panko Score uses brand color */
+  --gold-700: #1D4ED8;
+  --gold-500: #3B82F6;
+  --gold-300: #93C5FD;
+  --gold-100: #DBEAFE;
 
-  /* Semantic — Tailwind-equivalent risk colors */
+  /* Semantic — risk-green now routes to blue per the "all green to blue"
+     directive. Improvement direction still reads cleanly because rose
+     stays for negative/warning. */
   --risk-red:   #F43F5E;  /* rose-500 */
   --risk-amber: #F59E0B;  /* amber-500 */
-  --risk-green: #10B981;  /* emerald-500 */
+  --risk-green: #3B82F6;  /* blue-500 (was emerald) */
 
   /* ── Typography ── */
 

@@ -18,9 +18,9 @@ function ScoreRing({ score, size = 200, stroke = 14 }) {
   // Tone-shift based on score band — Robinhood-style "good/ok/bad" coloring.
   const tone =
     score == null   ? "#CBD5E1" :
-    score >= 75     ? "#10B981" : // emerald
-    score >= 50     ? "#F59E0B" : // amber
-                      "#F43F5E";  // rose
+    score >= 75     ? "#3B82F6" : // blue-500 (good)
+    score >= 50     ? "#F59E0B" : // amber  (ok)
+                      "#F43F5E";  // rose   (bad)
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
@@ -52,7 +52,7 @@ function MetricCard({ icon: Icon, label, figure, body, tone = "slate" }) {
   const tones = {
     rose:    { iconBg: "bg-rose-100",    iconColor: "text-rose-600",    figure: "text-rose-600"    },
     amber:   { iconBg: "bg-amber-100",   iconColor: "text-amber-600",   figure: "text-amber-600"   },
-    emerald: { iconBg: "bg-emerald-100", iconColor: "text-emerald-600", figure: "text-emerald-600" },
+    emerald: { iconBg: "bg-blue-100", iconColor: "text-blue-600", figure: "text-blue-600" },
     slate:   { iconBg: "bg-slate-100",   iconColor: "text-slate-600",   figure: "text-slate-900"   },
   }[tone];
   return (
@@ -89,7 +89,7 @@ export default function DashboardPage({
     return (
       <div className="px-6 py-12 md:px-10 md:py-16 max-w-3xl mx-auto">
         <div className="flex items-center justify-center mb-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600">
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-100 text-blue-600">
             <Sparkles className="h-10 w-10" strokeWidth={2} />
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function DashboardPage({
             <button
               onClick={onRunDemo}
               disabled={loading}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-emerald-200"
+              className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
             >
               <PlayCircle className="h-5 w-5" strokeWidth={2.5} />
               {loading ? "Loading example…" : "Try with example portfolio"}
@@ -145,7 +145,7 @@ export default function DashboardPage({
       <section className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-12 mb-12">
         <ScoreRing score={animatedScore} />
         <div className="flex-1 flex flex-col justify-center text-center md:text-left">
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">
             Panko Score
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
@@ -156,7 +156,7 @@ export default function DashboardPage({
           </p>
           <button
             onClick={() => setActiveTab("analyze")}
-            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800 self-center md:self-start"
+            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 self-center md:self-start"
           >
             See full breakdown
             <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
