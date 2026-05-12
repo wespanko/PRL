@@ -1,0 +1,24 @@
+name: Keep backend warm
+
+# Render's free tier spins web services down after 15 min idle, then takes
+# ~30s to cold-start. We hit /api/health every 10 min so the service never
+# falls below the idle threshold and users never see the cold-start delay.
+#
+# Costs: ~5s of runner time per ping × 6/hr × 24 × 30 = ~6 hr/month, well
+# under the 2000-min/month free tier. Cron has a known 5-15 min delay during
+# busy hours — the 10-min interval leaves buffer before the 15-min spin-down.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:   # allow manual triggering from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          curl --fail --max-time 60 --retry 2 --retry-delay 10 \
+            https://panko-backend-ho2k.onrender.com/api/health

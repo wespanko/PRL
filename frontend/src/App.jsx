@@ -1,19 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Sidebar from "./components/Sidebar";
 import StatusBar from "./components/StatusBar";
 import WelcomePage from "./components/WelcomePage";
 import DashboardPage from "./components/DashboardPage";
 import PortfolioForm from "./components/PortfolioForm";
 import ResultsPanel from "./components/ResultsPanel";
-import SimulatePage from "./components/SimulatePage";
-import MonitorPage from "./components/MonitorPage";
-import ImprovePage from "./components/ImprovePage";
-import LearnPage from "./components/LearnPage";
 import ThesisPage from "./components/ThesisPage";
-import PlanPage from "./components/PlanPage";
-import SettingsPage from "./components/SettingsPage";
-import TermsOfServicePage from "./components/TermsOfServicePage";
-import PrivacyPolicyPage from "./components/PrivacyPolicyPage";
 import DisclaimerFooter from "./components/DisclaimerFooter";
 import AssistantPanel from "./components/AssistantPanel";
 import { analyzePortfolio } from "./api/client";
@@ -21,6 +13,38 @@ import { findPriorSnapshot } from "./utils/snapshots";
 import { loadProfile, clearProfile, updateProfile } from "./utils/profile";
 import { loadSession, saveSession, clearSession } from "./utils/sessionState";
 import { DEMO_PORTFOLIO } from "./data/demoPortfolio";
+
+// Lazy-loaded routes — chart-heavy or rarely-on-first-load. Each becomes
+// its own JS chunk, so the initial bundle stays lean and Recharts only
+// downloads when the user actually opens a page that needs it.
+const SimulatePage      = lazy(() => import("./components/SimulatePage"));
+const MonitorPage       = lazy(() => import("./components/MonitorPage"));
+const ImprovePage       = lazy(() => import("./components/ImprovePage"));
+const LearnPage         = lazy(() => import("./components/LearnPage"));
+const PlanPage          = lazy(() => import("./components/PlanPage"));
+const SettingsPage      = lazy(() => import("./components/SettingsPage"));
+const TermsOfServicePage = lazy(() => import("./components/TermsOfServicePage"));
+const PrivacyPolicyPage  = lazy(() => import("./components/PrivacyPolicyPage"));
+
+// Minimal route-level fallback — matches the page-transition wrapper so
+// the layout doesn't jump. Brief-token caption color.
+function RouteFallback() {
+  return (
+    <div className="container" style={{ padding: "var(--space-12) 0", color: "var(--ink-400)" }}>
+      Loading…
+    </div>
+  );
+}
+
+// Backend warmup — Render's free tier spins down after 15 min idle and
+// takes ~30s to wake. We fire-and-forget a /api/health request on app
+// mount so the backend is warming while the user reads the Welcome / Dashboard
+// page, instead of cold-starting on their first Analyze submit.
+function warmBackend() {
+  const BASE = import.meta.env.VITE_API_URL ?? "";
+  if (!BASE) return;
+  fetch(`${BASE}/api/health`, { method: "GET" }).catch(() => { /* ignore */ });
+}
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile());
@@ -70,6 +94,10 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Wake the Render backend on app load so it's warm by the time the user
+  // submits their first request. Free tier sleeps after 15 min idle.
+  useEffect(() => { warmBackend(); }, []);
 
   async function handleSubmit(formPayload) {
     setLoading(true);
@@ -154,49 +182,73 @@ export default function App() {
           )}
 
           {activeTab === "simulate" && (
-            <SimulatePage
-              lastPayload={payload}
-              lastResults={results}
-              simulateOverride={simulateOverride}
-              onOverrideConsumed={() => setSimulateOverride(null)}
-              onSimulateComplete={(p, r) => { setSimulatePayload(p); setSimulateResults(r); }}
-              onLearnMore={openLearn}
-            />
+            <Suspense fallback={<RouteFallback />}>
+              <SimulatePage
+                lastPayload={payload}
+                lastResults={results}
+                simulateOverride={simulateOverride}
+                onOverrideConsumed={() => setSimulateOverride(null)}
+                onSimulateComplete={(p, r) => { setSimulatePayload(p); setSimulateResults(r); }}
+                onLearnMore={openLearn}
+              />
+            </Suspense>
           )}
 
           {activeTab === "improve" && (
-            <ImprovePage
-              lastPayload={payload}
-              lastResults={results}
-              simulatePayload={simulatePayload}
-              simulateResults={simulateResults}
-              onUseInSimulate={(holdings) => {
-                setSimulateOverride(holdings);
-                setActiveTab("simulate");
-              }}
-              onLearnMore={openLearn}
-              profile={profile}
-            />
+            <Suspense fallback={<RouteFallback />}>
+              <ImprovePage
+                lastPayload={payload}
+                lastResults={results}
+                simulatePayload={simulatePayload}
+                simulateResults={simulateResults}
+                onUseInSimulate={(holdings) => {
+                  setSimulateOverride(holdings);
+                  setActiveTab("simulate");
+                }}
+                onLearnMore={openLearn}
+                profile={profile}
+              />
+            </Suspense>
           )}
 
           {activeTab === "plan" && (
-            <PlanPage results={results} payload={payload} />
+            <Suspense fallback={<RouteFallback />}>
+              <PlanPage results={results} payload={payload} />
+            </Suspense>
           )}
 
-          {activeTab === "monitor" && <MonitorPage setActiveTab={setActiveTab} />}
+          {activeTab === "monitor" && (
+            <Suspense fallback={<RouteFallback />}>
+              <MonitorPage setActiveTab={setActiveTab} />
+            </Suspense>
+          )}
 
-          {activeTab === "learn" && <LearnPage initialMetricId={learnTarget} />}
+          {activeTab === "learn" && (
+            <Suspense fallback={<RouteFallback />}>
+              <LearnPage initialMetricId={learnTarget} />
+            </Suspense>
+          )}
 
           {activeTab === "settings" && (
-            <SettingsPage
-              profile={profile}
-              onProfileUpdated={setProfile}
-              setActiveTab={setActiveTab}
-            />
+            <Suspense fallback={<RouteFallback />}>
+              <SettingsPage
+                profile={profile}
+                onProfileUpdated={setProfile}
+                setActiveTab={setActiveTab}
+              />
+            </Suspense>
           )}
 
-          {activeTab === "terms" && <TermsOfServicePage setActiveTab={setActiveTab} />}
-          {activeTab === "privacy" && <PrivacyPolicyPage setActiveTab={setActiveTab} />}
+          {activeTab === "terms" && (
+            <Suspense fallback={<RouteFallback />}>
+              <TermsOfServicePage setActiveTab={setActiveTab} />
+            </Suspense>
+          )}
+          {activeTab === "privacy" && (
+            <Suspense fallback={<RouteFallback />}>
+              <PrivacyPolicyPage setActiveTab={setActiveTab} />
+            </Suspense>
+          )}
         </div>
         <DisclaimerFooter setActiveTab={setActiveTab} />
       </main>
