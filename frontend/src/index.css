@@ -4401,6 +4401,16 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; 
   font-size: var(--text-body-sm-size);
   margin-bottom: 5px;
 }
+/* Ticker symbol — IBM Plex Mono per §6 "tickers in mono". Sign glyph
+   (+, −, ↑, ↓) inherits this family; reads cleanly enough alongside the
+   ticker letters. Weight 600 to lift over the detail line. */
+.diff-comp-ticker {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono-sm-size);
+  line-height: var(--text-mono-sm-line);
+  font-weight: 600;
+  letter-spacing: 0;
+}
 .diff-comp-detail {
   color: var(--ink-500);
   font-family: var(--font-mono);

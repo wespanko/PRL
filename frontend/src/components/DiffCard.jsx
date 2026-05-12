@@ -1,12 +1,18 @@
 import { diffSnapshots } from "../utils/diff";
 
+// Severity colors mapped to brief §2 risk tokens. The map is read in two
+// places: (1) the severity icon glyph color, (2) the current value emphasis
+// inside .diff-values. Keep them in sync if you add a new severity.
 const SEV_COLOR = {
-  critical: "var(--negative)",
-  warning: "var(--warning)",
-  improved: "var(--positive)",
-  stable: "var(--label-4)",
+  critical: "var(--risk-red)",
+  warning:  "var(--risk-amber)",
+  improved: "var(--risk-green)",
+  stable:   "var(--ink-400)",
 };
-const SEV_ICON  = { critical: "⚠", warning: "↑", improved: "↓", stable: "—" };
+
+// Semantic affordances — warning glyph, directional arrows, em-dash. Not
+// decorative dingbats (those are forbidden by §6); each carries meaning.
+const SEV_ICON = { critical: "⚠", warning: "↑", improved: "↓", stable: "—" };
 
 export default function DiffCard({ prevSnapshot, results }) {
   const diff = diffSnapshots(prevSnapshot, results);
@@ -47,19 +53,26 @@ export default function DiffCard({ prevSnapshot, results }) {
           <div className="diff-section-label">Composition</div>
           {diff.new_tickers.map((t) => (
             <div key={t.ticker} className="diff-comp-row">
-              <span style={{ color: "var(--positive)", fontWeight: 600 }}>+ {t.ticker}</span>
+              <span className="diff-comp-ticker" style={{ color: "var(--risk-green)" }}>
+                + {t.ticker}
+              </span>
               <span className="diff-comp-detail">added at {(t.weight * 100).toFixed(1)}%</span>
             </div>
           ))}
           {diff.removed_tickers.map((t) => (
             <div key={t.ticker} className="diff-comp-row">
-              <span style={{ color: "var(--negative)", fontWeight: 600 }}>− {t.ticker}</span>
+              <span className="diff-comp-ticker" style={{ color: "var(--risk-red)" }}>
+                − {t.ticker}
+              </span>
               <span className="diff-comp-detail">removed (was {(t.prev_weight * 100).toFixed(1)}%)</span>
             </div>
           ))}
           {diff.changed_weights.map((t) => (
             <div key={t.ticker} className="diff-comp-row">
-              <span style={{ color: t.delta > 0 ? "var(--warning)" : "var(--label-3)", fontWeight: 600 }}>
+              <span
+                className="diff-comp-ticker"
+                style={{ color: t.delta > 0 ? "var(--risk-amber)" : "var(--ink-500)" }}
+              >
                 {t.delta > 0 ? "↑" : "↓"} {t.ticker}
               </span>
               <span className="diff-comp-detail">
