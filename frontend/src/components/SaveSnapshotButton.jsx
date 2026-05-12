@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { saveSnapshot } from "../utils/snapshots";
+import { Button, Input } from "./ui";
 
 export default function SaveSnapshotButton({ payload, results }) {
   const [state, setState] = useState("idle"); // idle | naming | saved
@@ -30,7 +31,7 @@ export default function SaveSnapshotButton({ payload, results }) {
   if (state === "naming") {
     return (
       <div className="snapshot-name-row">
-        <input
+        <Input
           ref={inputRef}
           className="snapshot-name-input"
           placeholder="Label (optional)"
@@ -38,15 +39,15 @@ export default function SaveSnapshotButton({ payload, results }) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") commit(); if (e.key === "Escape") cancel(); }}
         />
-        <button className="btn btn-primary btn-sm" onClick={commit}>Save</button>
-        <button className="btn btn-secondary btn-sm" onClick={cancel}>Cancel</button>
+        <Button variant="primary" size="sm" onClick={commit}>Save</Button>
+        <Button variant="secondary" size="sm" onClick={cancel}>Cancel</Button>
       </div>
     );
   }
 
   return (
-    <button className="btn btn-secondary btn-sm" onClick={openNaming}>
+    <Button variant="secondary" size="sm" onClick={openNaming}>
       Save Snapshot
-    </button>
+    </Button>
   );
 }
