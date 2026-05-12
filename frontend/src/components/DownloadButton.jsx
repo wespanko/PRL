@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { downloadPdf } from "../api/client";
+import { Button } from "./ui";
 
 export default function DownloadButton({ payload }) {
   const [loading, setLoading] = useState(false);
@@ -24,17 +25,11 @@ export default function DownloadButton({ payload }) {
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <button
-        className="btn btn-secondary btn-sm"
-        onClick={handleClick}
-        disabled={loading}
-      >
+    <div className="download-row">
+      <Button variant="secondary" size="sm" onClick={handleClick} disabled={loading}>
         {loading ? "Generating…" : "Download PDF"}
-      </button>
-      {error && (
-        <span style={{ color: "#dc2626", fontSize: 12 }}>{error}</span>
-      )}
+      </Button>
+      {error && <span className="download-error">{error}</span>}
     </div>
   );
 }
