@@ -21,6 +21,7 @@ const SimulatePage      = lazy(() => import("./components/SimulatePage"));
 const MonitorPage       = lazy(() => import("./components/MonitorPage"));
 const ImprovePage       = lazy(() => import("./components/ImprovePage"));
 const LearnPage         = lazy(() => import("./components/LearnPage"));
+const PracticePage      = lazy(() => import("./components/PracticePage"));
 const PlanPage          = lazy(() => import("./components/PlanPage"));
 const SettingsPage      = lazy(() => import("./components/SettingsPage"));
 const TermsOfServicePage = lazy(() => import("./components/TermsOfServicePage"));
@@ -226,6 +227,12 @@ export default function App() {
           {activeTab === "learn" && (
             <Suspense fallback={<RouteFallback />}>
               <LearnPage initialMetricId={learnTarget} />
+            </Suspense>
+          )}
+
+          {activeTab === "practice" && (
+            <Suspense fallback={<RouteFallback />}>
+              <PracticePage />
             </Suspense>
           )}
 
