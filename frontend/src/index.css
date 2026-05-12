@@ -9,39 +9,41 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { overflow-wrap: break-word; }
 
-/* ── design tokens ── */
+/* ── design tokens — Duolingo × Robinhood ─────────────────────────────
+   Legacy token names retained so older component CSS keeps resolving.
+   Values remapped to the new slate / emerald / rounded palette.
+   ───────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:             #fafafa;
+  --bg:             #ffffff;        /* crisp white canvas */
   --bg-elevated:    #ffffff;
   --surface:        #ffffff;
-  --surface-2:      #f7f7f9;
-  --border:         rgba(17, 24, 39, 0.08);
-  --border-strong:  rgba(17, 24, 39, 0.14);
-  --border-light:   rgba(17, 24, 39, 0.05);
-  --primary:        #4f46e5;
-  --primary-dark:   #4338ca;
-  --positive:       #10b981;
-  --positive-bg:    rgba(16, 185, 129, 0.10);
-  --negative:       #ef4444;
-  --negative-bg:    rgba(239, 68, 68, 0.10);
-  --warning:        #f59e0b;
-  --warning-bg:     rgba(245, 158, 11, 0.10);
-  --purple:         #7c3aed;
-  --label:          #0a0a0a;
-  --label-2:        #1f2937;
-  --label-3:        #6b7280;
-  --label-4:        #9ca3af;
-  --radius:         14px;
-  --radius-sm:      8px;
-  --radius-lg:      18px;
-  --shadow-sm:      0 1px 2px rgba(17, 24, 39, 0.04), 0 0 0 0.5px rgba(17, 24, 39, 0.05);
-  --shadow:         0 1px 3px rgba(17, 24, 39, 0.04), 0 4px 12px rgba(17, 24, 39, 0.04);
-  --shadow-lg:      0 4px 8px rgba(17, 24, 39, 0.04), 0 16px 40px rgba(17, 24, 39, 0.06);
-  --shadow-hover:   0 2px 6px rgba(17, 24, 39, 0.06), 0 12px 32px rgba(17, 24, 39, 0.08);
+  --surface-2:      #F8FAFC;        /* slate-50 */
+  --border:         #E2E8F0;        /* slate-200 — firm 1px hairlines */
+  --border-strong:  #CBD5E1;        /* slate-300 — hover state */
+  --border-light:   #F1F5F9;        /* slate-100 */
+  --primary:        #10B981;        /* emerald-500 — the Robinhood green */
+  --primary-dark:   #047857;        /* emerald-700 */
+  --positive:       #10B981;        /* emerald-500 */
+  --positive-bg:    #D1FAE5;        /* emerald-100 */
+  --negative:       #F43F5E;        /* rose-500 */
+  --negative-bg:    #FFE4E6;        /* rose-100 */
+  --warning:        #F59E0B;        /* amber-500 */
+  --warning-bg:     #FEF3C7;        /* amber-100 */
+  --purple:         #8B5CF6;        /* violet-500 */
+  --label:          #0F172A;        /* slate-900 */
+  --label-2:        #334155;        /* slate-700 */
+  --label-3:        #64748B;        /* slate-500 */
+  --label-4:        #94A3B8;        /* slate-400 */
+  --radius:         20px;           /* cards */
+  --radius-sm:      12px;           /* buttons, inputs */
+  --radius-lg:      24px;           /* big surfaces */
+  --shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow:         0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-lg:      0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-hover:   0 8px 24px rgba(15, 23, 42, 0.08);
 
-  /* hero (light, refined) */
-  --hero-pos:       #10b981;
-  --hero-neg:       #ef4444;
+  --hero-pos:       #10B981;
+  --hero-neg:       #F43F5E;
 }
 
 /* ── base ── Duolingo × Robinhood: crisp white canvas, system sans. */

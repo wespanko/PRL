@@ -1,112 +1,102 @@
 /* ─────────────────────────────────────────────────────────────────────
-   Panko Risk Report — Design Tokens
-   Source: DESIGN_BRIEF.md §2
-
-   This file is the single source of truth for every visual primitive.
-   Components must reference these custom properties — no arbitrary hex
-   codes, no off-grid spacing, no radii outside this scale.
-
-   Project uses plain CSS (not Tailwind). Tokens are exposed as CSS
-   custom properties on :root; component CSS reads them via var().
-   The "tailwind.config" half of §8 step 1 does not apply here.
+   Panko Risk Report — Design Tokens (Duolingo × Robinhood rollout)
+   The token *names* are preserved so existing component CSS doesn't break;
+   only the *values* are remapped to the new visual language.
    ───────────────────────────────────────────────────────────────────── */
 
 :root {
   /* ── Color ── */
 
-  /* Neutrals */
-  --paper:    #FAFAF7;  /* page bg, warm white */
-  --canvas:   #FFFFFF;  /* card surfaces */
-  --ink-900:  #0A1628;  /* primary text, deep navy-black */
-  --ink-700:  #1E2A3D;  /* headings */
-  --ink-500:  #4A5568;  /* body */
-  --ink-400:  #718096;  /* secondary */
-  --ink-300:  #A0AEC0;  /* tertiary, captions */
-  --ink-200:  #CBD5E0;  /* hairlines */
-  --ink-100:  #E2E8F0;  /* subtle bg */
-  --ink-50:   #F1F5F9;  /* hover, table stripes */
+  /* Neutrals — slate scale */
+  --paper:    #FFFFFF;  /* crisp white canvas */
+  --canvas:   #FFFFFF;
+  --ink-900:  #0F172A;  /* slate-900, primary text */
+  --ink-700:  #334155;  /* slate-700, headings */
+  --ink-500:  #64748B;  /* slate-500, body */
+  --ink-400:  #94A3B8;  /* slate-400, secondary */
+  --ink-300:  #CBD5E1;  /* slate-300, tertiary */
+  --ink-200:  #E2E8F0;  /* slate-200, hairlines */
+  --ink-100:  #F1F5F9;  /* slate-100, subtle bg */
+  --ink-50:   #F8FAFC;  /* slate-50, hover */
 
-  /* Blue — primary brand */
-  --blue-900: #0B1F3A;  /* deepest, dark sections only */
-  --blue-700: #1E3A5F;  /* primary brand */
-  --blue-500: #2B5582;  /* default accent */
-  --blue-300: #6B8CAE;  /* muted */
-  --blue-100: #E8EEF5;  /* tint bg */
+  /* Brand: Robinhood green replaces the legacy navy blue */
+  --blue-900: #064E3B;  /* emerald-900, deepest */
+  --blue-700: #047857;  /* emerald-700 */
+  --blue-500: #10B981;  /* emerald-500, primary brand */
+  --blue-300: #6EE7B7;  /* emerald-300 */
+  --blue-100: #D1FAE5;  /* emerald-100, tint bg */
 
-  /* Gold — sparingly. Panko Score, key CTAs only */
-  --gold-700: #8B6F1F;
-  --gold-500: #B8923A;  /* the "Panko gold" */
-  --gold-300: #D4B870;
-  --gold-100: #F5EDD6;
+  /* Gold reassigned to emerald — Panko Score is now green per rollout */
+  --gold-700: #047857;
+  --gold-500: #10B981;
+  --gold-300: #6EE7B7;
+  --gold-100: #D1FAE5;
 
-  /* Semantic — data context only */
-  --risk-red:   #B33A3A;
-  --risk-amber: #C68A1A;
-  --risk-green: #2D6A4F;
+  /* Semantic — Tailwind-equivalent risk colors */
+  --risk-red:   #F43F5E;  /* rose-500 */
+  --risk-amber: #F59E0B;  /* amber-500 */
+  --risk-green: #10B981;  /* emerald-500 */
 
   /* ── Typography ── */
 
-  /* Font families. Wiring to <link> tags happens in §8 step 2 — these
-     custom properties are the contract; the actual @import / link load
-     is the next step. */
-  --font-display: "Libre Baskerville", Georgia, serif;
-  --font-sans:    "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* All three families collapsed to a single system sans stack.
+     IBM Plex Mono kept for numerical / ticker readability. */
+  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  --font-sans:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type scale — size / line-height / weight.
-     Letter-spacing & casing are applied at the class level (heading-sm
-     and caption are uppercase per the brief).                       */
-  --text-display-xl-size:    48px;
-  --text-display-xl-line:    56px;
-  --text-display-xl-weight:  400;
+  /* Type scale — bumped weights for the Duolingo "bold and friendly" feel */
+  --text-display-xl-size:    44px;
+  --text-display-xl-line:    52px;
+  --text-display-xl-weight:  800;
 
-  --text-display-lg-size:    36px;
-  --text-display-lg-line:    44px;
-  --text-display-lg-weight:  400;
+  --text-display-lg-size:    32px;
+  --text-display-lg-line:    40px;
+  --text-display-lg-weight:  800;
 
-  --text-heading-lg-size:    24px;
-  --text-heading-lg-line:    32px;
-  --text-heading-lg-weight:  600;
+  --text-heading-lg-size:    22px;
+  --text-heading-lg-line:    30px;
+  --text-heading-lg-weight:  700;
 
   --text-heading-md-size:    18px;
   --text-heading-md-line:    26px;
-  --text-heading-md-weight:  600;
+  --text-heading-md-weight:  700;
 
-  --text-heading-sm-size:    14px;
-  --text-heading-sm-line:    20px;
-  --text-heading-sm-weight:  600;
-  --text-heading-sm-tracking: 0.08em;
+  --text-heading-sm-size:    13px;
+  --text-heading-sm-line:    18px;
+  --text-heading-sm-weight:  700;
+  --text-heading-sm-tracking: 0.06em;
 
   --text-body-lg-size:       16px;
   --text-body-lg-line:       26px;
   --text-body-lg-weight:     400;
 
-  --text-body-size:          14px;
-  --text-body-line:          22px;
+  --text-body-size:          15px;
+  --text-body-line:          24px;
   --text-body-weight:        400;
 
   --text-body-sm-size:       13px;
   --text-body-sm-line:       20px;
   --text-body-sm-weight:     400;
 
-  --text-caption-size:       12px;
+  --text-caption-size:       11px;
   --text-caption-line:       16px;
-  --text-caption-weight:     500;
-  --text-caption-tracking:   0.06em;
+  --text-caption-weight:     700;
+  --text-caption-tracking:   0.08em;
 
   --text-mono-lg-size:       16px;
   --text-mono-lg-line:       24px;
-  --text-mono-lg-weight:     500;
+  --text-mono-lg-weight:     600;
 
   --text-mono-size:          14px;
   --text-mono-line:          20px;
-  --text-mono-weight:        500;
+  --text-mono-weight:        600;
 
   --text-mono-sm-size:       12px;
   --text-mono-sm-line:       18px;
-  --text-mono-sm-weight:     500;
+  --text-mono-sm-weight:     600;
 
-  /* ── Spacing — 8pt grid, restricted set ── */
+  /* ── Spacing — 8pt grid, unchanged ── */
   --space-1:   4px;
   --space-2:   8px;
   --space-3:   12px;
@@ -118,13 +108,13 @@
   --space-24:  96px;
   --space-32:  128px;
 
-  /* ── Radii ── */
-  --radius-0: 0px;     /* tables, data cells, dividers */
-  --radius-1: 2px;     /* buttons, inputs, badges */
-  --radius-2: 4px;     /* cards, panels */
-  --radius-3: 8px;     /* modals, command bar */
+  /* ── Radii — bumped to Duolingo curves ── */
+  --radius-0: 0px;     /* tables */
+  --radius-1: 12px;    /* inputs, buttons (was 2px) */
+  --radius-2: 20px;    /* cards (was 4px) */
+  --radius-3: 24px;    /* modals (was 8px) */
 
   /* ── Borders & elevation ── */
   --border-hairline: 1px solid var(--ink-200);
-  --shadow-elevated: 0 4px 24px rgba(10, 22, 40, 0.08);
+  --shadow-elevated: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
