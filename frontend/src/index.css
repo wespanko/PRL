@@ -4052,10 +4052,18 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; 
   text-align: right;
 }
 
-/* ── PortfolioDNA — keep its dark-card identity but use brief tokens.
-   This is NOT a brief-mandated section; we already have ONE dark
-   inverted section on the Plan page per §4. PortfolioDNA appears on
-   Analyze (different page) so it's allowed its own dark treatment. */
+/* ─────────────────────────────────────────────────────────────────────
+   PortfolioDNA — the "portfolio identity" card on the Analyze page.
+   Dark inverted treatment (--blue-900). Brief §4 allows one dark section
+   per page; the Plan page's DrawdownExplainer holds Plan's slot, this
+   holds Analyze's. !important flags override the light .card base.
+
+   Note on white-alpha values below: hairlines and subtle chip bgs on
+   dark surfaces need a translucent-white that no brief token currently
+   covers (--ink-200 is calibrated for light bgs). The white-alphas here
+   are the systemic dark-mode exception, used consistently with the
+   DrawdownExplainer on Plan.
+   ───────────────────────────────────────────────────────────────────── */
 .dna-card {
   background: var(--blue-900) !important;
   backdrop-filter: none !important;
@@ -4100,12 +4108,12 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; 
   letter-spacing: var(--text-caption-tracking);
   margin-bottom: var(--space-3);
 }
-.dna-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.dna-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .dna-pill {
   font-family: var(--font-sans);
   font-size: var(--text-caption-size);
   font-weight: 500;
-  padding: 4px var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-1);
   white-space: nowrap;
   letter-spacing: -0.005em;
@@ -4114,14 +4122,18 @@ input.invalid:focus { box-shadow: 0 0 0 3px rgba(179, 58, 58, 0.15) !important; 
   background: rgba(255, 255, 255, 0.08);
   color: var(--canvas);
 }
+/* Vulnerability pill: bg is --risk-red (#B33A3A) with the dark-mode-alpha
+   pattern; text is --canvas so we keep one consistent on-dark text color
+   instead of introducing a one-off light-red hex. The red-tinted bg alone
+   carries the vulnerability semantic. */
 .dna-pill--vuln {
-  background: rgba(179, 58, 58, 0.20);
-  color: #FCA5A5;
+  background: rgba(179, 58, 58, 0.28);
+  color: var(--canvas);
 }
 
 /* ── ENP gap bar (inside ConcentrationCard) ── */
 .enp-gap-bar {
-  margin-top: var(--space-5, 20px);
+  margin-top: var(--space-6);
   padding-top: var(--space-4);
   border-top: var(--border-hairline);
 }
