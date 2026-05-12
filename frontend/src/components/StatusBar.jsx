@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 
 function getMarketSession(now) {
-  // US equity hours: 09:30–16:00 ET. Browser local time used as-is for display;
-  // we use UTC offset of America/New_York for the gate. Crude but works for an indicator.
   const ny = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const day = ny.getDay(); // 0=Sun
-  if (day === 0 || day === 6) return { state: "closed", label: "Market closed (weekend)" };
+  const day = ny.getDay();
+  if (day === 0 || day === 6) return { state: "closed", label: "Markets closed" };
 
   const minutes = ny.getHours() * 60 + ny.getMinutes();
   const open = 9 * 60 + 30;
@@ -13,9 +11,9 @@ function getMarketSession(now) {
   const preStart = 4 * 60;
   const afterEnd = 20 * 60;
 
-  if (minutes < preStart || minutes >= afterEnd) return { state: "closed", label: "Market closed" };
+  if (minutes < preStart || minutes >= afterEnd) return { state: "closed", label: "Markets closed" };
   if (minutes < open) return { state: "pre", label: "Pre-market" };
-  if (minutes < close) return { state: "open", label: "Market open" };
+  if (minutes < close) return { state: "open", label: "Markets open" };
   return { state: "after", label: "After-hours" };
 }
 
@@ -23,6 +21,13 @@ function pctSigned(v) {
   if (v == null) return "—";
   return `${v > 0 ? "+" : ""}${(v * 100).toFixed(2)}%`;
 }
+
+const DOT_TONE = {
+  open:   "bg-emerald-500",
+  pre:    "bg-amber-500",
+  after:  "bg-amber-500",
+  closed: "bg-slate-300",
+};
 
 export default function StatusBar({ results, payload }) {
   const [now, setNow] = useState(() => new Date());
@@ -43,45 +48,50 @@ export default function StatusBar({ results, payload }) {
     : "No portfolio loaded";
 
   return (
-    <div className="status-bar">
-      <div className="status-bar-section status-bar-left">
-        <img src="/logo.png" alt="Panko" className="status-bar-wordmark" />
-        <span className="status-bar-divider" />
-        <span className={`status-dot status-dot--${session.state}`} aria-hidden="true" />
-        <span className="status-bar-label">{session.label}</span>
-        <span className="status-bar-divider" />
-        <span className="status-bar-mono">{time} ET</span>
+    <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-between gap-6 px-6 md:px-8 text-sm">
+      {/* Left: market session + clock */}
+      <div className="flex items-center gap-3 min-w-0">
+        <span className={`h-2 w-2 rounded-full ${DOT_TONE[session.state]} shrink-0`} />
+        <span className="font-semibold text-slate-900 whitespace-nowrap">{session.label}</span>
+        <span className="text-slate-300">·</span>
+        <span className="font-mono text-xs text-slate-500 tabular-nums whitespace-nowrap">{time} ET</span>
       </div>
 
-      <div className="status-bar-section status-bar-center">
-        <span className="status-bar-label-muted">Portfolio</span>
-        <span className="status-bar-mono">{tickerLine}</span>
+      {/* Center: portfolio tickers */}
+      <div className="flex items-center gap-2 min-w-0 flex-1 justify-center">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+          Portfolio
+        </span>
+        <span className="font-mono text-xs text-slate-700 truncate">{tickerLine}</span>
       </div>
 
-      <div className="status-bar-section status-bar-right">
+      {/* Right: live stats */}
+      <div className="flex items-center gap-5 shrink-0">
         {results ? (
           <>
-            <div className="status-bar-stat">
-              <span className="status-bar-stat-label">Sharpe</span>
-              <span className="status-bar-mono">{Number(results.sharpe_ratio).toFixed(2)}</span>
-            </div>
-            <div className="status-bar-stat">
-              <span className="status-bar-stat-label">Vol</span>
-              <span className="status-bar-mono">{pctSigned(results.annualized_volatility)}</span>
-            </div>
-            <div className="status-bar-stat">
-              <span className="status-bar-stat-label">Beta</span>
-              <span className="status-bar-mono">{Number(results.beta).toFixed(2)}</span>
-            </div>
-            <div className="status-bar-stat">
-              <span className="status-bar-stat-label">Drawdown</span>
-              <span className="status-bar-mono status-bar-mono--neg">{pctSigned(results.max_drawdown)}</span>
-            </div>
+            <Stat label="Sharpe" value={Number(results.sharpe_ratio).toFixed(2)} />
+            <Stat label="Vol"    value={pctSigned(results.annualized_volatility)} />
+            <Stat label="Beta"   value={Number(results.beta).toFixed(2)} />
+            <Stat label="Drawdown" value={pctSigned(results.max_drawdown)} tone="rose" />
           </>
         ) : (
-          <span className="status-bar-label-muted">Run analysis to populate</span>
+          <span className="text-xs text-slate-400">Run an analysis to populate</span>
         )}
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }) {
+  const valueColor = tone === "rose" ? "text-rose-600" : "text-slate-900";
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+        {label}
+      </span>
+      <span className={`font-mono text-xs font-semibold tabular-nums ${valueColor}`}>
+        {value}
+      </span>
     </div>
   );
 }

@@ -254,13 +254,16 @@ export default function App() {
       </main>
 
       <button
-        className="assistant-fab"
         onClick={() => setAssistantOpen(true)}
         title="Ask the assistant about your portfolio"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full pl-5 pr-3 py-3 shadow-lg shadow-slate-900/20 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.02] active:scale-[0.98]"
       >
-        <span className="assistant-fab-icon" aria-hidden="true">◍</span>
-        <span className="assistant-fab-label">Ask about your portfolio…</span>
-        <span className="assistant-fab-shortcut">⌘K</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <span className="text-sm font-semibold">Ask about your portfolio</span>
+        <span className="bg-white/10 text-white/80 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">⌘K</span>
       </button>
 
       <AssistantPanel
