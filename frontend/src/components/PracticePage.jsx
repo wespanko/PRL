@@ -55,9 +55,9 @@ function PathView({ onPick, progress }) {
                 disabled={!unlocked}
                 className={`relative shrink-0 flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-95 disabled:active:scale-100
                   ${completed
-                    ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
+                    ? "bg-sky-400 text-white shadow-lg shadow-sky-400/40"
                     : unlocked
-                      ? "bg-slate-950 text-cyan-400 border-4 border-cyan-500 hover:scale-105"
+                      ? "bg-slate-950 text-sky-400 border-4 border-sky-400 hover:scale-105"
                       : "bg-slate-800/60 text-slate-600 border-4 border-slate-800 cursor-not-allowed"}`}
               >
                 {!unlocked ? (
@@ -80,7 +80,7 @@ function PathView({ onPick, progress }) {
                   {lesson.subtitle}
                 </p>
                 {unlocked && (
-                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-cyan-400">
+                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-sky-400">
                     {completed ? "Practiced · tap to retry" : "Tap to start"}
                   </div>
                 )}
@@ -90,11 +90,11 @@ function PathView({ onPick, progress }) {
         })}
       </div>
 
-      <div className="mt-10 rounded-3xl bg-cyan-500/10 border border-cyan-500/30 p-5 flex gap-3 items-start">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white">
+      <div className="mt-10 rounded-3xl bg-sky-400/20 border border-sky-400/40 p-5 flex gap-3 items-start">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-400 text-white">
           <Zap className="h-4 w-4" strokeWidth={2.5} />
         </div>
-        <div className="text-sm text-cyan-100 leading-relaxed">
+        <div className="text-sm text-sky-100 leading-relaxed">
           <strong>How XP works:</strong> Each correct answer is 10 XP. Master a lesson with a perfect run to earn the gold star. Come back daily to keep your streak alive.
         </div>
       </div>
@@ -104,12 +104,12 @@ function PathView({ onPick, progress }) {
 
 function StatCard({ icon: Icon, tone, label, value, sub }) {
   const tones = {
-    blue:   { bg: "bg-cyan-500/15",   color: "text-cyan-400",   value: "text-cyan-400"   },
+    blue:   { bg: "bg-sky-400/25",   color: "text-sky-400",   value: "text-sky-400"   },
     orange: { bg: "bg-orange-500/15", color: "text-orange-400", value: "text-orange-300" },
     amber:  { bg: "bg-amber-500/15",  color: "text-amber-600",  value: "text-amber-300"  },
   }[tone];
   return (
-    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center gap-2.5">
+    <div className="bg-slate-900/70 border border-slate-700/60 rounded-2xl p-3 flex items-center gap-2.5">
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tones.bg} ${tones.color}`}>
         <Icon className="h-4 w-4" strokeWidth={2.5} />
       </div>
@@ -210,7 +210,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   // Failed (out of hearts)
   if (failed) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-10 text-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-full mb-6 bg-rose-500 text-white shadow-lg shadow-rose-200">
           <HeartCrack className="h-12 w-12" strokeWidth={2.25} />
         </div>
@@ -223,7 +223,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
           <button
             onClick={handleRetry}
-            className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
+            className="flex-1 bg-sky-400 hover:bg-sky-500 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             Try again
@@ -244,20 +244,20 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
     const xpEarned = finalCorrect * 10;
     const perfect = finalCorrect === total;
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-10 text-center">
         <div className={`flex h-24 w-24 items-center justify-center rounded-full mb-6
-          ${perfect ? "bg-amber-400" : "bg-cyan-500"} text-white shadow-lg`}>
+          ${perfect ? "bg-amber-400" : "bg-sky-400"} text-white shadow-lg`}>
           {perfect ? <Trophy className="h-12 w-12" strokeWidth={2.25} /> : <Star className="h-12 w-12 fill-white" strokeWidth={2.25} />}
         </div>
         <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">
           {perfect ? "Perfect run!" : "Lesson complete!"}
         </h2>
         <p className="text-slate-500 text-base md:text-lg mb-8 max-w-md leading-relaxed">
-          You answered {finalCorrect} of {total} correctly and earned <strong className="text-cyan-400">{xpEarned} XP</strong>.
+          You answered {finalCorrect} of {total} correctly and earned <strong className="text-sky-400">{xpEarned} XP</strong>.
         </p>
         <button
           onClick={onExit}
-          className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold text-base px-8 py-4 flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
+          className="bg-sky-400 hover:bg-sky-500 text-white rounded-2xl font-bold text-base px-8 py-4 flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
         >
           Back to path
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -267,7 +267,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Top bar: close + progress + hearts */}
       <div className="px-6 py-4 flex items-center gap-4 border-b border-slate-800">
         <button
@@ -278,7 +278,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
         </button>
         <div className="flex-1 h-2.5 bg-slate-800/60 rounded-full overflow-hidden">
           <div
-            className="h-full bg-cyan-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-sky-400 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -295,7 +295,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
 
       {/* Body */}
       <div className="flex-1 px-6 py-8 md:py-12 flex flex-col max-w-2xl w-full mx-auto">
-        <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
+        <div className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2">
           {ex.type === "mc" && "Pick the right answer"}
           {ex.type === "tf" && "True or false"}
           {ex.type === "numeric" && "Type the answer"}
@@ -318,23 +318,23 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                   disabled={submitted}
                   className={`w-full text-left flex items-center gap-3 p-4 rounded-2xl border-2 font-semibold transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                     ${isRight
-                      ? "bg-cyan-500/10 border-cyan-500 text-cyan-200"
+                      ? "bg-sky-400/20 border-sky-400 text-sky-200"
                       : isWrong
                         ? "bg-rose-500/10 border-rose-500 text-rose-200"
                         : isPicked
-                          ? "bg-cyan-500/10 border-cyan-500 text-slate-100"
+                          ? "bg-sky-400/20 border-sky-400 text-slate-100"
                           : "bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-600"}
                     ${submitted ? "cursor-default" : "active:scale-[0.99]"}`}
                 >
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-extrabold
-                    ${isRight ? "bg-cyan-500 text-white"
+                    ${isRight ? "bg-sky-400 text-white"
                       : isWrong ? "bg-rose-500 text-white"
-                      : isPicked ? "bg-cyan-500 text-white"
+                      : isPicked ? "bg-sky-400 text-white"
                       : "bg-slate-800/60 text-slate-500"}`}>
                     {String.fromCharCode(65 + i)}
                   </span>
                   <span className="flex-1">{opt}</span>
-                  {isRight && <Check className="h-5 w-5 text-cyan-400 shrink-0" strokeWidth={3} />}
+                  {isRight && <Check className="h-5 w-5 text-sky-400 shrink-0" strokeWidth={3} />}
                   {isWrong && <X className="h-5 w-5 text-rose-600 shrink-0" strokeWidth={3} />}
                 </button>
               );
@@ -358,11 +358,11 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                   disabled={submitted}
                   className={`p-8 rounded-2xl border-2 font-extrabold text-lg transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                     ${isRight
-                      ? "bg-cyan-500/10 border-cyan-500 text-cyan-200"
+                      ? "bg-sky-400/20 border-sky-400 text-sky-200"
                       : isWrong
                         ? "bg-rose-500/10 border-rose-500 text-rose-200"
                         : isPicked
-                          ? "bg-cyan-500/10 border-cyan-500 text-slate-100"
+                          ? "bg-sky-400/20 border-sky-400 text-slate-100"
                           : "bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-600"}
                     ${submitted ? "cursor-default" : "active:scale-[0.99]"}`}
                 >
@@ -387,9 +387,9 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                 className={`flex-1 bg-slate-950 border-2 rounded-2xl px-5 py-4 text-2xl font-extrabold tabular-nums text-slate-100 placeholder:text-slate-600 placeholder:font-medium outline-none transition-colors
                   ${submitted
                     ? isCorrect
-                      ? "border-cyan-500 bg-cyan-500/10"
+                      ? "border-sky-400 bg-sky-400/20"
                       : "border-rose-500 bg-rose-500/10"
-                    : "border-slate-800 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"}`}
+                    : "border-slate-800 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30"}`}
                 onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) handleCheck(); }}
               />
               {ex.unit && (
@@ -408,18 +408,18 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
         <div className="mt-8">
           {submitted && (
             <div className={`rounded-2xl p-5 mb-4 border
-              ${isCorrect ? "bg-cyan-500/10 border-cyan-500/30" : "bg-rose-500/10 border-rose-500/30"}`}>
+              ${isCorrect ? "bg-sky-400/20 border-sky-400/40" : "bg-rose-500/10 border-rose-500/30"}`}>
               <div className="flex items-center gap-2 mb-2">
                 <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-white
-                  ${isCorrect ? "bg-cyan-500" : "bg-rose-500"}`}>
+                  ${isCorrect ? "bg-sky-400" : "bg-rose-500"}`}>
                   {isCorrect ? <Check className="h-4 w-4" strokeWidth={3} /> : <X className="h-4 w-4" strokeWidth={3} />}
                 </div>
                 <h4 className={`font-extrabold text-sm uppercase tracking-wide
-                  ${isCorrect ? "text-cyan-200" : "text-rose-200"}`}>
+                  ${isCorrect ? "text-sky-200" : "text-rose-200"}`}>
                   {isCorrect ? "Nice work" : "Not quite"}
                 </h4>
               </div>
-              <p className={`text-sm leading-relaxed ${isCorrect ? "text-cyan-100" : "text-rose-200"}`}>
+              <p className={`text-sm leading-relaxed ${isCorrect ? "text-sky-100" : "text-rose-200"}`}>
                 {ex.explanation}
               </p>
             </div>
@@ -429,7 +429,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
             <button
               onClick={handleCheck}
               disabled={!canSubmit}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25 disabled:shadow-none uppercase tracking-wide"
+              className="w-full bg-sky-400 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40 disabled:shadow-none uppercase tracking-wide"
             >
               Check
             </button>
@@ -437,7 +437,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
             <button
               onClick={handleContinue}
               className={`w-full text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md uppercase tracking-wide flex items-center justify-center gap-2
-                ${isCorrect ? "bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/25" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"}`}
+                ${isCorrect ? "bg-sky-400 hover:bg-sky-500 shadow-sky-400/40" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"}`}
             >
               Continue
               <ArrowRight className="h-4 w-4" strokeWidth={3} />

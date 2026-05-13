@@ -286,17 +286,29 @@ export default function LiveTutorPage({ setActiveTab }) {
   const estimatedCost = (questionsAsked * COST_PER_QUESTION_USD).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 px-6 py-10 md:px-10">
+    <div className="min-h-screen text-slate-100 px-6 py-10 md:px-10">
       <div className="max-w-5xl mx-auto">
+
+        {/* HUD status bar */}
+        <div className="flex items-center gap-3 mb-6 text-[10px] font-mono uppercase tracking-[0.18em] text-slate-500">
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+          <span className="text-sky-400">PANKO //</span>
+          <span>LIVE TUTOR</span>
+          <span className="text-slate-700">·</span>
+          <span className={sharing ? "text-sky-400" : "text-slate-500"}>
+            {sharing ? "● ONLINE" : "○ STANDBY"}
+          </span>
+          <span className="h-px flex-1 bg-gradient-to-l from-transparent via-sky-400/40 to-transparent" />
+        </div>
 
         {/* Header */}
         <header className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-400">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-400/15 text-sky-400 border border-sky-400/40">
               <Eye className="h-6 w-6" strokeWidth={2.25} />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 leading-tight">
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-100 leading-tight">
                 Live Tutor
               </h1>
               <p className="text-slate-500 text-sm md:text-base">
@@ -307,12 +319,12 @@ export default function LiveTutorPage({ setActiveTab }) {
         </header>
 
         {/* Privacy callout */}
-        <div className="mb-6 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 p-4 flex gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white">
+        <div className="mb-6 rounded-2xl bg-sky-400/20 border border-sky-400/40 p-4 flex gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-400 text-white">
             <Shield className="h-4 w-4" strokeWidth={2.5} />
           </div>
-          <div className="text-sm leading-relaxed text-cyan-100/90">
-            <strong className="text-cyan-100">Your screen, your control.</strong> A snapshot is sent only when you ask a question. You pick which window to share, and you can stop anytime. Nothing is stored on Panko's servers; the image is forwarded to Anthropic Claude for analysis and discarded.
+          <div className="text-sm leading-relaxed text-sky-100/90">
+            <strong className="text-sky-100">Your screen, your control.</strong> A snapshot is sent only when you ask a question. You pick which window to share, and you can stop anytime. Nothing is stored on Panko's servers; the image is forwarded to Anthropic Claude for analysis and discarded.
           </div>
         </div>
 
@@ -320,7 +332,7 @@ export default function LiveTutorPage({ setActiveTab }) {
         {!sharing && (
           <div className="rounded-3xl border-2 border-dashed border-slate-800 p-8 md:p-12 text-center">
             <div className="flex justify-center mb-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-cyan-500/15 text-cyan-400">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-sky-400/25 text-sky-400">
                 <MonitorUp className="h-8 w-8" strokeWidth={2.25} />
               </div>
             </div>
@@ -332,7 +344,7 @@ export default function LiveTutorPage({ setActiveTab }) {
             </p>
             <button
               onClick={startSharing}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-extrabold text-base px-8 py-4 inline-flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
+              className="bg-sky-400 hover:bg-sky-500 text-white rounded-2xl font-extrabold text-base px-8 py-4 inline-flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
             >
               <MonitorUp className="h-5 w-5" strokeWidth={2.5} />
               Share my screen
@@ -396,7 +408,7 @@ export default function LiveTutorPage({ setActiveTab }) {
             {/* Right: chat */}
             <div className="lg:col-span-2 bg-slate-950 rounded-3xl border border-slate-800 flex flex-col min-h-[420px] max-h-[80vh]">
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-800">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500 text-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-400 text-white">
                   <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                 </div>
                 <span className="font-extrabold text-slate-100 text-sm">Ask the tutor</span>
@@ -421,7 +433,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                           key={q}
                           onClick={() => send(q, "qa")}
                           disabled={streaming}
-                          className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800 text-sm font-medium text-slate-600 hover:border-cyan-500/40 hover:bg-cyan-500/10/50 hover:text-slate-100 transition-colors disabled:opacity-50"
+                          className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-900/40 border border-slate-800 text-sm font-medium text-slate-600 hover:border-sky-400/50 hover:bg-sky-400/20/50 hover:text-slate-100 transition-colors disabled:opacity-50"
                         >
                           {q}
                         </button>
@@ -448,7 +460,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                         <div
                           className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
                             ${m.role === "user"
-                              ? "bg-cyan-500 text-white"
+                              ? "bg-sky-400 text-white"
                               : "bg-slate-800/60 text-slate-100"}`}
                         >
                           {/* Point mode badge on user messages */}
@@ -492,20 +504,20 @@ export default function LiveTutorPage({ setActiveTab }) {
                       {lesson && m.content && !isStreamingMe && (
                         <button
                           onClick={() => setActiveTab?.("practice")}
-                          className="mt-2 w-full text-left rounded-2xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/15 px-3 py-2.5 flex items-center gap-3 transition-colors group"
+                          className="mt-2 w-full text-left rounded-2xl border border-sky-400/40 bg-sky-400/20 hover:bg-sky-400/25 px-3 py-2.5 flex items-center gap-3 transition-colors group"
                         >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-400 text-white">
                             <GraduationCap className="h-4 w-4" strokeWidth={2.5} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-sky-400">
                               Related Practice lesson
                             </div>
-                            <div className="text-sm font-bold text-cyan-100 truncate">
+                            <div className="text-sm font-bold text-sky-100 truncate">
                               {lesson.title}
                             </div>
                           </div>
-                          <ArrowRight className="h-4 w-4 text-cyan-400 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
+                          <ArrowRight className="h-4 w-4 text-sky-400 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
                         </button>
                       )}
                     </div>
@@ -546,7 +558,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={voice.listening ? "Listening…" : "Ask or 'where is the …?'"}
                   disabled={streaming}
-                  className="flex-1 bg-slate-900/40 border border-slate-800 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-slate-900/40 border border-slate-700/60 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition-colors disabled:opacity-50"
                 />
                 {/* Point button — sends with mode="point" */}
                 <button
@@ -554,7 +566,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                   onClick={handlePoint}
                   disabled={!input.trim() || streaming}
                   title="Point — ask the AI to draw boxes around the answer on your screen"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800/60 hover:bg-cyan-500/15 hover:text-cyan-400 disabled:bg-slate-800/60 disabled:text-slate-500 text-slate-600 transition-colors active:scale-95"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800/60 hover:bg-sky-400/25 hover:text-sky-400 disabled:bg-slate-800/60 disabled:text-slate-500 text-slate-600 transition-colors active:scale-95"
                 >
                   <Crosshair className="h-4 w-4" strokeWidth={2.5} />
                 </button>
@@ -562,7 +574,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                 <button
                   type="submit"
                   disabled={!input.trim() || streaming}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white transition-colors active:scale-95"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-400 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500 text-white transition-colors active:scale-95"
                 >
                   {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
                 </button>

@@ -19,14 +19,14 @@ const EXPERIENCE_LEVELS = [
   { id: "confident", icon: Crosshair, label: "I know what I'm doing",  body: "Skip the tour, drop me into the full app" },
 ];
 
-const INPUT = "w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors";
+const INPUT = "w-full bg-slate-900/70 border border-slate-700/60 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition-colors";
 
 function Section({ icon: Icon, title, help, children }) {
   return (
-    <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5 md:p-6 mb-4">
+    <section className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-5 md:p-6 mb-4">
       <div className="flex items-center gap-3 mb-1">
         {Icon && (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-400/25 text-sky-400">
             <Icon className="h-4 w-4" strokeWidth={2.5} />
           </div>
         )}
@@ -45,17 +45,17 @@ function RadioCard({ active, icon: Icon, label, body, onClick }) {
       onClick={onClick}
       className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${active
-          ? "bg-cyan-500/10 border-2 border-cyan-500"
-          : "bg-slate-950 border border-slate-800 hover:border-slate-700"}`}
+          ? "bg-sky-400/20 border-2 border-sky-400"
+          : "bg-slate-900/70 border border-slate-700/60 hover:border-slate-700"}`}
     >
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-        ${active ? "bg-cyan-500 text-white" : "bg-slate-800/60 text-slate-500"}`}>
+        ${active ? "bg-sky-400 text-white" : "bg-slate-800/60 text-slate-500"}`}>
         <Icon className="h-5 w-5" strokeWidth={2.25} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <div className="font-bold text-sm text-slate-100">{label}</div>
-          {active && <CheckCircle2 className="h-4 w-4 text-cyan-400" strokeWidth={2.5} />}
+          {active && <CheckCircle2 className="h-4 w-4 text-sky-400" strokeWidth={2.5} />}
         </div>
         <div className="text-xs text-slate-500 mt-0.5 leading-snug">{body}</div>
       </div>
@@ -156,7 +156,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           <button
             type="button"
             onClick={handleRestartOnboarding}
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-400 hover:text-cyan-300 mt-2"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-400 hover:text-sky-300 mt-2"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             Restart guided onboarding
@@ -173,12 +173,12 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={handleSave}
-          className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
+          className="bg-sky-400 hover:bg-sky-500 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
         >
           Save changes
         </button>
         {savedFlash && (
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-400">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-sky-400">
             <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
             Saved
           </span>

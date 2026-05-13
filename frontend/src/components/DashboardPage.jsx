@@ -18,13 +18,13 @@ function ScoreRing({ score, size = 200, stroke = 14 }) {
   // Tone-shift based on score band — JARVIS palette.
   const tone =
     score == null   ? "#475569" : // slate-600
-    score >= 75     ? "#06B6D4" : // cyan-500 (good)
+    score >= 75     ? "#38BDF8" : // cyan-500 (good)
     score >= 50     ? "#F59E0B" : // amber  (ok)
                       "#F43F5E";  // rose   (bad)
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} >
-      <svg width={size} height={size} className="-rotate-90" style={{ filter: score >= 75 ? "drop-shadow(0 0 12px rgba(6, 182, 212, 0.4))" : undefined }}>
+      <svg width={size} height={size} className="-rotate-90" style={{ filter: score >= 75 ? "drop-shadow(0 0 12px rgba(56, 189, 248, 0.4))" : undefined }}>
         <circle cx={size / 2} cy={size / 2} r={radius} stroke="#1E293B" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
@@ -52,11 +52,11 @@ function MetricCard({ icon: Icon, label, figure, body, tone = "slate" }) {
   const tones = {
     rose:    { iconBg: "bg-rose-500/15",  iconColor: "text-rose-400",  figure: "text-rose-400"  },
     amber:   { iconBg: "bg-amber-500/15", iconColor: "text-amber-400", figure: "text-amber-400" },
-    emerald: { iconBg: "bg-cyan-500/15",  iconColor: "text-cyan-400",  figure: "text-cyan-400"  },
+    emerald: { iconBg: "bg-sky-400/25",  iconColor: "text-sky-400",  figure: "text-sky-400"  },
     slate:   { iconBg: "bg-slate-800/60", iconColor: "text-slate-400", figure: "text-slate-100" },
   }[tone];
   return (
-    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 md:p-6 flex flex-col">
+    <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-5 md:p-6 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
         <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${tones.iconBg} ${tones.iconColor}`}>
           <Icon className="h-5 w-5" strokeWidth={2.25} />
@@ -89,7 +89,7 @@ export default function DashboardPage({
     return (
       <div className="px-6 py-12 md:px-10 md:py-16 max-w-3xl mx-auto">
         <div className="flex items-center justify-center mb-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-cyan-500/15 text-cyan-400">
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-sky-400/25 text-sky-400">
             <Sparkles className="h-10 w-10" strokeWidth={2} />
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function DashboardPage({
             <button
               onClick={onRunDemo}
               disabled={loading}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-cyan-500/30 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
+              className="w-full bg-sky-400 hover:bg-sky-500 disabled:bg-sky-400/30 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
             >
               <PlayCircle className="h-5 w-5" strokeWidth={2.5} />
               {loading ? "Loading example…" : "Try with example portfolio"}
@@ -145,7 +145,7 @@ export default function DashboardPage({
       <section className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-12 mb-12">
         <ScoreRing score={animatedScore} />
         <div className="flex-1 flex flex-col justify-center text-center md:text-left">
-          <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2">
             Panko Score
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-3">
@@ -156,7 +156,7 @@ export default function DashboardPage({
           </p>
           <button
             onClick={() => setActiveTab("analyze")}
-            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-cyan-400 hover:text-cyan-300 self-center md:self-start"
+            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-sky-400 hover:text-sky-300 self-center md:self-start"
           >
             See full breakdown
             <ArrowRight className="h-4 w-4" strokeWidth={2.5} />

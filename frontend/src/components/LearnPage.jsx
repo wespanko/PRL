@@ -1,12 +1,12 @@
 // ── Duolingo × Robinhood Learn page ──────────────────────────────────
 // Design system reference for the rest of the rollout:
 //
-//   • Canvas        : bg-slate-950 text-slate-100 font-sans
+//   • Canvas        : bg-transparent text-slate-100 font-sans
 //   • Container     : max-w-3xl mx-auto, generous py
-//   • Surface card  : bg-slate-950 border border-slate-800 rounded-3xl
-//   • Active card   : border-2 border-cyan-500 shadow-sm shadow-cyan-500/20
+//   • Surface card  : bg-slate-900/70 border border-slate-700/60 rounded-3xl
+//   • Active card   : border-2 border-sky-400 shadow-sm shadow-sky-400/30
 //   • Hairline rule : 1px (border), reserved 2px for active/focus
-//   • Primary CTA   : bg-cyan-500 hover:bg-cyan-600 text-white
+//   • Primary CTA   : bg-sky-400 hover:bg-sky-500 text-white
 //   • Secondary CTA : bg-slate-800/60 hover:bg-slate-700 text-slate-100
 //   • Pill chip     : rounded-full px-4 py-2 text-sm font-semibold
 //   • Soft chunks   : bg-{blue|emerald|amber|rose}-50 border border-{c}-200
@@ -72,14 +72,14 @@ function ProgressRing({ percent, size = 64, stroke = 6 }) {
   const offset = circumference - (percent / 100) * circumference;
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90" style={{ filter: "drop-shadow(0 0 8px rgba(6, 182, 212, 0.35))" }}>
+      <svg width={size} height={size} className="-rotate-90" style={{ filter: "drop-shadow(0 0 8px rgba(56, 189, 248, 0.35))" }}>
         <circle
           cx={size / 2} cy={size / 2} r={radius}
           stroke="#1E293B" strokeWidth={stroke} fill="none"
         />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          stroke="#06B6D4" strokeWidth={stroke} fill="none"
+          stroke="#38BDF8" strokeWidth={stroke} fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
@@ -99,7 +99,7 @@ function Chunk({ tone, icon: Icon, title, children }) {
   // routes to indigo so "Why it matters" (blue) and "How to improve"
   // stay visually distinct now that brand green is gone.
   const tones = {
-    blue:    { bg: "bg-cyan-500/10",    ring: "border-cyan-500/30",    badge: "bg-cyan-500",    text: "text-cyan-100",    label: "text-cyan-200"    },
+    blue:    { bg: "bg-sky-400/20",    ring: "border-sky-400/40",    badge: "bg-sky-400",    text: "text-sky-100",    label: "text-sky-200"    },
     emerald: { bg: "bg-indigo-500/10",  ring: "border-indigo-500/30",  badge: "bg-indigo-500",  text: "text-indigo-200",  label: "text-indigo-300"  },
     amber:   { bg: "bg-amber-500/10",   ring: "border-amber-500/30",   badge: "bg-amber-500",   text: "text-amber-200",   label: "text-amber-200"   },
     rose:    { bg: "bg-rose-500/10",    ring: "border-rose-500/30",    badge: "bg-rose-500",    text: "text-rose-200",    label: "text-rose-200"    },
@@ -146,7 +146,7 @@ export default function LearnPage({ initialMetricId }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased -mx-8 -my-8 px-6 py-10 md:px-10">
+    <div className="min-h-screen bg-transparent text-slate-100 font-sans antialiased -mx-8 -my-8 px-6 py-10 md:px-10">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
@@ -190,7 +190,7 @@ export default function LearnPage({ initialMetricId }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search metrics…"
-            className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors"
+            className="w-full bg-slate-900/70 border border-slate-700/60 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition-colors"
           />
         </div>
 
@@ -205,7 +205,7 @@ export default function LearnPage({ initialMetricId }) {
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors
                   ${active
-                    ? "bg-cyan-500 text-white"
+                    ? "bg-sky-400 text-white"
                     : "bg-slate-800/60 text-slate-600 hover:bg-slate-700"}`}
               >
                 <Icon className="h-4 w-4" strokeWidth={2.25} />
@@ -227,7 +227,7 @@ export default function LearnPage({ initialMetricId }) {
                 key={metric.id}
                 className={`bg-slate-950 rounded-3xl overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                   ${isExpanded
-                    ? "border-2 border-cyan-500 shadow-sm"
+                    ? "border-2 border-sky-400 shadow-sm"
                     : "border border-slate-800 hover:border-slate-700"}`}
               >
                 {/* Header (collapsed view) */}
@@ -236,7 +236,7 @@ export default function LearnPage({ initialMetricId }) {
                   className="w-full text-left p-5 md:px-6 flex items-center gap-4"
                 >
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-colors
-                    ${isExpanded ? "bg-cyan-500 text-white" : "bg-slate-800/60 text-slate-500"}`}>
+                    ${isExpanded ? "bg-sky-400 text-white" : "bg-slate-800/60 text-slate-500"}`}>
                     <Icon className="h-6 w-6" strokeWidth={2.25} />
                   </div>
 
@@ -246,7 +246,7 @@ export default function LearnPage({ initialMetricId }) {
                         {metric.title}
                       </h3>
                       {isMastered && (
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cyan-500/15 text-cyan-400 text-[11px] font-bold uppercase tracking-wider px-2 py-0.5">
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-sky-400/25 text-sky-400 text-[11px] font-bold uppercase tracking-wider px-2 py-0.5">
                           <CheckCircle2 className="h-3 w-3" strokeWidth={2.75} />
                           Mastered
                         </span>
@@ -259,7 +259,7 @@ export default function LearnPage({ initialMetricId }) {
 
                   <ChevronDown
                     className={`h-5 w-5 text-slate-500 shrink-0 transition-transform duration-300
-                      ${isExpanded ? "rotate-180 text-cyan-400" : ""}`}
+                      ${isExpanded ? "rotate-180 text-sky-400" : ""}`}
                     strokeWidth={2.5}
                   />
                 </button>
@@ -297,7 +297,7 @@ export default function LearnPage({ initialMetricId }) {
                             Formula
                           </h4>
                         </div>
-                        <code className="block font-mono text-base text-cyan-300 mt-2">
+                        <code className="block font-mono text-base text-sky-300 mt-2">
                           {metric.formula}
                         </code>
                         <p className="text-slate-500 text-xs mt-2 font-mono">
@@ -321,7 +321,7 @@ export default function LearnPage({ initialMetricId }) {
                       className={`w-full rounded-2xl font-bold text-base py-4 transition-colors active:scale-[0.99]
                         ${isMastered
                           ? "bg-slate-800/60 hover:bg-slate-700 text-slate-600 border border-slate-800"
-                          : "bg-cyan-500 hover:bg-cyan-600 text-white"}`}
+                          : "bg-sky-400 hover:bg-sky-500 text-white"}`}
                     >
                       {isMastered ? (
                         <span className="flex items-center justify-center gap-2">

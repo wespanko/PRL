@@ -21,10 +21,10 @@ body { overflow-wrap: break-word; }
   --border:         #1E293B;        /* slate-800 — hairline */
   --border-strong:  #334155;        /* slate-700 — hover */
   --border-light:   #111827;        /* slate-900-ish */
-  --primary:        #06B6D4;        /* cyan-500 */
-  --primary-dark:   #0E7490;        /* cyan-700 */
-  --positive:       #06B6D4;        /* cyan (was green; JARVIS uses brand color) */
-  --positive-bg:    rgba(6, 182, 212, 0.10);
+  --primary:        #38BDF8;        /* sky-400 HUD-cyan */
+  --primary-dark:   #0EA5E9;        /* sky-500 */
+  --positive:       #38BDF8;
+  --positive-bg:    rgba(56, 189, 248, 0.18);
   --negative:       #F43F5E;        /* rose-500 */
   --negative-bg:    rgba(244, 63, 94, 0.10);
   --warning:        #F59E0B;        /* amber-500 */
@@ -47,14 +47,15 @@ body { overflow-wrap: break-word; }
   --hero-neg:       #F43F5E;
 }
 
-/* ── base ── JARVIS / space-black: deep canvas, soft-white text, subtle grid. */
+/* ── base ── JARVIS / space-black: deep canvas with brighter HUD grid. */
 body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
-  background: #06080F;
+  background: #050810;
   background-image:
-    linear-gradient(rgba(6, 182, 212, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6, 182, 212, 0.018) 1px, transparent 1px);
-  background-size: 48px 48px;
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    radial-gradient(ellipse at top, rgba(56, 189, 248, 0.06) 0%, transparent 60%);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
   background-attachment: fixed;
   color: #F1F5F9;
   font-size: 15px;

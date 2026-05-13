@@ -99,7 +99,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
         {/* Header */}
         <header className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-400">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-400/25 text-sky-400">
               <Sparkles className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
@@ -132,7 +132,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                       <button
                         key={s}
                         onClick={() => send(s)}
-                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-900/40 border border-slate-800 text-sm font-medium text-slate-600 hover:border-cyan-500/40 hover:bg-cyan-500/10/50 hover:text-slate-100 transition-colors"
+                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-900/40 border border-slate-800 text-sm font-medium text-slate-600 hover:border-sky-400/50 hover:bg-sky-400/20/50 hover:text-slate-100 transition-colors"
                       >
                         {s}
                       </button>
@@ -160,7 +160,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
                     ${m.role === "user"
-                      ? "bg-cyan-500 text-white"
+                      ? "bg-sky-400 text-white"
                       : "bg-slate-800/60 text-slate-100"}`}
                 >
                   {m.content || (streaming && i === messages.length - 1 ? (
@@ -185,12 +185,12 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             onChange={(e) => setInput(e.target.value)}
             placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
             disabled={streaming || !hasPortfolio}
-            className="flex-1 bg-slate-900/40 border border-slate-800 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors disabled:opacity-50"
+            className="flex-1 bg-slate-900/40 border border-slate-700/60 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || streaming || !hasPortfolio}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white transition-colors active:scale-[0.95]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-400 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500 text-white transition-colors active:scale-[0.95]"
           >
             {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
           </button>

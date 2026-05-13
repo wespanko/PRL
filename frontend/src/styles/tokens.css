@@ -20,23 +20,21 @@
   --ink-100:  #111827;  /* subtle bg (slate-900-ish) */
   --ink-50:   #0F172A;  /* hover, table stripes (slate-900) */
 
-  /* Brand: JARVIS cyan replaces Duolingo blue */
-  --blue-900: #164E63;  /* cyan-900, deepest */
-  --blue-700: #0E7490;  /* cyan-700 */
-  --blue-500: #06B6D4;  /* cyan-500, primary brand */
-  --blue-300: #67E8F9;  /* cyan-300 */
-  --blue-100: #CFFAFE;  /* cyan-100, tint bg */
+  /* Brand: bright JARVIS HUD-cyan/electric-blue. sky-400 ≈ Iron Man HUD. */
+  --blue-900: #0C4A6E;  /* sky-900 */
+  --blue-700: #0369A1;  /* sky-700 */
+  --blue-500: #38BDF8;  /* sky-400, primary brand — bright & visible on black */
+  --blue-300: #7DD3FC;  /* sky-300 */
+  --blue-100: #BAE6FD;  /* sky-200 */
 
-  /* Gold aliases -> cyan */
-  --gold-700: #0E7490;
-  --gold-500: #06B6D4;
-  --gold-300: #67E8F9;
-  --gold-100: #CFFAFE;
+  --gold-700: #0369A1;
+  --gold-500: #38BDF8;
+  --gold-300: #7DD3FC;
+  --gold-100: #BAE6FD;
 
-  /* Semantic — risk colors */
-  --risk-red:   #F43F5E;  /* rose-500 */
-  --risk-amber: #F59E0B;  /* amber-500 */
-  --risk-green: #06B6D4;  /* cyan — 'positive' semantic uses brand color */
+  --risk-red:   #F43F5E;
+  --risk-amber: #F59E0B;
+  --risk-green: #38BDF8;
 
   /* ── Typography ── */
 
@@ -115,7 +113,7 @@
   --radius-3: 16px;    /* modals */
 
   /* ── Borders & elevation ── */
-  --border-hairline: 1px solid var(--ink-200);
+  --border-hairline: 1px solid #334155;  /* slate-700 — visible on black */
   --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --glow-cyan:       0 0 24px rgba(6, 182, 212, 0.25);
+  --glow-cyan:       0 0 32px rgba(56, 189, 248, 0.45);
 }

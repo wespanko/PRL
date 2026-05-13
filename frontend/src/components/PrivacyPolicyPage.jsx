@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage({ setActiveTab }) {
         </p>
       </header>
 
-      <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 text-[15px] text-slate-600 leading-relaxed">
+      <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 md:p-8 space-y-6 text-[15px] text-slate-600 leading-relaxed">
         <Section title="1. What we collect — and what we don't">
           <p>
             Panko, operated by Panko Financial Strategies LLC ("Panko," "we"), stores all of your personal data <strong className="text-slate-100">only in your own browser's localStorage</strong>. No central database. The operator cannot see your name, email, portfolios, or analysis history. The data we hold in your browser:

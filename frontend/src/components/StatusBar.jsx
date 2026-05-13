@@ -23,7 +23,7 @@ function pctSigned(v) {
 }
 
 const DOT_TONE = {
-  open:   "bg-cyan-500",
+  open:   "bg-sky-400",
   pre:    "bg-amber-500",
   after:  "bg-amber-500",
   closed: "bg-slate-300",

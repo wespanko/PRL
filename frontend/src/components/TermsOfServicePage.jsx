@@ -12,7 +12,7 @@ export default function TermsOfServicePage({ setActiveTab }) {
         </p>
       </header>
 
-      <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 text-[15px] text-slate-600 leading-relaxed">
+      <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 md:p-8 space-y-6 text-[15px] text-slate-600 leading-relaxed">
         <Section title="1. Educational Use Only">
           Panko, operated by Panko Financial Strategies LLC ("Panko," "we," "us," or "the Service"), is a portfolio risk diagnostics tool provided strictly for <strong className="text-slate-100">educational and informational purposes</strong>. The Service is <strong className="text-slate-100">not</strong> investment advice, financial advice, brokerage services, tax advice, legal advice, or a recommendation to buy, sell, or hold any security. The Service does not consider your personal financial situation, goals, or constraints.
         </Section>
