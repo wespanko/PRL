@@ -91,19 +91,19 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
       {/* Drawer — transform via inline style so we don't depend on
           Tailwind's purge picking up dynamic `translate-x-full` correctly. */}
       <div
-        className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-slate-950 border-l border-slate-800 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl"
+        className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-white border-l border-slate-200 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
         }}
       >
         {/* Header */}
-        <header className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <header className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-400/25 text-sky-400">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
               <Sparkles className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
-              <div className="font-extrabold text-slate-100">Assistant</div>
+              <div className="font-extrabold text-slate-900">Assistant</div>
               {hasPortfolio && (
                 <div className="text-xs text-slate-500 truncate font-mono">
                   Loaded: {lastResults.tickers.join(", ")}
@@ -113,7 +113,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
           </div>
           <button
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-800/60 hover:text-slate-100 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
           >
             <X className="h-5 w-5" strokeWidth={2.5} />
           </button>
@@ -125,14 +125,14 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             <div className="py-6">
               {hasPortfolio ? (
                 <>
-                  <p className="text-base font-bold text-slate-100 mb-1">Ask anything about your portfolio.</p>
+                  <p className="text-base font-bold text-slate-900 mb-1">Ask anything about your portfolio.</p>
                   <p className="text-sm text-slate-500 mb-4">Try one of these:</p>
                   <div className="space-y-2">
                     {SUGGESTED.map((s) => (
                       <button
                         key={s}
                         onClick={() => send(s)}
-                        className="w-full text-left px-4 py-3 rounded-2xl bg-slate-900/40 border border-slate-800 text-sm font-medium text-slate-600 hover:border-sky-400/50 hover:bg-sky-400/20/50 hover:text-slate-100 transition-colors"
+                        className="w-full text-left px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-sm font-medium text-slate-500 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-slate-900 transition-colors"
                       >
                         {s}
                       </button>
@@ -142,7 +142,7 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
               ) : (
                 <div className="text-center py-10">
                   <div className="flex justify-center mb-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800/60 text-slate-500">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
                       <Sparkles className="h-6 w-6" strokeWidth={2} />
                     </div>
                   </div>
@@ -158,10 +158,10 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+                  className={`max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
                     ${m.role === "user"
-                      ? "bg-sky-400 text-white"
-                      : "bg-slate-800/60 text-slate-100"}`}
+                      ? "bg-indigo-600 text-white"
+                      : "bg-slate-100 text-slate-900"}`}
                 >
                   {m.content || (streaming && i === messages.length - 1 ? (
                     <span className="inline-flex gap-1">
@@ -178,19 +178,19 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="px-5 py-4 border-t border-slate-800 flex gap-2">
+        <form onSubmit={handleSubmit} className="px-5 py-4 border-t border-slate-200 flex gap-2">
           <input
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
             disabled={streaming || !hasPortfolio}
-            className="flex-1 bg-slate-900/40 border border-slate-700/60 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition-colors disabled:opacity-50"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || streaming || !hasPortfolio}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-400 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500 text-white transition-colors active:scale-[0.95]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500 text-white transition-colors active:scale-[0.95]"
           >
             {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
           </button>

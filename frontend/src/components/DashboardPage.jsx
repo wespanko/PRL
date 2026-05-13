@@ -15,17 +15,17 @@ function ScoreRing({ score, size = 200, stroke = 14 }) {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - ((score ?? 0) / 100) * circumference;
 
-  // Tone-shift based on score band — JARVIS palette.
+  // Score-band coloring — sober data semantics
   const tone =
-    score == null   ? "#475569" : // slate-600
-    score >= 75     ? "#38BDF8" : // cyan-500 (good)
-    score >= 50     ? "#F59E0B" : // amber  (ok)
-                      "#F43F5E";  // rose   (bad)
+    score == null   ? "#94A3B8" : // slate-400 (no data)
+    score >= 75     ? "#059669" : // emerald-600 (good)
+    score >= 50     ? "#D97706" : // amber-600 (ok)
+                      "#DC2626";  // red-600 (bad)
 
   return (
-    <div className="relative shrink-0" style={{ width: size, height: size }} >
-      <svg width={size} height={size} className="-rotate-90" style={{ filter: score >= 75 ? "drop-shadow(0 0 12px rgba(56, 189, 248, 0.4))" : undefined }}>
-        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#1E293B" strokeWidth={stroke} fill="none" />
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#E2E8F0" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
           stroke={tone} strokeWidth={stroke} fill="none"
@@ -36,7 +36,7 @@ function ScoreRing({ score, size = 200, stroke = 14 }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-6xl font-extrabold text-slate-100 tabular-nums leading-none">
+        <span className="text-6xl font-extrabold text-slate-900 tabular-nums leading-none">
           {Math.round(score ?? 0)}
         </span>
         <span className="text-xs font-bold text-slate-500 tracking-wider mt-1.5 uppercase">
@@ -50,15 +50,15 @@ function ScoreRing({ score, size = 200, stroke = 14 }) {
 // ── soft metric card ────────────────────────────────────────────────
 function MetricCard({ icon: Icon, label, figure, body, tone = "slate" }) {
   const tones = {
-    rose:    { iconBg: "bg-rose-500/15",  iconColor: "text-rose-400",  figure: "text-rose-400"  },
-    amber:   { iconBg: "bg-amber-500/15", iconColor: "text-amber-400", figure: "text-amber-400" },
-    emerald: { iconBg: "bg-sky-400/25",  iconColor: "text-sky-400",  figure: "text-sky-400"  },
-    slate:   { iconBg: "bg-slate-800/60", iconColor: "text-slate-400", figure: "text-slate-100" },
+    rose:    { iconBg: "bg-rose-100",  iconColor: "text-rose-600",  figure: "text-rose-600"  },
+    amber:   { iconBg: "bg-amber-100", iconColor: "text-amber-600", figure: "text-amber-600" },
+    emerald: { iconBg: "bg-indigo-50",  iconColor: "text-indigo-600",  figure: "text-indigo-600"  },
+    slate:   { iconBg: "bg-slate-100", iconColor: "text-slate-400", figure: "text-slate-900" },
   }[tone];
   return (
-    <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-5 md:p-6 flex flex-col">
+    <div className="bg-white border border-slate-200 rounded-xl p-5 md:p-6 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${tones.iconBg} ${tones.iconColor}`}>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tones.iconBg} ${tones.iconColor}`}>
           <Icon className="h-5 w-5" strokeWidth={2.25} />
         </div>
         <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -89,12 +89,12 @@ export default function DashboardPage({
     return (
       <div className="px-6 py-12 md:px-10 md:py-16 max-w-3xl mx-auto">
         <div className="flex items-center justify-center mb-8">
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-sky-400/25 text-sky-400">
+          <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
             <Sparkles className="h-10 w-10" strokeWidth={2} />
           </div>
         </div>
 
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center text-slate-100 mb-3">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center text-slate-900 mb-3">
           No analysis yet
         </h1>
         <p className="text-center text-slate-500 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
@@ -106,7 +106,7 @@ export default function DashboardPage({
             <button
               onClick={onRunDemo}
               disabled={loading}
-              className="w-full bg-sky-400 hover:bg-sky-500 disabled:bg-sky-400/30 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-100 text-white rounded-lg font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-indigo-200"
             >
               <PlayCircle className="h-5 w-5" strokeWidth={2.5} />
               {loading ? "Loading example…" : "Try with example portfolio"}
@@ -115,7 +115,7 @@ export default function DashboardPage({
           <button
             onClick={() => setActiveTab("analyze")}
             disabled={loading}
-            className="w-full bg-slate-800/60 hover:bg-slate-700 text-slate-100 rounded-2xl font-bold text-base py-4 transition-colors"
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-bold text-base py-4 transition-colors"
           >
             Or enter your own
           </button>
@@ -145,10 +145,10 @@ export default function DashboardPage({
       <section className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-12 mb-12">
         <ScoreRing score={animatedScore} />
         <div className="flex-1 flex flex-col justify-center text-center md:text-left">
-          <div className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2">
             Panko Score
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-3">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
             {dnaType ?? "Unscored"}
           </h1>
           <p className="text-slate-500 text-base md:text-lg leading-relaxed max-w-md md:max-w-none">
@@ -156,7 +156,7 @@ export default function DashboardPage({
           </p>
           <button
             onClick={() => setActiveTab("analyze")}
-            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-sky-400 hover:text-sky-300 self-center md:self-start"
+            className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-700 self-center md:self-start"
           >
             See full breakdown
             <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -174,7 +174,7 @@ export default function DashboardPage({
           body={
             top
               ? <>
-                  <strong className="text-slate-100 font-bold">{top.ticker}</strong> drives this share of total risk from {pct(top.pctCapital, 0)} of capital{top.overweight ? "; overweight." : "."}
+                  <strong className="text-slate-900 font-bold">{top.ticker}</strong> drives this share of total risk from {pct(top.pctCapital, 0)} of capital{top.overweight ? "; overweight." : "."}
                 </>
               : "No risk-contribution data available yet."
           }
@@ -193,7 +193,7 @@ export default function DashboardPage({
           figure={focus.figure}
           body={
             <>
-              <strong className="text-slate-100 font-bold">{focus.title}.</strong>{" "}
+              <strong className="text-slate-900 font-bold">{focus.title}.</strong>{" "}
               {focus.body}
             </>
           }

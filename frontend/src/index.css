@@ -9,54 +9,46 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { overflow-wrap: break-word; }
 
-/* ── design tokens — JARVIS / space-black ─────────────────────────────
-   Legacy token names retained. Values inverted: dark canvas, cyan accent,
-   light text. Designed for premium / Linear-app feel.
+/* ── design tokens — clean modern fintech (legacy :root) ──────────────
+   Token *names* preserved for backward compat with any unrefactored CSS.
    ───────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:             #06080F;        /* deep space-black */
-  --bg-elevated:    #0B0F1A;        /* card bg */
-  --surface:        #0B0F1A;
-  --surface-2:      #0F172A;        /* slate-900 */
-  --border:         #1E293B;        /* slate-800 — hairline */
-  --border-strong:  #334155;        /* slate-700 — hover */
-  --border-light:   #111827;        /* slate-900-ish */
-  --primary:        #38BDF8;        /* sky-400 HUD-cyan */
-  --primary-dark:   #0EA5E9;        /* sky-500 */
-  --positive:       #38BDF8;
-  --positive-bg:    rgba(56, 189, 248, 0.18);
-  --negative:       #F43F5E;        /* rose-500 */
-  --negative-bg:    rgba(244, 63, 94, 0.10);
-  --warning:        #F59E0B;        /* amber-500 */
-  --warning-bg:     rgba(245, 158, 11, 0.10);
-  --purple:         #A78BFA;        /* violet-400 */
-  --label:          #F1F5F9;        /* slate-100 */
-  --label-2:        #CBD5E1;        /* slate-300 */
-  --label-3:        #94A3B8;        /* slate-400 */
-  --label-4:        #64748B;        /* slate-500 */
-  --radius:         12px;
-  --radius-sm:      8px;
-  --radius-lg:      16px;
-  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow:         0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg:      0 12px 32px rgba(0, 0, 0, 0.6);
-  --shadow-hover:   0 8px 24px rgba(0, 0, 0, 0.5);
-  --glow:           0 0 24px rgba(6, 182, 212, 0.25);
+  --bg:             #FAFAFA;
+  --bg-elevated:    #FFFFFF;
+  --surface:        #FFFFFF;
+  --surface-2:      #F8FAFC;
+  --border:         #E2E8F0;        /* slate-200 */
+  --border-strong:  #CBD5E1;        /* slate-300 */
+  --border-light:   #F1F5F9;        /* slate-100 */
+  --primary:        #4F46E5;        /* indigo-600 */
+  --primary-dark:   #4338CA;        /* indigo-700 */
+  --positive:       #059669;        /* emerald-600 */
+  --positive-bg:    #ECFDF5;
+  --negative:       #DC2626;        /* red-600 */
+  --negative-bg:    #FEF2F2;
+  --warning:        #D97706;        /* amber-600 */
+  --warning-bg:     #FFFBEB;
+  --purple:         #7C3AED;
+  --label:          #0F172A;        /* slate-900 */
+  --label-2:        #334155;        /* slate-700 */
+  --label-3:        #64748B;        /* slate-500 */
+  --label-4:        #94A3B8;        /* slate-400 */
+  --radius:         10px;
+  --radius-sm:      6px;
+  --radius-lg:      14px;
+  --shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow:         0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-lg:      0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-hover:   0 8px 24px rgba(15, 23, 42, 0.08);
 
-  --hero-pos:       #06B6D4;
-  --hero-neg:       #F43F5E;
+  --hero-pos:       #059669;
+  --hero-neg:       #DC2626;
 }
 
-/* ── base ── JARVIS / space-black: deep canvas with brighter HUD grid. */
+/* ── base ── clean modern fintech: soft off-white canvas. */
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
-  background: #050810;
-  background-image:
-    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-    radial-gradient(ellipse at top, rgba(56, 189, 248, 0.06) 0%, transparent 60%);
-  background-size: 56px 56px, 56px 56px, 100% 100%;
-  background-attachment: fixed;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #FAFAFA;
   color: #F1F5F9;
   font-size: 15px;
   line-height: 1.5;

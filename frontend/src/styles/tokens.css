@@ -1,55 +1,56 @@
 /* ─────────────────────────────────────────────────────────────────────
-   Panko Risk Report — Design Tokens
-   JARVIS / space-black aesthetic. Deep near-black canvas, soft-white
-   text, single cyan accent, hairline borders, premium typography.
-   Legacy token *names* preserved so existing CSS keeps resolving.
+   Panko Risk Lab — Design Tokens
+   Clean modern fintech light-mode. Off-white canvas, indigo accent,
+   slate-200 hairlines, Inter for sans, IBM Plex Mono for numerics.
+   Reference: Stripe / Linear / Mercury / Public.com / Wealthfront.
    ───────────────────────────────────────────────────────────────────── */
 
 :root {
   /* ── Color ── */
 
-  /* Neutrals — inverted slate scale, dark canvas */
-  --paper:    #06080F;  /* deep space-black, page bg */
-  --canvas:   #0B0F1A;  /* card/surface bg, slightly lifted */
-  --ink-900:  #F1F5F9;  /* primary text (slate-100) */
-  --ink-700:  #CBD5E1;  /* headings (slate-300) */
-  --ink-500:  #94A3B8;  /* body (slate-400) */
-  --ink-400:  #64748B;  /* secondary (slate-500) */
-  --ink-300:  #475569;  /* tertiary (slate-600) */
-  --ink-200:  #1E293B;  /* hairlines (slate-800) */
-  --ink-100:  #111827;  /* subtle bg (slate-900-ish) */
-  --ink-50:   #0F172A;  /* hover, table stripes (slate-900) */
+  /* Neutrals — Tailwind slate scale, light mode */
+  --paper:    #FAFAFA;
+  --canvas:   #FFFFFF;
+  --ink-900:  #0F172A;  /* slate-900, primary text */
+  --ink-700:  #334155;  /* slate-700, headings */
+  --ink-500:  #64748B;  /* slate-500, body */
+  --ink-400:  #94A3B8;  /* slate-400, secondary */
+  --ink-300:  #CBD5E1;  /* slate-300, tertiary */
+  --ink-200:  #E2E8F0;  /* slate-200, hairlines */
+  --ink-100:  #F1F5F9;  /* slate-100, hover */
+  --ink-50:   #F8FAFC;  /* slate-50, subtle bg */
 
-  /* Brand: bright JARVIS HUD-cyan/electric-blue. sky-400 ≈ Iron Man HUD. */
-  --blue-900: #0C4A6E;  /* sky-900 */
-  --blue-700: #0369A1;  /* sky-700 */
-  --blue-500: #38BDF8;  /* sky-400, primary brand — bright & visible on black */
-  --blue-300: #7DD3FC;  /* sky-300 */
-  --blue-100: #BAE6FD;  /* sky-200 */
+  /* Brand: indigo — modern professional fintech */
+  --blue-900: #312E81;  /* indigo-900 */
+  --blue-700: #4338CA;  /* indigo-700, hover */
+  --blue-500: #4F46E5;  /* indigo-600, primary */
+  --blue-300: #818CF8;  /* indigo-400 */
+  --blue-100: #E0E7FF;  /* indigo-100, tint bg */
 
-  --gold-700: #0369A1;
-  --gold-500: #38BDF8;
-  --gold-300: #7DD3FC;
-  --gold-100: #BAE6FD;
+  /* Gold aliases -> indigo (no separate gold accent in clean mode) */
+  --gold-700: #4338CA;
+  --gold-500: #4F46E5;
+  --gold-300: #818CF8;
+  --gold-100: #E0E7FF;
 
-  --risk-red:   #F43F5E;
-  --risk-amber: #F59E0B;
-  --risk-green: #38BDF8;
+  /* Semantic — sober data colors */
+  --risk-red:   #DC2626;  /* red-600 */
+  --risk-amber: #D97706;  /* amber-600 */
+  --risk-green: #059669;  /* emerald-600 */
 
   /* ── Typography ── */
 
-  /* Premium sans for prose, IBM Plex Mono for numerics. */
-  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
-  --font-sans:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans:    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type scale — lighter weights for elegance (JARVIS isn't shouty) */
-  --text-display-xl-size:    44px;
+  /* Type scale — restrained, modern */
+  --text-display-xl-size:    42px;
   --text-display-xl-line:    52px;
   --text-display-xl-weight:  600;
 
-  --text-display-lg-size:    32px;
-  --text-display-lg-line:    40px;
+  --text-display-lg-size:    30px;
+  --text-display-lg-line:    38px;
   --text-display-lg-weight:  600;
 
   --text-heading-lg-size:    22px;
@@ -63,7 +64,7 @@
   --text-heading-sm-size:    13px;
   --text-heading-sm-line:    18px;
   --text-heading-sm-weight:  600;
-  --text-heading-sm-tracking: 0.06em;
+  --text-heading-sm-tracking: 0.04em;
 
   --text-body-lg-size:       16px;
   --text-body-lg-line:       26px;
@@ -77,10 +78,10 @@
   --text-body-sm-line:       20px;
   --text-body-sm-weight:     400;
 
-  --text-caption-size:       11px;
+  --text-caption-size:       12px;
   --text-caption-line:       16px;
-  --text-caption-weight:     600;
-  --text-caption-tracking:   0.08em;
+  --text-caption-weight:     500;
+  --text-caption-tracking:   0.04em;
 
   --text-mono-lg-size:       16px;
   --text-mono-lg-line:       24px;
@@ -106,14 +107,14 @@
   --space-24:  96px;
   --space-32:  128px;
 
-  /* ── Radii — tighter than Duolingo, still elegant ── */
+  /* ── Radii — sober, modern ── */
   --radius-0: 0px;
-  --radius-1: 8px;     /* inputs, buttons */
-  --radius-2: 12px;    /* cards, panels */
-  --radius-3: 16px;    /* modals */
+  --radius-1: 6px;     /* inputs, buttons */
+  --radius-2: 10px;    /* cards */
+  --radius-3: 14px;    /* modals */
 
   /* ── Borders & elevation ── */
-  --border-hairline: 1px solid #334155;  /* slate-700 — visible on black */
-  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --glow-cyan:       0 0 32px rgba(56, 189, 248, 0.45);
+  --border-hairline: 1px solid var(--ink-200);
+  --shadow-sm:       0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-elevated: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.04);
 }

@@ -23,7 +23,7 @@ function pctSigned(v) {
 }
 
 const DOT_TONE = {
-  open:   "bg-sky-400",
+  open:   "bg-indigo-600",
   pre:    "bg-amber-500",
   after:  "bg-amber-500",
   closed: "bg-slate-300",
@@ -48,12 +48,12 @@ export default function StatusBar({ results, payload }) {
     : "No portfolio loaded";
 
   return (
-    <div className="h-12 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-6 px-6 md:px-8 text-sm">
+    <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-between gap-6 px-6 md:px-8 text-sm">
       {/* Left: market session + clock */}
       <div className="flex items-center gap-3 min-w-0">
         <span className={`h-2 w-2 rounded-full ${DOT_TONE[session.state]} shrink-0`} />
-        <span className="font-semibold text-slate-100 whitespace-nowrap">{session.label}</span>
-        <span className="text-slate-600">·</span>
+        <span className="font-semibold text-slate-900 whitespace-nowrap">{session.label}</span>
+        <span className="text-slate-500">·</span>
         <span className="font-mono text-xs text-slate-500 tabular-nums whitespace-nowrap">{time} ET</span>
       </div>
 
@@ -62,7 +62,7 @@ export default function StatusBar({ results, payload }) {
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
           Portfolio
         </span>
-        <span className="font-mono text-xs text-slate-600 truncate">{tickerLine}</span>
+        <span className="font-mono text-xs text-slate-500 truncate">{tickerLine}</span>
       </div>
 
       {/* Right: live stats */}
@@ -83,7 +83,7 @@ export default function StatusBar({ results, payload }) {
 }
 
 function Stat({ label, value, tone }) {
-  const valueColor = tone === "rose" ? "text-rose-600" : "text-slate-100";
+  const valueColor = tone === "rose" ? "text-rose-600" : "text-slate-900";
   return (
     <div className="flex items-baseline gap-1.5">
       <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">

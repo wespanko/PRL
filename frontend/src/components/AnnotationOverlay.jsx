@@ -43,7 +43,7 @@ export default function AnnotationOverlay({ src, boxes, alt = "Captured screen" 
   return (
     <div
       ref={wrapRef}
-      className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/40"
+      className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50"
     >
       <img src={src} alt={alt} className="block w-full h-auto" />
 
@@ -66,13 +66,12 @@ export default function AnnotationOverlay({ src, boxes, alt = "Captured screen" 
                   y={y}
                   width={w}
                   height={h}
-                  fill="rgba(56, 189, 248, 0.12)"
-                  stroke="#38BDF8"
-                  strokeWidth={isHover ? 0.55 : 0.35}
+                  fill="rgba(79, 70, 229, 0.08)"
+                  stroke="#4F46E5"
+                  strokeWidth={isHover ? 0.5 : 0.3}
                   vectorEffect="non-scaling-stroke"
                   rx="0.5"
                   className="transition-all duration-150"
-                  style={{ filter: isHover ? "drop-shadow(0 0 6px rgba(56,189,248,0.7))" : "drop-shadow(0 0 3px rgba(56,189,248,0.4))" }}
                 />
               );
             })}
@@ -107,8 +106,8 @@ export default function AnnotationOverlay({ src, boxes, alt = "Captured screen" 
                 onMouseLeave={() => setHovered(null)}
                 className={`text-[11px] font-bold rounded-md px-2 py-0.5 truncate cursor-default transition-colors duration-150
                   ${isHover
-                    ? "bg-sky-500 text-white shadow-md"
-                    : "bg-sky-400 text-white shadow-sm"}`}
+                    ? "bg-indigo-700 text-white shadow-md"
+                    : "bg-indigo-600 text-white shadow-sm"}`}
               >
                 {b.label}
               </div>

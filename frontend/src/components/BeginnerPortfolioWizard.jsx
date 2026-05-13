@@ -16,7 +16,7 @@ const GOALS = [
 
 function StepPill({ children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 bg-sky-400/25 text-sky-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+    <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
       <Sparkles className="h-3 w-3" strokeWidth={2.75} />
       {children}
     </span>
@@ -83,7 +83,7 @@ export default function BeginnerPortfolioWizard({
       <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
         <div className="mb-8">
           <StepPill>Step 1 of 2</StepPill>
-          <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100">
+          <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
             {firstName ? `${firstName}, what` : "What"} do you want from your money?
           </h1>
           <p className="mt-3 text-slate-500 text-base md:text-lg leading-relaxed">
@@ -99,16 +99,16 @@ export default function BeginnerPortfolioWizard({
                 key={g.id}
                 type="button"
                 onClick={() => pickGoal(g)}
-                className="w-full text-left bg-slate-900/70 border border-slate-700/60 hover:border-sky-400/60 hover:shadow-sm rounded-3xl p-5 flex items-center gap-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group"
+                className="w-full text-left bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-sm rounded-xl p-5 flex items-center gap-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-400/25 text-sky-400 group-hover:bg-sky-400 group-hover:text-white transition-colors">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                   <Icon className="h-6 w-6" strokeWidth={2.25} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-slate-100">{g.label}</div>
+                  <div className="font-bold text-slate-900">{g.label}</div>
                   <div className="text-sm text-slate-500 mt-0.5 leading-relaxed">{g.sub}</div>
                 </div>
-                <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-sky-400 group-hover:translate-x-0.5 transition-all shrink-0" strokeWidth={2.5} />
+                <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all shrink-0" strokeWidth={2.5} />
               </button>
             );
           })}
@@ -116,7 +116,7 @@ export default function BeginnerPortfolioWizard({
 
         <button
           onClick={onSkip}
-          className="block mx-auto text-sm font-bold text-slate-500 hover:text-slate-600"
+          className="block mx-auto text-sm font-bold text-slate-500 hover:text-slate-500"
         >
           Skip — show me the full app instead
         </button>
@@ -128,11 +128,11 @@ export default function BeginnerPortfolioWizard({
     return (
       <div className="px-6 py-16 md:px-10 max-w-2xl mx-auto text-center">
         <div className="flex justify-center mb-6">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-sky-400/25 text-sky-400">
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
             <Loader2 className="h-8 w-8 animate-spin" strokeWidth={2.25} />
           </div>
         </div>
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-100 mb-3">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 mb-3">
           Building your portfolio…
         </h2>
         <p className="text-slate-500 text-base md:text-lg leading-relaxed">
@@ -145,13 +145,13 @@ export default function BeginnerPortfolioWizard({
   if (step === "error") {
     return (
       <div className="px-6 py-16 md:px-10 max-w-2xl mx-auto text-center">
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-100 mb-3">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 mb-3">
           Something went wrong
         </h2>
         <p className="text-slate-500 mb-6 leading-relaxed">{error}</p>
         <button
           onClick={() => setStep("goal")}
-          className="bg-sky-400 hover:bg-sky-500 text-white rounded-2xl font-bold px-6 py-3.5 transition-colors active:scale-[0.99]"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold px-6 py-3.5 transition-colors active:scale-[0.99]"
         >
           Try a different goal
         </button>
@@ -164,14 +164,14 @@ export default function BeginnerPortfolioWizard({
     <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
       <div className="mb-6">
         <StepPill>Step 2 of 2</StepPill>
-        <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100">
+        <h1 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
           Here's the portfolio we'd suggest.
         </h1>
         <p className="mt-3 text-slate-500 text-base md:text-lg leading-relaxed">{summary}</p>
         {themes.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {themes.map((t) => (
-              <span key={t} className="bg-sky-400/25 text-sky-400 px-2.5 py-0.5 rounded-full text-xs font-bold">
+              <span key={t} className="bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full text-xs font-bold">
                 {t}
               </span>
             ))}
@@ -179,15 +179,15 @@ export default function BeginnerPortfolioWizard({
         )}
       </div>
 
-      <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl divide-y divide-slate-800 mb-5">
+      <div className="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100 mb-5">
         {suggestions.map((s) => {
           const equalPct = ((1 / suggestions.length) * 100).toFixed(1);
           return (
             <div key={s.ticker} className="p-4 md:p-5">
               <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                <span className="font-mono font-bold text-slate-100">{s.ticker}</span>
-                <span className="text-sm text-slate-600 font-medium">{s.name}</span>
-                <span className="ml-auto font-mono font-bold text-sky-400 tabular-nums">{equalPct}%</span>
+                <span className="font-mono font-bold text-slate-900">{s.ticker}</span>
+                <span className="text-sm text-slate-500 font-medium">{s.name}</span>
+                <span className="ml-auto font-mono font-bold text-indigo-600 tabular-nums">{equalPct}%</span>
               </div>
               {s.reason && (
                 <div className="text-sm text-slate-500 leading-relaxed">{s.reason}</div>
@@ -197,14 +197,14 @@ export default function BeginnerPortfolioWizard({
         })}
       </div>
 
-      <div className="rounded-2xl bg-sky-400/20 border border-sky-400/40 p-4 mb-6 text-sm leading-relaxed text-sky-200/90">
-        <strong className="text-sky-100">Why equal weights?</strong> For your first portfolio, dividing evenly across all picks is the simplest baseline. After we run the risk analysis you can adjust any position from the Simulate tab and see exactly how it changes your numbers.
+      <div className="rounded-lg bg-indigo-50 border border-indigo-200 p-4 mb-6 text-sm leading-relaxed text-indigo-800/90">
+        <strong className="text-indigo-900">Why equal weights?</strong> For your first portfolio, dividing evenly across all picks is the simplest baseline. After we run the risk analysis you can adjust any position from the Simulate tab and see exactly how it changes your numbers.
       </div>
 
       <div className="flex gap-3">
         <button
           onClick={() => setStep("goal")}
-          className="px-6 py-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-700 text-slate-600 font-bold transition-colors flex items-center gap-2"
+          className="px-6 py-3.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold transition-colors flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
           Back
@@ -212,7 +212,7 @@ export default function BeginnerPortfolioWizard({
         <button
           onClick={buildAndAnalyze}
           disabled={suggestions.length === 0}
-          className="flex-1 bg-sky-400 hover:bg-sky-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-bold py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-sky-400/40 disabled:shadow-none"
+          className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500 text-white rounded-lg font-bold py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-indigo-200 disabled:shadow-none"
         >
           Analyze this portfolio
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
