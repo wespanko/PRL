@@ -29,7 +29,7 @@ const MODES = [
 ];
 
 // ── shared input class ──────────────────────────────────────────────
-const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors";
+const INPUT = "w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors";
 const INPUT_INVALID = "border-rose-300 focus:border-rose-500 focus:ring-rose-100";
 
 export default function PortfolioForm({ onSubmit, loading, initialHoldings, onInitialConsumed }) {
@@ -179,24 +179,24 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl p-5 md:p-8 mb-6">
+    <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 md:p-8 mb-6">
       <form onSubmit={handleSubmit}>
         {/* Title + mode toggle */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-400">
               <Sparkles className="h-5 w-5" strokeWidth={2.25} />
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900">Portfolio</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-100">Portfolio</h2>
           </div>
-          <div className="flex bg-slate-100 rounded-full p-1 gap-1">
+          <div className="flex bg-slate-800/60 rounded-full p-1 gap-1">
             {MODES.map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => handleModeSwitch(m.id)}
                 className={`px-4 py-2 rounded-full text-sm font-bold transition-colors
-                  ${mode === m.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
+                  ${mode === m.id ? "bg-slate-950 text-slate-100 shadow-sm" : "text-slate-500 hover:text-slate-100"}`}
               >
                 {m.label}
               </button>
@@ -206,7 +206,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
 
         {/* Holdings rows */}
         <div className="space-y-2 mb-3">
-          <div className="flex items-center gap-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="flex items-center gap-2 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             <span className="flex-1">Ticker</span>
             <span className="w-32">{MODE_LABELS[mode]}</span>
             <span className="w-40 hidden md:block">{mode === "percent" ? "" : "Computed"}</span>
@@ -246,18 +246,18 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
                 <div className="w-40 text-xs text-slate-500 hidden md:flex flex-col font-mono tabular-nums leading-tight">
                   {mode === "shares" && tk && (
                     <>
-                      {isLoadingPx && <span className="text-slate-400">Fetching…</span>}
+                      {isLoadingPx && <span className="text-slate-500">Fetching…</span>}
                       {!isLoadingPx && isMissingPx && <span className="text-rose-600">No price</span>}
                       {!isLoadingPx && px != null && (
                         <>
-                          <span className="text-slate-400">{fmtMoney(px)} × {row.value || 0}</span>
-                          <span className="text-slate-700 font-semibold">= {fmtMoney(dollars)}{computedPct != null ? ` · ${computedPct.toFixed(1)}%` : ""}</span>
+                          <span className="text-slate-500">{fmtMoney(px)} × {row.value || 0}</span>
+                          <span className="text-slate-600 font-semibold">= {fmtMoney(dollars)}{computedPct != null ? ` · ${computedPct.toFixed(1)}%` : ""}</span>
                         </>
                       )}
                     </>
                   )}
                   {mode === "dollars" && computedPct != null && (
-                    <span className="text-slate-700 font-semibold">{computedPct.toFixed(1)}%</span>
+                    <span className="text-slate-600 font-semibold">{computedPct.toFixed(1)}%</span>
                   )}
                 </div>
                 <button
@@ -269,7 +269,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
                   }}
                   disabled={rows.length <= 1}
                   title="Remove row"
-                  className="flex h-10 w-8 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-rose-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="flex h-10 w-8 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-800/60 hover:text-rose-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <X className="h-4 w-4" strokeWidth={2.5} />
                 </button>
@@ -281,7 +281,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         <button
           type="button"
           onClick={() => setRows([...rows, emptyRow()])}
-          className="w-full flex items-center justify-center gap-1.5 mb-5 py-3 rounded-2xl border border-dashed border-slate-300 text-sm font-bold text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/50 transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 mb-5 py-3 rounded-2xl border border-dashed border-slate-700 text-sm font-bold text-slate-500 hover:border-cyan-500/40 hover:text-cyan-400 hover:bg-cyan-500/10/50 transition-colors"
         >
           <Plus className="h-4 w-4" strokeWidth={2.5} />
           Add row
@@ -290,9 +290,9 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         {/* Weight / value indicator */}
         {filledRows.length > 0 && (
           <div className={`rounded-2xl px-5 py-3 mb-5 flex items-center justify-between gap-3 text-sm font-semibold
-            ${sumOk ? "bg-blue-50 text-blue-900 border border-blue-200" : "bg-amber-50 text-amber-900 border border-amber-200"}`}>
+            ${sumOk ? "bg-cyan-500/10 text-cyan-200 border border-cyan-500/30" : "bg-amber-500/10 text-amber-200 border border-amber-500/30"}`}>
             <div className="flex items-center gap-2">
-              {sumOk && <CheckCircle2 className="h-4 w-4 text-blue-600 shrink-0" strokeWidth={2.5} />}
+              {sumOk && <CheckCircle2 className="h-4 w-4 text-cyan-400 shrink-0" strokeWidth={2.5} />}
               <span>
                 {mode === "percent" && <>Weights total <span className="font-mono tabular-nums">{numericTotal.toFixed(1)}%</span>{!sumOk && " — must equal 100%"}</>}
                 {mode === "dollars" && <>Portfolio value <span className="font-mono tabular-nums">{fmtMoney(numericTotal)}</span>{!sumOk && " — enter at least one positive amount"}</>}
@@ -309,7 +309,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         )}
 
         {formError && (
-          <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 mb-5 text-sm font-medium text-rose-900">
+          <div className="rounded-2xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 mb-5 text-sm font-medium text-rose-200">
             {formError}
           </div>
         )}
@@ -361,7 +361,7 @@ export default function PortfolioForm({ onSubmit, loading, initialHoldings, onIn
         <button
           type="submit"
           disabled={!canSubmit}
-          className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200 disabled:shadow-none"
+          className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25 disabled:shadow-none"
         >
           {loading ? (
             <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />Analyzing…</>

@@ -9,48 +9,54 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { overflow-wrap: break-word; }
 
-/* ── design tokens — Duolingo × Robinhood ─────────────────────────────
-   Legacy token names retained so older component CSS keeps resolving.
-   Values remapped to the new slate / emerald / rounded palette.
+/* ── design tokens — JARVIS / space-black ─────────────────────────────
+   Legacy token names retained. Values inverted: dark canvas, cyan accent,
+   light text. Designed for premium / Linear-app feel.
    ───────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:             #ffffff;        /* crisp white canvas */
-  --bg-elevated:    #ffffff;
-  --surface:        #ffffff;
-  --surface-2:      #F8FAFC;        /* slate-50 */
-  --border:         #E2E8F0;        /* slate-200 — firm 1px hairlines */
-  --border-strong:  #CBD5E1;        /* slate-300 — hover state */
-  --border-light:   #F1F5F9;        /* slate-100 */
-  --primary:        #3B82F6;        /* blue-500 — Duolingo blue */
-  --primary-dark:   #1D4ED8;        /* blue-700 */
-  --positive:       #3B82F6;        /* blue-500 — was green, now brand-blue */
-  --positive-bg:    #DBEAFE;        /* blue-100 */
+  --bg:             #06080F;        /* deep space-black */
+  --bg-elevated:    #0B0F1A;        /* card bg */
+  --surface:        #0B0F1A;
+  --surface-2:      #0F172A;        /* slate-900 */
+  --border:         #1E293B;        /* slate-800 — hairline */
+  --border-strong:  #334155;        /* slate-700 — hover */
+  --border-light:   #111827;        /* slate-900-ish */
+  --primary:        #06B6D4;        /* cyan-500 */
+  --primary-dark:   #0E7490;        /* cyan-700 */
+  --positive:       #06B6D4;        /* cyan (was green; JARVIS uses brand color) */
+  --positive-bg:    rgba(6, 182, 212, 0.10);
   --negative:       #F43F5E;        /* rose-500 */
-  --negative-bg:    #FFE4E6;        /* rose-100 */
+  --negative-bg:    rgba(244, 63, 94, 0.10);
   --warning:        #F59E0B;        /* amber-500 */
-  --warning-bg:     #FEF3C7;        /* amber-100 */
-  --purple:         #8B5CF6;        /* violet-500 */
-  --label:          #0F172A;        /* slate-900 */
-  --label-2:        #334155;        /* slate-700 */
-  --label-3:        #64748B;        /* slate-500 */
-  --label-4:        #94A3B8;        /* slate-400 */
-  --radius:         20px;           /* cards */
-  --radius-sm:      12px;           /* buttons, inputs */
-  --radius-lg:      24px;           /* big surfaces */
-  --shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow:         0 4px 12px rgba(15, 23, 42, 0.05);
-  --shadow-lg:      0 12px 32px rgba(15, 23, 42, 0.08);
-  --shadow-hover:   0 8px 24px rgba(15, 23, 42, 0.08);
+  --warning-bg:     rgba(245, 158, 11, 0.10);
+  --purple:         #A78BFA;        /* violet-400 */
+  --label:          #F1F5F9;        /* slate-100 */
+  --label-2:        #CBD5E1;        /* slate-300 */
+  --label-3:        #94A3B8;        /* slate-400 */
+  --label-4:        #64748B;        /* slate-500 */
+  --radius:         12px;
+  --radius-sm:      8px;
+  --radius-lg:      16px;
+  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow:         0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg:      0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-hover:   0 8px 24px rgba(0, 0, 0, 0.5);
+  --glow:           0 0 24px rgba(6, 182, 212, 0.25);
 
-  --hero-pos:       #10B981;
+  --hero-pos:       #06B6D4;
   --hero-neg:       #F43F5E;
 }
 
-/* ── base ── Duolingo × Robinhood: crisp white canvas, system sans. */
+/* ── base ── JARVIS / space-black: deep canvas, soft-white text, subtle grid. */
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
-  background: #ffffff;
-  color: #0f172a; /* slate-900 */
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  background: #06080F;
+  background-image:
+    linear-gradient(rgba(6, 182, 212, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-attachment: fixed;
+  color: #F1F5F9;
   font-size: 15px;
   line-height: 1.5;
   font-weight: 400;

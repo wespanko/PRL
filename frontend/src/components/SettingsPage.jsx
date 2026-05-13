@@ -19,18 +19,18 @@ const EXPERIENCE_LEVELS = [
   { id: "confident", icon: Crosshair, label: "I know what I'm doing",  body: "Skip the tour, drop me into the full app" },
 ];
 
-const INPUT = "w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors";
+const INPUT = "w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors";
 
 function Section({ icon: Icon, title, help, children }) {
   return (
-    <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-6 mb-4">
+    <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5 md:p-6 mb-4">
       <div className="flex items-center gap-3 mb-1">
         {Icon && (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-400">
             <Icon className="h-4 w-4" strokeWidth={2.5} />
           </div>
         )}
-        <h2 className="text-base font-extrabold text-slate-900">{title}</h2>
+        <h2 className="text-base font-extrabold text-slate-100">{title}</h2>
       </div>
       {help && <p className="text-sm text-slate-500 leading-relaxed mb-4">{help}</p>}
       {children}
@@ -45,17 +45,17 @@ function RadioCard({ active, icon: Icon, label, body, onClick }) {
       onClick={onClick}
       className={`w-full text-left flex items-start gap-3 p-4 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${active
-          ? "bg-blue-50 border-2 border-blue-500"
-          : "bg-white border border-slate-200 hover:border-slate-300"}`}
+          ? "bg-cyan-500/10 border-2 border-cyan-500"
+          : "bg-slate-950 border border-slate-800 hover:border-slate-700"}`}
     >
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-        ${active ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+        ${active ? "bg-cyan-500 text-white" : "bg-slate-800/60 text-slate-500"}`}>
         <Icon className="h-5 w-5" strokeWidth={2.25} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <div className="font-bold text-sm text-slate-900">{label}</div>
-          {active && <CheckCircle2 className="h-4 w-4 text-blue-500" strokeWidth={2.5} />}
+          <div className="font-bold text-sm text-slate-100">{label}</div>
+          {active && <CheckCircle2 className="h-4 w-4 text-cyan-400" strokeWidth={2.5} />}
         </div>
         <div className="text-xs text-slate-500 mt-0.5 leading-snug">{body}</div>
       </div>
@@ -90,7 +90,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
   return (
     <div className="px-6 py-10 md:px-10 max-w-3xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">Settings</h1>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">Settings</h1>
         <p className="text-slate-500 text-base md:text-lg leading-relaxed">
           All settings are stored only in your browser. Changing them here doesn't sync anywhere.
         </p>
@@ -110,7 +110,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-              Email <span className="text-slate-400 font-medium normal-case tracking-normal">(optional)</span>
+              Email <span className="text-slate-500 font-medium normal-case tracking-normal">(optional)</span>
             </label>
             <input
               type="email"
@@ -156,7 +156,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
           <button
             type="button"
             onClick={handleRestartOnboarding}
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 mt-2"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-400 hover:text-cyan-300 mt-2"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             Restart guided onboarding
@@ -165,7 +165,7 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
       </Section>
 
       {error && (
-        <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 mb-4 text-sm font-medium text-rose-900">
+        <div className="rounded-2xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 mb-4 text-sm font-medium text-rose-200">
           {error}
         </div>
       )}
@@ -173,12 +173,12 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={handleSave}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
+          className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold px-6 py-3.5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
         >
           Save changes
         </button>
         {savedFlash && (
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-400">
             <CheckCircle2 className="h-4 w-4" strokeWidth={2.5} />
             Saved
           </span>
@@ -186,14 +186,14 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
       </div>
 
       {/* Danger zone */}
-      <section className="bg-rose-50 border border-rose-200 rounded-3xl p-5 md:p-6">
+      <section className="bg-rose-500/10 border border-rose-500/30 rounded-3xl p-5 md:p-6">
         <div className="flex items-center gap-3 mb-1">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500 text-white">
             <AlertTriangle className="h-4 w-4" strokeWidth={2.5} />
           </div>
-          <h2 className="text-base font-extrabold text-rose-900">Reset</h2>
+          <h2 className="text-base font-extrabold text-rose-200">Reset</h2>
         </div>
-        <p className="text-sm text-rose-900/80 leading-relaxed mb-4">
+        <p className="text-sm text-rose-200/80 leading-relaxed mb-4">
           Wipes your profile, snapshots, and last analysis from this browser. Useful for starting fresh or if you're handing the link to someone else on the same device.
         </p>
         <button
@@ -202,14 +202,14 @@ export default function SettingsPage({ profile, onProfileUpdated, setActiveTab }
             clearAllLocalData();
             window.location.reload();
           }}
-          className="inline-flex items-center gap-2 bg-white border border-rose-300 hover:bg-rose-50 text-rose-700 rounded-2xl font-bold px-5 py-3 text-sm transition-colors"
+          className="inline-flex items-center gap-2 bg-slate-950 border border-rose-300 hover:bg-rose-500/100/10 text-rose-300 rounded-2xl font-bold px-5 py-3 text-sm transition-colors"
         >
           <Trash2 className="h-4 w-4" strokeWidth={2.5} />
           Clear all my data
         </button>
       </section>
 
-      <div className="mt-8 text-xs text-slate-400 text-center font-mono">
+      <div className="mt-8 text-xs text-slate-500 text-center font-mono">
         Profile created {new Date(profile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
       </div>
     </div>

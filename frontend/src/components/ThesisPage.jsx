@@ -39,13 +39,13 @@ function PickCard({ icon: Icon, title, sub, onClick, disabled }) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full text-left flex items-center gap-3 p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      className="w-full text-left flex items-center gap-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-slate-700 hover:bg-slate-900/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800/60 text-slate-500">
         <Icon className="h-5 w-5" strokeWidth={2.25} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-sm text-slate-900">{title}</div>
+        <div className="font-bold text-sm text-slate-100">{title}</div>
         <div className="text-xs text-slate-500 mt-0.5 leading-snug">{sub}</div>
       </div>
     </button>
@@ -58,20 +58,20 @@ function SuggestionRow({ s }) {
   const isStock = s.kind === "stock";
 
   const kindTone =
-    s.kind === "stock" ? "bg-blue-100 text-blue-700" :
-    s.kind === "trust" ? "bg-amber-100 text-amber-700" :
-                         "bg-slate-100 text-slate-700";
+    s.kind === "stock" ? "bg-cyan-500/15 text-cyan-400" :
+    s.kind === "trust" ? "bg-amber-500/15 text-amber-300" :
+                         "bg-slate-800/60 text-slate-600";
 
   return (
-    <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+    <div className="rounded-2xl border border-slate-800 p-4 bg-slate-950">
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <span className="font-mono font-bold text-slate-900">{s.ticker}</span>
+        <span className="font-mono font-bold text-slate-100">{s.ticker}</span>
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${kindTone}`}>
           {(s.kind || "etf").toUpperCase()}
         </span>
-        <span className="text-sm text-slate-700 font-medium">{s.name}</span>
+        <span className="text-sm text-slate-600 font-medium">{s.name}</span>
         {typeof s.weight === "number" && (
-          <span className="ml-auto font-mono font-bold text-blue-600 tabular-nums">
+          <span className="ml-auto font-mono font-bold text-cyan-400 tabular-nums">
             {(s.weight * 100).toFixed(0)}%
           </span>
         )}
@@ -80,7 +80,7 @@ function SuggestionRow({ s }) {
         <div className="text-xs text-slate-500 italic mb-2">{s.theme}</div>
       )}
       {s.reason && (
-        <div className="text-sm text-slate-600 leading-relaxed">{s.reason}</div>
+        <div className="text-sm text-slate-500 leading-relaxed">{s.reason}</div>
       )}
       <div className="flex items-center gap-3 mt-3">
         {s.role && (
@@ -90,14 +90,14 @@ function SuggestionRow({ s }) {
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="text-xs font-bold text-blue-700 hover:text-blue-800 ml-auto"
+            className="text-xs font-bold text-cyan-400 hover:text-cyan-300 ml-auto"
           >
             {expanded ? "Hide" : `What is ${isStock ? "this company" : "this fund"}?`}
           </button>
         )}
       </div>
       {expanded && s.blurb && (
-        <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+        <div className="mt-3 pt-3 border-t border-slate-800 text-xs text-slate-500 leading-relaxed">
           {s.blurb}
         </div>
       )}
@@ -161,20 +161,20 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
   return (
     <div className="px-6 py-10 md:px-10 max-w-6xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">Build a portfolio</h1>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">Build a portfolio</h1>
         <p className="text-slate-500 text-base md:text-lg leading-relaxed max-w-2xl">
           Pick a goal, choose a diagnosis, or write your own thesis — Panko maps it to specific tickers from a curated universe.
         </p>
       </header>
 
       {/* Educational banner */}
-      <div className="mb-8 flex gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4">
+      <div className="mb-8 flex gap-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 px-5 py-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
           <Info className="h-4 w-4" strokeWidth={2.5} />
         </div>
         <div>
-          <p className="text-sm font-bold text-amber-900">Educational, not financial advice</p>
-          <p className="text-xs text-amber-900/80 mt-0.5 leading-relaxed">
+          <p className="text-sm font-bold text-amber-200">Educational, not financial advice</p>
+          <p className="text-xs text-amber-200/80 mt-0.5 leading-relaxed">
             Suggestions are mechanical mappings to a curated list of broad ETFs and well-known names. Run any idea through Analyze to see real risk numbers before acting.
           </p>
         </div>
@@ -184,8 +184,8 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
 
         {/* Quick start */}
-        <section className="bg-white border border-slate-200 rounded-3xl p-5">
-          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Quick start</div>
+        <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+          <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">Quick start</div>
           <p className="text-sm text-slate-500 mb-4">Pick a goal. We'll suggest a curated portfolio.</p>
           <div className="space-y-2">
             {QUICK_START_GOALS.map((g) => (
@@ -195,8 +195,8 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
         </section>
 
         {/* Diagnosis presets */}
-        <section className="bg-white border border-slate-200 rounded-3xl p-5">
-          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Pick a diagnosis</div>
+        <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5">
+          <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">Pick a diagnosis</div>
           <p className="text-sm text-slate-500 mb-4">A specific risk concern. Pre-fills your thesis below.</p>
           <div className="space-y-2">
             {DIAGNOSIS_PRESETS.map((d) => (
@@ -206,8 +206,8 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
         </section>
 
         {/* Custom thesis */}
-        <section className="bg-white border border-slate-200 rounded-3xl p-5 flex flex-col">
-          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">Custom thesis</div>
+        <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5 flex flex-col">
+          <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">Custom thesis</div>
           <p className="text-sm text-slate-500 mb-4">Write what matters to you in your own words.</p>
 
           <textarea
@@ -216,20 +216,20 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             placeholder="e.g., I'm long AI infrastructure for 5+ years but want a meaningful hedge against rate shocks and inflation. Equity-tilted but not unhedged."
             rows={8}
             maxLength={4000}
-            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors resize-none mb-4"
+            className="w-full bg-slate-900/40 border border-slate-800 rounded-2xl p-4 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:bg-slate-950 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors resize-none mb-4"
           />
 
           {/* Risk tolerance */}
           <div className="mb-4">
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Risk tolerance</label>
-            <div className="flex bg-slate-100 rounded-full p-1 gap-1">
+            <div className="flex bg-slate-800/60 rounded-full p-1 gap-1">
               {RISK_LEVELS.map((r) => (
                 <button
                   key={r.id}
                   type="button"
                   onClick={() => setRisk(r.id)}
                   className={`flex-1 px-3 py-2 rounded-full text-xs font-bold transition-colors
-                    ${risk === r.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
+                    ${risk === r.id ? "bg-slate-950 text-slate-100 shadow-sm" : "text-slate-500 hover:text-slate-100"}`}
                 >
                   {r.label}
                 </button>
@@ -238,7 +238,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           </div>
 
           {error && (
-            <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3 mb-4 text-sm font-medium text-rose-900">
+            <div className="rounded-2xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 mb-4 text-sm font-medium text-rose-200">
               {error}
             </div>
           )}
@@ -247,7 +247,7 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="mt-auto w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-bold py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200 disabled:shadow-none"
+            className="mt-auto w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-bold py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25 disabled:shadow-none"
           >
             {loading ? (
               <><Loader2 className="h-5 w-5 animate-spin" strokeWidth={2.5} />Mapping thesis…</>
@@ -260,12 +260,12 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
 
       {/* Results */}
       {result && (
-        <section className="bg-white border border-slate-200 rounded-3xl p-5 md:p-8">
+        <section className="bg-slate-950 border border-slate-800 rounded-3xl p-5 md:p-8">
           <div className="flex flex-wrap items-center gap-3 mb-5">
-            <div className="text-xs font-bold uppercase tracking-wider text-blue-700">Detected themes</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-cyan-400">Detected themes</div>
             <div className="flex flex-wrap gap-1.5">
               {result.themes.map((t) => (
-                <span key={t} className="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full text-xs font-bold">
+                <span key={t} className="bg-cyan-500/15 text-cyan-400 px-2.5 py-0.5 rounded-full text-xs font-bold">
                   {t}
                 </span>
               ))}
@@ -273,10 +273,10 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           </div>
 
           {result.summary && (
-            <p className="text-slate-700 leading-relaxed mb-6">{result.summary}</p>
+            <p className="text-slate-600 leading-relaxed mb-6">{result.summary}</p>
           )}
 
-          <div className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-3">
+          <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3">
             Suggested holdings ({result.suggestions.length})
           </div>
           <div className="space-y-2">
@@ -286,10 +286,10 @@ export default function ThesisPage({ onUseInAnalyze, profile }) {
           </div>
 
           {result.suggestions.length > 0 && onUseInAnalyze && (
-            <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="mt-6 pt-6 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center gap-3">
               <button
                 onClick={handleAddToPortfolio}
-                className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold px-6 py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold px-6 py-3.5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
               >
                 <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                 Use as starting portfolio (equal-weight)

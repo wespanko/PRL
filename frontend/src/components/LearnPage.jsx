@@ -1,13 +1,13 @@
 // ── Duolingo × Robinhood Learn page ──────────────────────────────────
 // Design system reference for the rest of the rollout:
 //
-//   • Canvas        : bg-white text-slate-900 font-sans
+//   • Canvas        : bg-slate-950 text-slate-100 font-sans
 //   • Container     : max-w-3xl mx-auto, generous py
-//   • Surface card  : bg-white border border-slate-200 rounded-3xl
-//   • Active card   : border-2 border-blue-500 shadow-sm shadow-blue-100
+//   • Surface card  : bg-slate-950 border border-slate-800 rounded-3xl
+//   • Active card   : border-2 border-cyan-500 shadow-sm shadow-cyan-500/20
 //   • Hairline rule : 1px (border), reserved 2px for active/focus
-//   • Primary CTA   : bg-blue-500 hover:bg-blue-600 text-white
-//   • Secondary CTA : bg-slate-100 hover:bg-slate-200 text-slate-900
+//   • Primary CTA   : bg-cyan-500 hover:bg-cyan-600 text-white
+//   • Secondary CTA : bg-slate-800/60 hover:bg-slate-700 text-slate-100
 //   • Pill chip     : rounded-full px-4 py-2 text-sm font-semibold
 //   • Soft chunks   : bg-{blue|emerald|amber|rose}-50 border border-{c}-200
 //   • Inverted code : bg-slate-900 text-slate-100 (formula block)
@@ -72,14 +72,14 @@ function ProgressRing({ percent, size = 64, stroke = 6 }) {
   const offset = circumference - (percent / 100) * circumference;
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90" style={{ filter: "drop-shadow(0 0 8px rgba(6, 182, 212, 0.35))" }}>
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          stroke="#E2E8F0" strokeWidth={stroke} fill="none"
+          stroke="#1E293B" strokeWidth={stroke} fill="none"
         />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          stroke="#3B82F6" strokeWidth={stroke} fill="none"
+          stroke="#06B6D4" strokeWidth={stroke} fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
@@ -87,7 +87,7 @@ function ProgressRing({ percent, size = 64, stroke = 6 }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-sm font-extrabold text-slate-900 tabular-nums">{percent}%</span>
+        <span className="text-sm font-extrabold text-slate-100 tabular-nums">{percent}%</span>
       </div>
     </div>
   );
@@ -99,10 +99,10 @@ function Chunk({ tone, icon: Icon, title, children }) {
   // routes to indigo so "Why it matters" (blue) and "How to improve"
   // stay visually distinct now that brand green is gone.
   const tones = {
-    blue:    { bg: "bg-blue-50",    ring: "border-blue-200",    badge: "bg-blue-500",    text: "text-blue-950",    label: "text-blue-900"    },
-    emerald: { bg: "bg-indigo-50",  ring: "border-indigo-200",  badge: "bg-indigo-500",  text: "text-indigo-950",  label: "text-indigo-900"  },
-    amber:   { bg: "bg-amber-50",   ring: "border-amber-200",   badge: "bg-amber-500",   text: "text-amber-950",   label: "text-amber-900"   },
-    rose:    { bg: "bg-rose-50",    ring: "border-rose-200",    badge: "bg-rose-500",    text: "text-rose-950",    label: "text-rose-900"    },
+    blue:    { bg: "bg-cyan-500/10",    ring: "border-cyan-500/30",    badge: "bg-cyan-500",    text: "text-cyan-100",    label: "text-cyan-200"    },
+    emerald: { bg: "bg-indigo-500/10",  ring: "border-indigo-500/30",  badge: "bg-indigo-500",  text: "text-indigo-200",  label: "text-indigo-300"  },
+    amber:   { bg: "bg-amber-500/10",   ring: "border-amber-500/30",   badge: "bg-amber-500",   text: "text-amber-200",   label: "text-amber-200"   },
+    rose:    { bg: "bg-rose-500/10",    ring: "border-rose-500/30",    badge: "bg-rose-500",    text: "text-rose-200",    label: "text-rose-200"    },
   }[tone];
   return (
     <div className={`rounded-2xl border ${tones.bg} ${tones.ring} p-5`}>
@@ -146,13 +146,13 @@ export default function LearnPage({ initialMetricId }) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans antialiased -mx-8 -my-8 px-6 py-10 md:px-10">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased -mx-8 -my-8 px-6 py-10 md:px-10">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
         <header className="flex items-start justify-between gap-6 mb-7">
           <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100">
               Learn
             </h1>
             <p className="text-slate-500 mt-1 text-[15px]">
@@ -162,7 +162,7 @@ export default function LearnPage({ initialMetricId }) {
           <div className="flex items-center gap-3 shrink-0">
             <ProgressRing percent={percent} />
             <div className="text-right">
-              <div className="text-sm font-extrabold text-slate-900 tabular-nums">
+              <div className="text-sm font-extrabold text-slate-100 tabular-nums">
                 {masteredCount} / {totalCount}
               </div>
               <div className="text-xs font-medium text-slate-500">mastered</div>
@@ -171,12 +171,12 @@ export default function LearnPage({ initialMetricId }) {
         </header>
 
         {/* Streak callout */}
-        <div className="mb-7 flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-3xl px-5 py-4">
+        <div className="mb-7 flex items-center gap-3 bg-orange-500/10 border border-orange-500/30 rounded-3xl px-5 py-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white">
             <Flame className="h-5 w-5" strokeWidth={2.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-slate-900">3-day learning streak</p>
+            <p className="text-sm font-bold text-slate-100">3-day learning streak</p>
             <p className="text-xs text-slate-500">Master one more metric today to keep it alive.</p>
           </div>
           <Trophy className="h-5 w-5 text-amber-500 shrink-0" strokeWidth={2.25} />
@@ -184,13 +184,13 @@ export default function LearnPage({ initialMetricId }) {
 
         {/* Search */}
         <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" strokeWidth={2.25} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" strokeWidth={2.25} />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search metrics…"
-            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+            className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors"
           />
         </div>
 
@@ -205,8 +205,8 @@ export default function LearnPage({ initialMetricId }) {
                 onClick={() => setActiveCategory(cat.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors
                   ${active
-                    ? "bg-blue-500 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                    ? "bg-cyan-500 text-white"
+                    : "bg-slate-800/60 text-slate-600 hover:bg-slate-700"}`}
               >
                 <Icon className="h-4 w-4" strokeWidth={2.25} />
                 {cat.label}
@@ -225,10 +225,10 @@ export default function LearnPage({ initialMetricId }) {
             return (
               <div
                 key={metric.id}
-                className={`bg-white rounded-3xl overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                className={`bg-slate-950 rounded-3xl overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                   ${isExpanded
-                    ? "border-2 border-blue-500 shadow-sm"
-                    : "border border-slate-200 hover:border-slate-300"}`}
+                    ? "border-2 border-cyan-500 shadow-sm"
+                    : "border border-slate-800 hover:border-slate-700"}`}
               >
                 {/* Header (collapsed view) */}
                 <button
@@ -236,17 +236,17 @@ export default function LearnPage({ initialMetricId }) {
                   className="w-full text-left p-5 md:px-6 flex items-center gap-4"
                 >
                   <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-colors
-                    ${isExpanded ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+                    ${isExpanded ? "bg-cyan-500 text-white" : "bg-slate-800/60 text-slate-500"}`}>
                     <Icon className="h-6 w-6" strokeWidth={2.25} />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-base md:text-lg text-slate-900 truncate">
+                      <h3 className="font-bold text-base md:text-lg text-slate-100 truncate">
                         {metric.title}
                       </h3>
                       {isMastered && (
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold uppercase tracking-wider px-2 py-0.5">
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-cyan-500/15 text-cyan-400 text-[11px] font-bold uppercase tracking-wider px-2 py-0.5">
                           <CheckCircle2 className="h-3 w-3" strokeWidth={2.75} />
                           Mastered
                         </span>
@@ -258,8 +258,8 @@ export default function LearnPage({ initialMetricId }) {
                   </div>
 
                   <ChevronDown
-                    className={`h-5 w-5 text-slate-400 shrink-0 transition-transform duration-300
-                      ${isExpanded ? "rotate-180 text-blue-500" : ""}`}
+                    className={`h-5 w-5 text-slate-500 shrink-0 transition-transform duration-300
+                      ${isExpanded ? "rotate-180 text-cyan-400" : ""}`}
                     strokeWidth={2.5}
                   />
                 </button>
@@ -268,8 +268,8 @@ export default function LearnPage({ initialMetricId }) {
                 {isExpanded && metric.body && (
                   <div className="px-5 md:px-6 pb-6 space-y-4">
 
-                    <div className="border-t border-slate-100 pt-5">
-                      <p className="text-slate-700 leading-relaxed text-[15px]">
+                    <div className="border-t border-slate-800 pt-5">
+                      <p className="text-slate-600 leading-relaxed text-[15px]">
                         {metric.body}
                       </p>
                     </div>
@@ -297,19 +297,19 @@ export default function LearnPage({ initialMetricId }) {
                             Formula
                           </h4>
                         </div>
-                        <code className="block font-mono text-base text-blue-300 mt-2">
+                        <code className="block font-mono text-base text-cyan-300 mt-2">
                           {metric.formula}
                         </code>
-                        <p className="text-slate-400 text-xs mt-2 font-mono">
+                        <p className="text-slate-500 text-xs mt-2 font-mono">
                           {metric.formulaNote}
                         </p>
                       </div>
                     </div>
 
                     {metric.warning && (
-                      <div className="flex gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4">
+                      <div className="flex gap-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 p-4">
                         <AlertTriangle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" strokeWidth={2.5} />
-                        <p className="text-sm text-rose-900 leading-relaxed">
+                        <p className="text-sm text-rose-200 leading-relaxed">
                           <span className="font-bold">Watch out: </span>
                           {metric.warning}
                         </p>
@@ -320,8 +320,8 @@ export default function LearnPage({ initialMetricId }) {
                       onClick={(e) => { e.stopPropagation(); toggleMastered(metric.id); }}
                       className={`w-full rounded-2xl font-bold text-base py-4 transition-colors active:scale-[0.99]
                         ${isMastered
-                          ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-                          : "bg-blue-500 hover:bg-blue-600 text-white"}`}
+                          ? "bg-slate-800/60 hover:bg-slate-700 text-slate-600 border border-slate-800"
+                          : "bg-cyan-500 hover:bg-cyan-600 text-white"}`}
                     >
                       {isMastered ? (
                         <span className="flex items-center justify-center gap-2">
@@ -339,7 +339,7 @@ export default function LearnPage({ initialMetricId }) {
           })}
 
           {filtered.length === 0 && (
-            <div className="rounded-3xl border border-dashed border-slate-300 p-12 text-center">
+            <div className="rounded-3xl border border-dashed border-slate-700 p-12 text-center">
               <p className="text-slate-500 font-medium">No metrics match your search.</p>
             </div>
           )}

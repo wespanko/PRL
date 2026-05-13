@@ -46,9 +46,9 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
   }, [menuOpen]);
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-60 bg-white border-r border-slate-200 flex flex-col py-5 px-3 z-30">
+    <aside className="fixed left-0 top-0 bottom-0 w-60 bg-slate-950 border-r border-slate-800 flex flex-col py-5 px-3 z-30">
       {/* Wordmark */}
-      <div className="px-3 pb-5 mb-3 border-b border-slate-100">
+      <div className="px-3 pb-5 mb-3 border-b border-slate-800">
         <img src="/logo.png" alt="Panko" className="h-7 w-auto" />
       </div>
 
@@ -66,18 +66,18 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
               title={disabled ? "Run an analysis first" : item.label}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-colors
                 ${active
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-cyan-500/10 text-cyan-400"
                   : disabled
-                    ? "text-slate-300 cursor-not-allowed"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                    ? "text-slate-600 cursor-not-allowed"
+                    : "text-slate-500 hover:bg-slate-900/40 hover:text-slate-100"}`}
             >
               <Icon
-                className={`h-5 w-5 shrink-0 ${active ? "text-blue-600" : ""}`}
+                className={`h-5 w-5 shrink-0 ${active ? "text-cyan-400" : ""}`}
                 strokeWidth={2.25}
               />
               <span className="flex-1 text-left">{item.label}</span>
               {active && (
-                <span className="h-2 w-2 rounded-full bg-blue-500" />
+                <span className="h-2 w-2 rounded-full bg-cyan-500" />
               )}
             </button>
           );
@@ -85,24 +85,24 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
       </nav>
 
       {/* Profile dock */}
-      <div className="relative pt-3 border-t border-slate-100" ref={menuRef}>
+      <div className="relative pt-3 border-t border-slate-800" ref={menuRef}>
         {menuOpen && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-slate-200 rounded-2xl shadow-lg p-2 z-10">
-            <div className="px-3 py-2 border-b border-slate-100 mb-1">
-              <div className="text-sm font-bold text-slate-900 truncate">{profile.name}</div>
+          <div className="absolute bottom-full left-0 right-0 mb-2 bg-slate-950 border border-slate-800 rounded-2xl shadow-lg p-2 z-10">
+            <div className="px-3 py-2 border-b border-slate-800 mb-1">
+              <div className="text-sm font-bold text-slate-100 truncate">{profile.name}</div>
               {profile.email && (
                 <div className="text-xs text-slate-500 truncate">{profile.email}</div>
               )}
             </div>
             <button
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-900/40"
               onClick={() => { setMenuOpen(false); setActiveTab("settings"); }}
             >
               <Settings className="h-4 w-4" strokeWidth={2.25} />
               Settings
             </button>
             <button
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-50"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-rose-600 hover:bg-rose-500/100/10"
               onClick={() => { setMenuOpen(false); onSignOut(); }}
             >
               <LogOut className="h-4 w-4" strokeWidth={2.25} />
@@ -114,19 +114,19 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
         <button
           onClick={() => setMenuOpen((v) => !v)}
           className={`w-full flex items-center gap-3 px-2 py-2 rounded-2xl transition-colors
-            ${menuOpen ? "bg-slate-100" : "hover:bg-slate-50"}`}
+            ${menuOpen ? "bg-slate-800/60" : "hover:bg-slate-900/40"}`}
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white text-sm font-bold">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-500 text-white text-sm font-bold">
             {profileInitials(profile.name)}
           </span>
           <span className="flex-1 min-w-0 text-left">
-            <span className="block text-sm font-bold text-slate-900 truncate">
+            <span className="block text-sm font-bold text-slate-100 truncate">
               {profileFirstName(profile.name)}
             </span>
             <span className="block text-[11px] text-slate-500 truncate">Local profile</span>
           </span>
           <ChevronUp
-            className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200
+            className={`h-4 w-4 text-slate-500 shrink-0 transition-transform duration-200
               ${menuOpen ? "" : "rotate-180"}`}
             strokeWidth={2.5}
           />

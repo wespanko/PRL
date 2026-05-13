@@ -23,7 +23,7 @@ function pctSigned(v) {
 }
 
 const DOT_TONE = {
-  open:   "bg-blue-500",
+  open:   "bg-cyan-500",
   pre:    "bg-amber-500",
   after:  "bg-amber-500",
   closed: "bg-slate-300",
@@ -48,21 +48,21 @@ export default function StatusBar({ results, payload }) {
     : "No portfolio loaded";
 
   return (
-    <div className="h-12 bg-white border-b border-slate-200 flex items-center justify-between gap-6 px-6 md:px-8 text-sm">
+    <div className="h-12 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-6 px-6 md:px-8 text-sm">
       {/* Left: market session + clock */}
       <div className="flex items-center gap-3 min-w-0">
         <span className={`h-2 w-2 rounded-full ${DOT_TONE[session.state]} shrink-0`} />
-        <span className="font-semibold text-slate-900 whitespace-nowrap">{session.label}</span>
-        <span className="text-slate-300">·</span>
+        <span className="font-semibold text-slate-100 whitespace-nowrap">{session.label}</span>
+        <span className="text-slate-600">·</span>
         <span className="font-mono text-xs text-slate-500 tabular-nums whitespace-nowrap">{time} ET</span>
       </div>
 
       {/* Center: portfolio tickers */}
       <div className="flex items-center gap-2 min-w-0 flex-1 justify-center">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">
           Portfolio
         </span>
-        <span className="font-mono text-xs text-slate-700 truncate">{tickerLine}</span>
+        <span className="font-mono text-xs text-slate-600 truncate">{tickerLine}</span>
       </div>
 
       {/* Right: live stats */}
@@ -75,7 +75,7 @@ export default function StatusBar({ results, payload }) {
             <Stat label="Drawdown" value={pctSigned(results.max_drawdown)} tone="rose" />
           </>
         ) : (
-          <span className="text-xs text-slate-400">Run an analysis to populate</span>
+          <span className="text-xs text-slate-500">Run an analysis to populate</span>
         )}
       </div>
     </div>
@@ -83,10 +83,10 @@ export default function StatusBar({ results, payload }) {
 }
 
 function Stat({ label, value, tone }) {
-  const valueColor = tone === "rose" ? "text-rose-600" : "text-slate-900";
+  const valueColor = tone === "rose" ? "text-rose-600" : "text-slate-100";
   return (
     <div className="flex items-baseline gap-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
         {label}
       </span>
       <span className={`font-mono text-xs font-semibold tabular-nums ${valueColor}`}>

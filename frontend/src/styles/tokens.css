@@ -1,72 +1,70 @@
 /* ─────────────────────────────────────────────────────────────────────
-   Panko Risk Report — Design Tokens (Duolingo × Robinhood rollout)
-   The token *names* are preserved so existing component CSS doesn't break;
-   only the *values* are remapped to the new visual language.
+   Panko Risk Report — Design Tokens
+   JARVIS / space-black aesthetic. Deep near-black canvas, soft-white
+   text, single cyan accent, hairline borders, premium typography.
+   Legacy token *names* preserved so existing CSS keeps resolving.
    ───────────────────────────────────────────────────────────────────── */
 
 :root {
   /* ── Color ── */
 
-  /* Neutrals — slate scale */
-  --paper:    #FFFFFF;  /* crisp white canvas */
-  --canvas:   #FFFFFF;
-  --ink-900:  #0F172A;  /* slate-900, primary text */
-  --ink-700:  #334155;  /* slate-700, headings */
-  --ink-500:  #64748B;  /* slate-500, body */
-  --ink-400:  #94A3B8;  /* slate-400, secondary */
-  --ink-300:  #CBD5E1;  /* slate-300, tertiary */
-  --ink-200:  #E2E8F0;  /* slate-200, hairlines */
-  --ink-100:  #F1F5F9;  /* slate-100, subtle bg */
-  --ink-50:   #F8FAFC;  /* slate-50, hover */
+  /* Neutrals — inverted slate scale, dark canvas */
+  --paper:    #06080F;  /* deep space-black, page bg */
+  --canvas:   #0B0F1A;  /* card/surface bg, slightly lifted */
+  --ink-900:  #F1F5F9;  /* primary text (slate-100) */
+  --ink-700:  #CBD5E1;  /* headings (slate-300) */
+  --ink-500:  #94A3B8;  /* body (slate-400) */
+  --ink-400:  #64748B;  /* secondary (slate-500) */
+  --ink-300:  #475569;  /* tertiary (slate-600) */
+  --ink-200:  #1E293B;  /* hairlines (slate-800) */
+  --ink-100:  #111827;  /* subtle bg (slate-900-ish) */
+  --ink-50:   #0F172A;  /* hover, table stripes (slate-900) */
 
-  /* Brand: Duolingo blue */
-  --blue-900: #1E3A8A;  /* blue-900, deepest */
-  --blue-700: #1D4ED8;  /* blue-700 */
-  --blue-500: #3B82F6;  /* blue-500, primary brand */
-  --blue-300: #93C5FD;  /* blue-300 */
-  --blue-100: #DBEAFE;  /* blue-100, tint bg */
+  /* Brand: JARVIS cyan replaces Duolingo blue */
+  --blue-900: #164E63;  /* cyan-900, deepest */
+  --blue-700: #0E7490;  /* cyan-700 */
+  --blue-500: #06B6D4;  /* cyan-500, primary brand */
+  --blue-300: #67E8F9;  /* cyan-300 */
+  --blue-100: #CFFAFE;  /* cyan-100, tint bg */
 
-  /* Gold reassigned to blue — Panko Score uses brand color */
-  --gold-700: #1D4ED8;
-  --gold-500: #3B82F6;
-  --gold-300: #93C5FD;
-  --gold-100: #DBEAFE;
+  /* Gold aliases -> cyan */
+  --gold-700: #0E7490;
+  --gold-500: #06B6D4;
+  --gold-300: #67E8F9;
+  --gold-100: #CFFAFE;
 
-  /* Semantic — risk-green now routes to blue per the "all green to blue"
-     directive. Improvement direction still reads cleanly because rose
-     stays for negative/warning. */
+  /* Semantic — risk colors */
   --risk-red:   #F43F5E;  /* rose-500 */
   --risk-amber: #F59E0B;  /* amber-500 */
-  --risk-green: #3B82F6;  /* blue-500 (was emerald) */
+  --risk-green: #06B6D4;  /* cyan — 'positive' semantic uses brand color */
 
   /* ── Typography ── */
 
-  /* All three families collapsed to a single system sans stack.
-     IBM Plex Mono kept for numerical / ticker readability. */
-  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
-  --font-sans:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  /* Premium sans for prose, IBM Plex Mono for numerics. */
+  --font-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  --font-sans:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Type scale — bumped weights for the Duolingo "bold and friendly" feel */
+  /* Type scale — lighter weights for elegance (JARVIS isn't shouty) */
   --text-display-xl-size:    44px;
   --text-display-xl-line:    52px;
-  --text-display-xl-weight:  800;
+  --text-display-xl-weight:  600;
 
   --text-display-lg-size:    32px;
   --text-display-lg-line:    40px;
-  --text-display-lg-weight:  800;
+  --text-display-lg-weight:  600;
 
   --text-heading-lg-size:    22px;
   --text-heading-lg-line:    30px;
-  --text-heading-lg-weight:  700;
+  --text-heading-lg-weight:  600;
 
   --text-heading-md-size:    18px;
   --text-heading-md-line:    26px;
-  --text-heading-md-weight:  700;
+  --text-heading-md-weight:  600;
 
   --text-heading-sm-size:    13px;
   --text-heading-sm-line:    18px;
-  --text-heading-sm-weight:  700;
+  --text-heading-sm-weight:  600;
   --text-heading-sm-tracking: 0.06em;
 
   --text-body-lg-size:       16px;
@@ -83,22 +81,22 @@
 
   --text-caption-size:       11px;
   --text-caption-line:       16px;
-  --text-caption-weight:     700;
+  --text-caption-weight:     600;
   --text-caption-tracking:   0.08em;
 
   --text-mono-lg-size:       16px;
   --text-mono-lg-line:       24px;
-  --text-mono-lg-weight:     600;
+  --text-mono-lg-weight:     500;
 
   --text-mono-size:          14px;
   --text-mono-line:          20px;
-  --text-mono-weight:        600;
+  --text-mono-weight:        500;
 
   --text-mono-sm-size:       12px;
   --text-mono-sm-line:       18px;
-  --text-mono-sm-weight:     600;
+  --text-mono-sm-weight:     500;
 
-  /* ── Spacing — 8pt grid, unchanged ── */
+  /* ── Spacing — 8pt grid ── */
   --space-1:   4px;
   --space-2:   8px;
   --space-3:   12px;
@@ -110,13 +108,14 @@
   --space-24:  96px;
   --space-32:  128px;
 
-  /* ── Radii — bumped to Duolingo curves ── */
-  --radius-0: 0px;     /* tables */
-  --radius-1: 12px;    /* inputs, buttons (was 2px) */
-  --radius-2: 20px;    /* cards (was 4px) */
-  --radius-3: 24px;    /* modals (was 8px) */
+  /* ── Radii — tighter than Duolingo, still elegant ── */
+  --radius-0: 0px;
+  --radius-1: 8px;     /* inputs, buttons */
+  --radius-2: 12px;    /* cards, panels */
+  --radius-3: 16px;    /* modals */
 
   /* ── Borders & elevation ── */
   --border-hairline: 1px solid var(--ink-200);
-  --shadow-elevated: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --glow-cyan:       0 0 24px rgba(6, 182, 212, 0.25);
 }

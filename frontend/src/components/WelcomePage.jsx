@@ -50,9 +50,9 @@ function StepBar({ current }) {
         return (
           <div key={s.id} className="flex-1 flex items-center gap-2">
             <div className={`h-1.5 rounded-full flex-1 transition-colors duration-500
-              ${active ? "bg-blue-500" : done ? "bg-blue-300" : "bg-slate-200"}`} />
+              ${active ? "bg-cyan-500" : done ? "bg-blue-300" : "bg-slate-700"}`} />
             <span className={`text-xs font-semibold whitespace-nowrap
-              ${active ? "text-blue-700" : done ? "text-blue-600" : "text-slate-400"}`}>
+              ${active ? "text-cyan-400" : done ? "text-cyan-400" : "text-slate-500"}`}>
               {s.label}
             </span>
           </div>
@@ -69,18 +69,18 @@ function ChoiceCard({ active, icon: Icon, label, body, onClick }) {
       onClick={onClick}
       className={`w-full text-left rounded-3xl p-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
         ${active
-          ? "bg-blue-50 border-2 border-blue-500 shadow-sm shadow-blue-100"
-          : "bg-white border border-slate-200 hover:border-slate-300"}`}
+          ? "bg-cyan-500/10 border-2 border-cyan-500 shadow-sm shadow-cyan-500/20"
+          : "bg-slate-950 border border-slate-800 hover:border-slate-700"}`}
     >
       <div className="flex items-start gap-4">
         <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl
-          ${active ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"}`}>
+          ${active ? "bg-cyan-500 text-white" : "bg-slate-800/60 text-slate-500"}`}>
           <Icon className="h-6 w-6" strokeWidth={2.25} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-slate-900">{label}</h3>
-            {active && <CheckCircle2 className="h-4 w-4 text-blue-500" strokeWidth={2.5} />}
+            <h3 className="font-bold text-slate-100">{label}</h3>
+            {active && <CheckCircle2 className="h-4 w-4 text-cyan-400" strokeWidth={2.5} />}
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">{body}</p>
         </div>
@@ -118,7 +118,7 @@ export default function WelcomePage({ onSignIn }) {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans antialiased px-6 py-10 md:px-10 md:py-16">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased px-6 py-10 md:px-10 md:py-16">
       <div className="max-w-2xl mx-auto">
 
         {/* ── HERO ─────────────────────────────────────────────── */}
@@ -128,18 +128,18 @@ export default function WelcomePage({ onSignIn }) {
               <img src="/logo.png" alt="Panko" className="h-10 w-auto" />
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-center text-slate-900 mb-5 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-center text-slate-100 mb-5 leading-tight">
               Your portfolio,<br/>
-              <span className="text-blue-500">analyzed like a quant.</span>
+              <span className="text-cyan-400">analyzed like a quant.</span>
             </h1>
-            <p className="text-center text-slate-600 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-              <strong className="text-slate-900">Real risk math.</strong> Optimized rebalancing.
+            <p className="text-center text-slate-500 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+              <strong className="text-slate-100">Real risk math.</strong> Optimized rebalancing.
               The diversification metric your brokerage <em>doesn't show you</em>.
             </p>
 
             <button
               onClick={() => setStep("name")}
-              className="w-full mb-10 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-lg py-5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] shadow-md shadow-blue-200"
+              className="w-full mb-10 bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold text-lg py-5 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.98] shadow-md shadow-cyan-500/25"
             >
               Get started — it's free
               <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
@@ -150,10 +150,10 @@ export default function WelcomePage({ onSignIn }) {
               {TRUST_BADGES.map((b) => {
                 const Icon = b.icon;
                 return (
-                  <div key={b.label} className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  <div key={b.label} className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
-                      <div className="font-bold text-sm text-slate-900">{b.label}</div>
+                      <Icon className="h-4 w-4 text-cyan-400" strokeWidth={2.5} />
+                      <div className="font-bold text-sm text-slate-100">{b.label}</div>
                     </div>
                     <div className="text-xs text-slate-500 leading-relaxed">{b.body}</div>
                   </div>
@@ -166,11 +166,11 @@ export default function WelcomePage({ onSignIn }) {
               {FEATURES.map((f) => {
                 const Icon = f.icon;
                 return (
-                  <div key={f.title} className="rounded-3xl border border-slate-200 p-5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 mb-3">
+                  <div key={f.title} className="rounded-3xl border border-slate-800 p-5">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-400 mb-3">
                       <Icon className="h-5 w-5" strokeWidth={2.25} />
                     </div>
-                    <div className="font-bold text-slate-900 mb-1">{f.title}</div>
+                    <div className="font-bold text-slate-100 mb-1">{f.title}</div>
                     <div className="text-sm text-slate-500 leading-relaxed">{f.body}</div>
                   </div>
                 );
@@ -178,7 +178,7 @@ export default function WelcomePage({ onSignIn }) {
             </div>
 
             <div className="text-xs text-slate-500 leading-relaxed text-center max-w-lg mx-auto">
-              <strong className="text-slate-700">Educational tool · Not financial advice.</strong> Panko computes
+              <strong className="text-slate-600">Educational tool · Not financial advice.</strong> Panko computes
               real risk metrics from historical data — but historical performance does not
               guarantee future results. Consult a licensed advisor before acting on any
               portfolio decision. We don't store your data on any server.
@@ -193,14 +193,14 @@ export default function WelcomePage({ onSignIn }) {
             <div className="flex justify-center mb-6">
               <img src="/logo.png" alt="Panko" className="h-8 w-auto" />
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Let's set you up</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-100 mb-2">Let's set you up</h2>
             <p className="text-slate-500 mb-8">
               Just a name to personalize the app. Email is optional and stored only in your browser.
             </p>
 
             <form onSubmit={handleNameStep} className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-2">Your name</label>
+                <label className="block text-sm font-bold text-slate-100 mb-2">Your name</label>
                 <input
                   type="text"
                   value={name}
@@ -208,12 +208,12 @@ export default function WelcomePage({ onSignIn }) {
                   placeholder="Wes Panko"
                   autoFocus
                   maxLength={60}
-                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-base font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-900 mb-2">
-                  Email <span className="text-slate-400 font-medium">(optional)</span>
+                <label className="block text-sm font-bold text-slate-100 mb-2">
+                  Email <span className="text-slate-500 font-medium">(optional)</span>
                 </label>
                 <input
                   type="email"
@@ -221,12 +221,12 @@ export default function WelcomePage({ onSignIn }) {
                   onChange={(e) => { setEmail(e.target.value); setError(null); }}
                   placeholder="you@example.com"
                   maxLength={120}
-                  className="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-base font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-5 py-4 text-base font-medium text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-colors"
                 />
               </div>
 
               {error && (
-                <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3 text-sm font-medium text-rose-900">
+                <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl px-4 py-3 text-sm font-medium text-rose-200">
                   {error}
                 </div>
               )}
@@ -235,13 +235,13 @@ export default function WelcomePage({ onSignIn }) {
                 <button
                   type="button"
                   onClick={() => setStep("hero")}
-                  className="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
+                  className="px-6 py-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-700 text-slate-600 font-bold transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3.5 rounded-2xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
                 >
                   Next
                   <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -262,7 +262,7 @@ export default function WelcomePage({ onSignIn }) {
             <div className="flex justify-center mb-6">
               <img src="/logo.png" alt="Panko" className="h-8 w-auto" />
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">What's your risk style?</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-100 mb-2">What's your risk style?</h2>
             <p className="text-slate-500 mb-8">
               We'll use this to tune Thesis suggestions and Improve recommendations. You can change it anytime.
             </p>
@@ -284,14 +284,14 @@ export default function WelcomePage({ onSignIn }) {
               <button
                 type="button"
                 onClick={() => setStep("name")}
-                className="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
+                className="px-6 py-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-700 text-slate-600 font-bold transition-colors"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={() => setStep("experience")}
-                className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3.5 rounded-2xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 Next
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -299,7 +299,7 @@ export default function WelcomePage({ onSignIn }) {
             </div>
 
             <div className="mt-8 text-xs text-slate-500 text-center leading-relaxed">
-              <strong className="text-slate-700">Reminder:</strong> Panko is educational. It is not your financial advisor. Risk style helps tune the engine — it does not constitute advice.
+              <strong className="text-slate-600">Reminder:</strong> Panko is educational. It is not your financial advisor. Risk style helps tune the engine — it does not constitute advice.
             </div>
           </>
         )}
@@ -311,7 +311,7 @@ export default function WelcomePage({ onSignIn }) {
             <div className="flex justify-center mb-6">
               <img src="/logo.png" alt="Panko" className="h-8 w-auto" />
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">How familiar are you with investing?</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-slate-100 mb-2">How familiar are you with investing?</h2>
             <p className="text-slate-500 mb-8">
               Be honest — there's no wrong answer. We'll tailor what you see in the app.
             </p>
@@ -329,22 +329,22 @@ export default function WelcomePage({ onSignIn }) {
               ))}
             </div>
 
-            <label className="mt-6 flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-2xl p-4 cursor-pointer">
+            <label className="mt-6 flex items-start gap-3 bg-slate-900/40 border border-slate-800 rounded-2xl p-4 cursor-pointer">
               <input
                 type="checkbox"
                 checked={acknowledged}
                 onChange={(e) => { setAcknowledged(e.target.checked); setError(null); }}
                 className="mt-0.5 h-5 w-5 accent-blue-500 cursor-pointer"
               />
-              <span className="text-sm text-slate-700 leading-relaxed">
-                I understand Panko is for <strong className="text-slate-900">educational purposes only</strong>, is{" "}
-                <strong className="text-slate-900">not financial advice</strong>, and that I am responsible for my own
+              <span className="text-sm text-slate-600 leading-relaxed">
+                I understand Panko is for <strong className="text-slate-100">educational purposes only</strong>, is{" "}
+                <strong className="text-slate-100">not financial advice</strong>, and that I am responsible for my own
                 investment decisions. Past performance does not guarantee future results. Risk of loss is real.
               </span>
             </label>
 
             {error && (
-              <div className="mt-3 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3 text-sm font-medium text-rose-900">
+              <div className="mt-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl px-4 py-3 text-sm font-medium text-rose-200">
                 {error}
               </div>
             )}
@@ -353,14 +353,14 @@ export default function WelcomePage({ onSignIn }) {
               <button
                 type="button"
                 onClick={() => setStep("risk")}
-                className="px-6 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors"
+                className="px-6 py-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-700 text-slate-600 font-bold transition-colors"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleFinish}
-                className="flex-1 px-6 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-3.5 rounded-2xl bg-cyan-500 hover:bg-cyan-600 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 Enter Panko
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />

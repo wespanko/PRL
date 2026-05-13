@@ -21,7 +21,7 @@ function PathView({ onPick, progress }) {
     <div className="px-6 py-10 md:px-10 max-w-2xl mx-auto">
       {/* Header */}
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">
           Practice
         </h1>
         <p className="text-slate-500 text-base md:text-lg leading-relaxed">
@@ -55,10 +55,10 @@ function PathView({ onPick, progress }) {
                 disabled={!unlocked}
                 className={`relative shrink-0 flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-95 disabled:active:scale-100
                   ${completed
-                    ? "bg-blue-500 text-white shadow-lg shadow-blue-200"
+                    ? "bg-cyan-500 text-white shadow-lg shadow-cyan-500/25"
                     : unlocked
-                      ? "bg-white text-blue-500 border-4 border-blue-500 hover:scale-105"
-                      : "bg-slate-100 text-slate-300 border-4 border-slate-200 cursor-not-allowed"}`}
+                      ? "bg-slate-950 text-cyan-400 border-4 border-cyan-500 hover:scale-105"
+                      : "bg-slate-800/60 text-slate-600 border-4 border-slate-800 cursor-not-allowed"}`}
               >
                 {!unlocked ? (
                   <Lock className="h-7 w-7" strokeWidth={2.5} />
@@ -66,21 +66,21 @@ function PathView({ onPick, progress }) {
                   <Icon className="h-9 w-9" strokeWidth={2.25} />
                 )}
                 {completed && (
-                  <div className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 border-2 border-white shadow-sm">
+                  <div className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 border-[3px] border-slate-950 shadow-md shadow-amber-500/40">
                     <Star className="h-4 w-4 text-white fill-white" strokeWidth={2.5} />
                   </div>
                 )}
               </button>
 
               <div className="flex-1 min-w-0">
-                <h3 className={`font-extrabold text-base ${unlocked ? "text-slate-900" : "text-slate-400"}`}>
+                <h3 className={`font-extrabold text-base ${unlocked ? "text-slate-100" : "text-slate-500"}`}>
                   {lesson.title}
                 </h3>
-                <p className={`text-sm leading-snug ${unlocked ? "text-slate-500" : "text-slate-400"}`}>
+                <p className={`text-sm leading-snug ${unlocked ? "text-slate-500" : "text-slate-500"}`}>
                   {lesson.subtitle}
                 </p>
                 {unlocked && (
-                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-blue-600">
+                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-cyan-400">
                     {completed ? "Practiced · tap to retry" : "Tap to start"}
                   </div>
                 )}
@@ -90,11 +90,11 @@ function PathView({ onPick, progress }) {
         })}
       </div>
 
-      <div className="mt-10 rounded-3xl bg-blue-50 border border-blue-200 p-5 flex gap-3 items-start">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white">
+      <div className="mt-10 rounded-3xl bg-cyan-500/10 border border-cyan-500/30 p-5 flex gap-3 items-start">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white">
           <Zap className="h-4 w-4" strokeWidth={2.5} />
         </div>
-        <div className="text-sm text-blue-950 leading-relaxed">
+        <div className="text-sm text-cyan-100 leading-relaxed">
           <strong>How XP works:</strong> Each correct answer is 10 XP. Master a lesson with a perfect run to earn the gold star. Come back daily to keep your streak alive.
         </div>
       </div>
@@ -104,20 +104,20 @@ function PathView({ onPick, progress }) {
 
 function StatCard({ icon: Icon, tone, label, value, sub }) {
   const tones = {
-    blue:   { bg: "bg-blue-100",   color: "text-blue-600",   value: "text-blue-700"   },
-    orange: { bg: "bg-orange-100", color: "text-orange-600", value: "text-orange-700" },
-    amber:  { bg: "bg-amber-100",  color: "text-amber-600",  value: "text-amber-700"  },
+    blue:   { bg: "bg-cyan-500/15",   color: "text-cyan-400",   value: "text-cyan-400"   },
+    orange: { bg: "bg-orange-500/15", color: "text-orange-400", value: "text-orange-300" },
+    amber:  { bg: "bg-amber-500/15",  color: "text-amber-600",  value: "text-amber-300"  },
   }[tone];
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-3 flex items-center gap-2.5">
+    <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex items-center gap-2.5">
       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${tones.bg} ${tones.color}`}>
         <Icon className="h-4 w-4" strokeWidth={2.5} />
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</div>
+        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</div>
         <div className="flex items-baseline gap-1">
           <span className={`text-lg font-extrabold tabular-nums leading-none ${tones.value}`}>{value}</span>
-          {sub && <span className="text-xs text-slate-400 font-semibold">{sub}</span>}
+          {sub && <span className="text-xs text-slate-500 font-semibold">{sub}</span>}
         </div>
       </div>
     </div>
@@ -210,11 +210,11 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   // Failed (out of hearts)
   if (failed) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-10 text-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-full mb-6 bg-rose-500 text-white shadow-lg shadow-rose-200">
           <HeartCrack className="h-12 w-12" strokeWidth={2.25} />
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">
           Out of hearts!
         </h2>
         <p className="text-slate-500 text-base md:text-lg mb-8 max-w-md leading-relaxed">
@@ -223,14 +223,14 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
         <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
           <button
             onClick={handleRetry}
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
+            className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             Try again
           </button>
           <button
             onClick={onExit}
-            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold text-base py-4 transition-colors"
+            className="flex-1 bg-slate-800/60 hover:bg-slate-700 text-slate-600 rounded-2xl font-bold text-base py-4 transition-colors"
           >
             Back to path
           </button>
@@ -244,20 +244,20 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
     const xpEarned = finalCorrect * 10;
     const perfect = finalCorrect === total;
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-10 text-center">
         <div className={`flex h-24 w-24 items-center justify-center rounded-full mb-6
-          ${perfect ? "bg-amber-400" : "bg-blue-500"} text-white shadow-lg`}>
+          ${perfect ? "bg-amber-400" : "bg-cyan-500"} text-white shadow-lg`}>
           {perfect ? <Trophy className="h-12 w-12" strokeWidth={2.25} /> : <Star className="h-12 w-12 fill-white" strokeWidth={2.25} />}
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-100 mb-2">
           {perfect ? "Perfect run!" : "Lesson complete!"}
         </h2>
         <p className="text-slate-500 text-base md:text-lg mb-8 max-w-md leading-relaxed">
-          You answered {finalCorrect} of {total} correctly and earned <strong className="text-blue-600">{xpEarned} XP</strong>.
+          You answered {finalCorrect} of {total} correctly and earned <strong className="text-cyan-400">{xpEarned} XP</strong>.
         </p>
         <button
           onClick={onExit}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-base px-8 py-4 flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
+          className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-2xl font-bold text-base px-8 py-4 flex items-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25"
         >
           Back to path
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
@@ -267,27 +267,27 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-slate-950 flex flex-col">
       {/* Top bar: close + progress + hearts */}
-      <div className="px-6 py-4 flex items-center gap-4 border-b border-slate-100">
+      <div className="px-6 py-4 flex items-center gap-4 border-b border-slate-800">
         <button
           onClick={onExit}
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-800/60 hover:text-slate-600 transition-colors shrink-0"
         >
           <X className="h-5 w-5" strokeWidth={2.5} />
         </button>
-        <div className="flex-1 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="flex-1 h-2.5 bg-slate-800/60 rounded-full overflow-hidden">
           <div
-            className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-cyan-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPct}%` }}
           />
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <Heart
-            className={`h-5 w-5 transition-all duration-300 ${hearts > 0 ? "text-rose-500 fill-rose-500" : "text-slate-300"}`}
+            className={`h-5 w-5 transition-all duration-300 ${hearts > 0 ? "text-rose-500 fill-rose-500" : "text-slate-600"}`}
             strokeWidth={2.5}
           />
-          <span className="text-sm font-extrabold tabular-nums text-slate-700">
+          <span className="text-sm font-extrabold tabular-nums text-slate-600">
             {hearts}
           </span>
         </div>
@@ -295,12 +295,12 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
 
       {/* Body */}
       <div className="flex-1 px-6 py-8 md:py-12 flex flex-col max-w-2xl w-full mx-auto">
-        <div className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2">
+        <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
           {ex.type === "mc" && "Pick the right answer"}
           {ex.type === "tf" && "True or false"}
           {ex.type === "numeric" && "Type the answer"}
         </div>
-        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 mb-8 leading-tight">
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-100 mb-8 leading-tight">
           {ex.question}
         </h2>
 
@@ -318,23 +318,23 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                   disabled={submitted}
                   className={`w-full text-left flex items-center gap-3 p-4 rounded-2xl border-2 font-semibold transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                     ${isRight
-                      ? "bg-blue-50 border-blue-500 text-blue-900"
+                      ? "bg-cyan-500/10 border-cyan-500 text-cyan-200"
                       : isWrong
-                        ? "bg-rose-50 border-rose-500 text-rose-900"
+                        ? "bg-rose-500/10 border-rose-500 text-rose-200"
                         : isPicked
-                          ? "bg-blue-50 border-blue-500 text-slate-900"
-                          : "bg-white border-slate-200 hover:border-slate-300 text-slate-700"}
+                          ? "bg-cyan-500/10 border-cyan-500 text-slate-100"
+                          : "bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-600"}
                     ${submitted ? "cursor-default" : "active:scale-[0.99]"}`}
                 >
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-extrabold
-                    ${isRight ? "bg-blue-500 text-white"
+                    ${isRight ? "bg-cyan-500 text-white"
                       : isWrong ? "bg-rose-500 text-white"
-                      : isPicked ? "bg-blue-500 text-white"
-                      : "bg-slate-100 text-slate-500"}`}>
+                      : isPicked ? "bg-cyan-500 text-white"
+                      : "bg-slate-800/60 text-slate-500"}`}>
                     {String.fromCharCode(65 + i)}
                   </span>
                   <span className="flex-1">{opt}</span>
-                  {isRight && <Check className="h-5 w-5 text-blue-600 shrink-0" strokeWidth={3} />}
+                  {isRight && <Check className="h-5 w-5 text-cyan-400 shrink-0" strokeWidth={3} />}
                   {isWrong && <X className="h-5 w-5 text-rose-600 shrink-0" strokeWidth={3} />}
                 </button>
               );
@@ -358,12 +358,12 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                   disabled={submitted}
                   className={`p-8 rounded-2xl border-2 font-extrabold text-lg transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                     ${isRight
-                      ? "bg-blue-50 border-blue-500 text-blue-900"
+                      ? "bg-cyan-500/10 border-cyan-500 text-cyan-200"
                       : isWrong
-                        ? "bg-rose-50 border-rose-500 text-rose-900"
+                        ? "bg-rose-500/10 border-rose-500 text-rose-200"
                         : isPicked
-                          ? "bg-blue-50 border-blue-500 text-slate-900"
-                          : "bg-white border-slate-200 hover:border-slate-300 text-slate-700"}
+                          ? "bg-cyan-500/10 border-cyan-500 text-slate-100"
+                          : "bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-600"}
                     ${submitted ? "cursor-default" : "active:scale-[0.99]"}`}
                 >
                   {label}
@@ -384,20 +384,20 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
                 disabled={submitted}
                 autoFocus
                 placeholder="Type your answer"
-                className={`flex-1 bg-white border-2 rounded-2xl px-5 py-4 text-2xl font-extrabold tabular-nums text-slate-900 placeholder:text-slate-300 placeholder:font-medium outline-none transition-colors
+                className={`flex-1 bg-slate-950 border-2 rounded-2xl px-5 py-4 text-2xl font-extrabold tabular-nums text-slate-100 placeholder:text-slate-600 placeholder:font-medium outline-none transition-colors
                   ${submitted
                     ? isCorrect
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-rose-500 bg-rose-50"
-                    : "border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"}`}
+                      ? "border-cyan-500 bg-cyan-500/10"
+                      : "border-rose-500 bg-rose-500/10"
+                    : "border-slate-800 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"}`}
                 onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) handleCheck(); }}
               />
               {ex.unit && (
-                <span className="text-2xl font-extrabold text-slate-400 shrink-0">{ex.unit}</span>
+                <span className="text-2xl font-extrabold text-slate-500 shrink-0">{ex.unit}</span>
               )}
             </div>
             {submitted && !isCorrect && (
-              <p className="mt-3 text-sm font-semibold text-rose-700">
+              <p className="mt-3 text-sm font-semibold text-rose-300">
                 Correct answer: <span className="tabular-nums">{ex.answer}{ex.unit ?? ""}</span>
               </p>
             )}
@@ -408,18 +408,18 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
         <div className="mt-8">
           {submitted && (
             <div className={`rounded-2xl p-5 mb-4 border
-              ${isCorrect ? "bg-blue-50 border-blue-200" : "bg-rose-50 border-rose-200"}`}>
+              ${isCorrect ? "bg-cyan-500/10 border-cyan-500/30" : "bg-rose-500/10 border-rose-500/30"}`}>
               <div className="flex items-center gap-2 mb-2">
                 <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-white
-                  ${isCorrect ? "bg-blue-500" : "bg-rose-500"}`}>
+                  ${isCorrect ? "bg-cyan-500" : "bg-rose-500"}`}>
                   {isCorrect ? <Check className="h-4 w-4" strokeWidth={3} /> : <X className="h-4 w-4" strokeWidth={3} />}
                 </div>
                 <h4 className={`font-extrabold text-sm uppercase tracking-wide
-                  ${isCorrect ? "text-blue-900" : "text-rose-900"}`}>
+                  ${isCorrect ? "text-cyan-200" : "text-rose-200"}`}>
                   {isCorrect ? "Nice work" : "Not quite"}
                 </h4>
               </div>
-              <p className={`text-sm leading-relaxed ${isCorrect ? "text-blue-950" : "text-rose-950"}`}>
+              <p className={`text-sm leading-relaxed ${isCorrect ? "text-cyan-100" : "text-rose-200"}`}>
                 {ex.explanation}
               </p>
             </div>
@@ -429,7 +429,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
             <button
               onClick={handleCheck}
               disabled={!canSubmit}
-              className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200 disabled:shadow-none uppercase tracking-wide"
+              className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-cyan-500/25 disabled:shadow-none uppercase tracking-wide"
             >
               Check
             </button>
@@ -437,7 +437,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
             <button
               onClick={handleContinue}
               className={`w-full text-white rounded-2xl font-extrabold text-base py-4 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md uppercase tracking-wide flex items-center justify-center gap-2
-                ${isCorrect ? "bg-blue-500 hover:bg-blue-600 shadow-blue-200" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"}`}
+                ${isCorrect ? "bg-cyan-500 hover:bg-cyan-600 shadow-cyan-500/25" : "bg-rose-500 hover:bg-rose-600 shadow-rose-200"}`}
             >
               Continue
               <ArrowRight className="h-4 w-4" strokeWidth={3} />
