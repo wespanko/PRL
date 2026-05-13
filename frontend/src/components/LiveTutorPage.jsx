@@ -20,6 +20,7 @@ import {
 import AnnotationOverlay from "./AnnotationOverlay";
 import { parseBoxes } from "../utils/parseBoxes";
 import { normalizeWeights } from "../utils/normalizeWeights";
+import { buildPortfolioContext } from "../utils/portfolioContext";
 
 // Parse a pasted block of "TICKER WEIGHT" lines. Supports comma/colon
 // separators and trailing % signs. Returns [{ticker, weight}, ...] with
@@ -175,11 +176,17 @@ export default function LiveTutorPage({
   const [questionsAsked, setQuestionsAsked] = useState(0);
 
   // Phase-1 empty-state UI: which sub-view is showing when not sharing.
-  // "default"     → returning-user 'Welcome back' card OR new-user 3 cards
-  // "paste"       → inline paste-holdings form
+  // "default" → returning-user 'Welcome back' card OR new-user 3 cards
+  // "paste"   → inline paste-holdings form
+  // "chat"    → in-page abstract-Q&A chat (Option C). Calls /api/chat
+  //             directly so the user stays inside Live Tutor (NOT a
+  //             redirect to the floating AssistantPanel).
   const [emptyView, setEmptyView] = useState("default");
   const [pasteText, setPasteText] = useState("");
   const [pasteError, setPasteError] = useState(null);
+  // Pre-fill text for the in-page chat (e.g. when a returning-user chip
+  // sends them in with a specific question). Cleared on back.
+  const [chatSeed, setChatSeed] = useState("");
 
   const hasPortfolio = !!(lastResults && lastPayload);
 
@@ -440,7 +447,7 @@ export default function LiveTutorPage({
             lastResults={lastResults}
             lastPayload={lastPayload}
             onStartShare={startSharing}
-            onOpenAssistant={onOpenAssistant}
+            onAskInPage={(seed) => { setChatSeed(seed); setEmptyView("chat"); }}
             onStartFresh={() => setEmptyView("paste")}
           />
         )}
@@ -450,8 +457,18 @@ export default function LiveTutorPage({
           <NewUserState
             onStartShare={startSharing}
             onChoosePaste={() => setEmptyView("paste")}
-            onJustAsk={() => onOpenAssistant?.()}
+            onJustAsk={() => { setChatSeed(""); setEmptyView("chat"); }}
             shareError={shareError}
+          />
+        )}
+
+        {/* ── Empty state — in-page chat (Option C) ──────────────── */}
+        {!sharing && emptyView === "chat" && (
+          <JustAskChat
+            lastResults={lastResults}
+            lastPayload={lastPayload}
+            initialPrompt={chatSeed}
+            onBack={() => { setChatSeed(""); setEmptyView("default"); }}
           />
         )}
 
@@ -762,8 +779,174 @@ function EntryCard({ icon: Icon, title, body, cta, onClick }) {
   );
 }
 
+// ── In-page chat (Option C — abstract Q&A without screen share) ──────
+// Talks to /api/chat (same endpoint as the floating AssistantPanel) so the
+// user can ask questions without screen-sharing OR pasting holdings. The
+// user stays inside Live Tutor — this is the chat surface, not a redirect
+// to a different component. Backend prompt unification is Phase 2.
+async function* streamGeneralChat(messages, portfolioContext) {
+  const BASE = import.meta.env.VITE_API_URL ?? "";
+  const res = await fetch(`${BASE}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, portfolio_context: portfolioContext }),
+  });
+  if (!res.ok) { yield "Error connecting to tutor."; return; }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for (const part of parts) {
+      const line = part.trim();
+      if (!line.startsWith("data: ")) continue;
+      const data = line.slice(6);
+      if (data === "[DONE]") return;
+      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore */ }
+    }
+  }
+}
+
+function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack }) {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState(initialPrompt ?? "");
+  const [streaming, setStreaming] = useState(false);
+  const inputRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  const context = buildPortfolioContext(lastResults, lastPayload);
+  const hasPortfolio = !!context;
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  async function send(text) {
+    if (!text.trim() || streaming) return;
+    const userMsg = { role: "user", content: text };
+    const history = [...messages, userMsg];
+    setMessages([...history, { role: "assistant", content: "" }]);
+    setInput("");
+    setStreaming(true);
+
+    let accumulated = "";
+    try {
+      for await (const chunk of streamGeneralChat(history, context)) {
+        accumulated += chunk;
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: accumulated };
+          return updated;
+        });
+      }
+    } finally {
+      setStreaming(false);
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    send(input.trim());
+  }
+
+  const SUGGESTED = hasPortfolio
+    ? ["What's my biggest risk right now?", "Walk me through my Sharpe ratio", "Why does my downside capture matter?"]
+    : ["What's a Sharpe ratio in plain English?", "How should I think about diversification?", "What does 'beta' actually mean for my returns?"];
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white flex flex-col min-h-[480px] max-h-[78vh]">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
+            <MessageSquare className="h-4 w-4" strokeWidth={2} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-slate-900">
+              {hasPortfolio ? "Ask about your portfolio" : "Ask anything"}
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {hasPortfolio ? "Loaded portfolio is available as context." : "No portfolio yet — we can start abstract."}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={onBack}
+          className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          ← Back
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        {messages.length === 0 && (
+          <div>
+            <p className="text-sm text-slate-500 mb-3">Try one of these:</p>
+            <div className="space-y-2">
+              {SUGGESTED.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => send(q)}
+                  disabled={streaming}
+                  className="w-full text-left px-3 py-2.5 rounded-md bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-slate-900 transition-colors disabled:opacity-50"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                ${m.role === "user"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-100 text-slate-900"}`}
+            >
+              {m.content || (streaming && i === messages.length - 1 ? (
+                <span className="inline-flex gap-1">
+                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                </span>
+              ) : "")}
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Composer */}
+      <form onSubmit={handleSubmit} className="p-3 border-t border-slate-200 flex gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="What do you want to know?"
+          disabled={streaming}
+          className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-4 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={!input.trim() || streaming}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-colors active:scale-95"
+        >
+          {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // ── Empty state — returning user with saved portfolio ──────────────────
-function ReturningUserState({ lastResults, lastPayload, onStartShare, onOpenAssistant, onStartFresh }) {
+function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPage, onStartFresh }) {
   const tickers = lastResults?.tickers ?? [];
   const head = tickers.slice(0, 3);
   const extra = Math.max(0, tickers.length - 3);
@@ -786,7 +969,7 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onOpenAssi
 
   function handleSuggestion(s) {
     if (s.startsWith("Share my screen")) onStartShare();
-    else onOpenAssistant?.(s);
+    else onAskInPage(s);
   }
 
   return (
