@@ -125,6 +125,9 @@ class TutorRequest(BaseModel):
     screenshot_base64: str | None = None
     # Optional MIME type — defaults to image/jpeg.
     screenshot_media_type: str = "image/jpeg"
+    # "qa"    -> standard Q&A response (prose only)
+    # "point" -> spatial mode: AI returns prose + a JSON bbox block at the end
+    mode: str = "qa"
 
 
 def _build_system_prompt(ctx: dict | None) -> str:
@@ -415,6 +418,41 @@ Your job:
 If you don't see a screenshot, say "I don't have a screenshot to look at — share your screen and ask again, or describe what you see."
 """
 
+# Spatial-mode addendum: the user asked WHERE something is, and the UI is
+# going to draw bounding boxes on the screenshot based on Claude's output.
+# We emit prose for the chat plus a strict JSON block parsed by parseBoxes.js.
+TUTOR_POINT_SUFFIX = """
+
+────────────────────────────────────────
+SPATIAL MODE — POINTING TASK
+
+The user is asking you to LOCATE one or more elements on the screen. The UI
+will draw rectangles directly on the screenshot at the coordinates you give.
+
+Format your response EXACTLY like this:
+
+1. ONE short sentence of prose describing what you found (one sentence, no more).
+2. Then a fenced JSON code block listing every element to highlight:
+
+```json
+[
+  {"label": "Buy button", "bbox": [72, 14, 18, 6]}
+]
+```
+
+bbox = [x, y, width, height] as PERCENTAGES of the image dimensions (0-100).
+- (0, 0) is the top-left corner of the image.
+- (100, 100) is the bottom-right corner.
+- Be tight: hug the element with minimal padding (~2-3% margin max).
+- Multiple elements is fine — list them all.
+
+If you genuinely cannot find the requested element, prose explains why,
+followed by an empty JSON block: ```json []```
+
+DO NOT include any text after the closing ``` of the JSON block.
+DO NOT use lesson references in this mode — keep the prose minimal.
+"""
+
 
 @app.post("/api/tutor")
 def tutor(request: TutorRequest):
@@ -449,12 +487,16 @@ def tutor(request: TutorRequest):
             ],
         }
 
+    system_prompt = TUTOR_SYSTEM_PROMPT
+    if request.mode == "point":
+        system_prompt = TUTOR_SYSTEM_PROMPT + TUTOR_POINT_SUFFIX
+
     def stream():
         try:
             with client.messages.stream(
                 model="claude-opus-4-7",
                 max_tokens=1024,
-                system=TUTOR_SYSTEM_PROMPT,
+                system=system_prompt,
                 messages=raw_messages,
                 thinking={"type": "adaptive"},
             ) as s:

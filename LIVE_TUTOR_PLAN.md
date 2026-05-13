@@ -97,7 +97,7 @@ A new **Live Tutor** tab inside the existing Panko Risk Lab web app. No Electron
 
 ---
 
-#### **Day 1 — Visual annotations / pointing**
+#### **Day 1 — Visual annotations / pointing** ✅ shipped 2026-05-12
 
 The AI doesn't just describe — it draws. "Show me the buy button" → bounding box overlay appears on the screen preview.
 
@@ -360,3 +360,4 @@ Recommend: pick the day that excites you most and we go deep on it next.
 - **2026-05-12** — Plan saved. Phase 1 MVP shipped: screen share, vision Q&A, /api/tutor endpoint, sidebar tab.
 - **2026-05-12** — Phase 2 polish shipped: voice input via Web Speech API (mic button in composer), related-Practice-lesson cross-link card under each AI answer (keyword detection across all 8 lesson topics), per-session cost meter pill in chat header.
 - **2026-05-12** — Extended roadmap added. 7-day plan covering annotations, smart capture, accounts, brokerage-awareness, embedded lessons, onboarding/quotas, mobile companion. Each day = real epic, not a quick commit.
+- **2026-05-12** — Day 1 (Visual annotations) shipped. Backend supports `mode: "point"` with new TUTOR_POINT_SUFFIX prompt that instructs Claude to emit a JSON bbox block after a one-sentence summary. Frontend: new `parseBoxes` utility (handles malformed JSON, out-of-range coords, missing block); new `AnnotationOverlay` component (SVG box layer + pixel-positioned label tabs with hover state, auto top-of-image flip for tabs that would clip); new "Point" submit button (Crosshair icon) alongside Send; each user message stores its captured frame so the assistant message can render the same image with boxes drawn on it; while streaming in point mode, `previewProse()` hides the trailing JSON block from the chat bubble. Bundle: LiveTutorPage 16.5kB → 21.3kB.

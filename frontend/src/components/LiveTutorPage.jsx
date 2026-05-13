@@ -1,19 +1,24 @@
-// Live Tutor — Phase 2. See LIVE_TUTOR_PLAN.md for the full spec.
+// Live Tutor — Day 1 of the extended roadmap (LIVE_TUTOR_PLAN.md).
 //
-// Phase 1 (shipped): screen share + chat + Claude vision
-// Phase 2 (this commit): voice input, related-lesson cross-linking,
-//                        per-session cost meter
+// Phase 1: screen share + chat + Claude vision
+// Phase 2: voice input, related-lesson cards, cost meter
+// Day 1  : visual annotations — "Point" mode emits bounding boxes for UI
+//          elements, rendered as an SVG overlay on the captured frame.
 //
-// User shares their screen via getDisplayMedia. When they ask a question
-// (text OR voice), we paint the current video frame to a hidden canvas,
-// JPEG it, and POST to /api/tutor with the base64 image + chat history.
+// Composer has TWO submit actions now:
+//   • Send (Send icon)        → mode="qa", standard prose response
+//   • Point (Crosshair icon)  → mode="point", AI returns prose + bboxes,
+//                               UI draws them on the screenshot below the
+//                               assistant message.
 
 import { useState, useRef, useEffect } from "react";
 import {
   Eye, MonitorUp, MonitorOff, Send, Loader2, AlertTriangle,
   Sparkles, Shield, Camera, Mic, MicOff, GraduationCap, ArrowRight,
-  CircleDollarSign,
+  CircleDollarSign, Crosshair,
 } from "lucide-react";
+import AnnotationOverlay from "./AnnotationOverlay";
+import { parseBoxes } from "../utils/parseBoxes";
 
 const SUGGESTED_QUESTIONS = [
   "What am I looking at on this screen?",
@@ -22,15 +27,8 @@ const SUGGESTED_QUESTIONS = [
   "What's the risk of this holding?",
 ];
 
-// Rough cost estimate per vision call on claude-opus-4-7.
-// ~1500-3500 input tokens (image + system + history) + ~400 output tokens.
-// At $5/1M input + $25/1M output, that's ~$0.02-0.03 per question.
 const COST_PER_QUESTION_USD = 0.025;
 
-// Lessons we surface when the AI's answer mentions the concept. Maps the
-// case-insensitive substring(s) we look for in the response text to the
-// Practice lesson title. Order matters: longer / more-specific phrases
-// first so "downside capture" beats "drawdown" if both appear.
 const LESSON_PATTERNS = [
   { match: ["upside capture", "downside capture", "capture ratio"], title: "Capture Ratios",        practiceId: "capture" },
   { match: ["value at risk", "var ", "var,", "var.", "cvar"],       title: "Value at Risk",         practiceId: "var" },
@@ -51,16 +49,30 @@ function detectRelatedLesson(text) {
   return null;
 }
 
+// While streaming in point mode, the AI's response will eventually contain
+// a ```json [...] ``` block. Strip everything from that marker onward for
+// display purposes so the user doesn't see raw JSON flash by. Once the
+// stream completes, parseBoxes() does the real extraction.
+function previewProse(content) {
+  if (!content) return "";
+  const i = content.indexOf("```json");
+  if (i === -1) return content;
+  return content.slice(0, i).trim();
+}
+
 // ── streaming wire ───────────────────────────────────────────────────
-async function* streamTutor(messages, screenshotBase64) {
+async function* streamTutor(messages, screenshotBase64, mode) {
   const BASE = import.meta.env.VITE_API_URL ?? "";
+  // Strip UI-only fields before sending; backend only wants role + content.
+  const wireMessages = messages.map((m) => ({ role: m.role, content: m.content }));
   const res = await fetch(`${BASE}/api/tutor`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      messages,
+      messages: wireMessages,
       screenshot_base64: screenshotBase64,
       screenshot_media_type: "image/jpeg",
+      mode,
     }),
   });
   if (!res.ok) { yield "Error connecting to tutor."; return; }
@@ -113,10 +125,7 @@ function useVoiceInput(onText) {
 
   function start() {
     if (!recognitionRef.current) return;
-    try {
-      recognitionRef.current.start();
-      setListening(true);
-    } catch { /* already running */ }
+    try { recognitionRef.current.start(); setListening(true); } catch { /* already running */ }
   }
   function stop() {
     try { recognitionRef.current?.stop(); } catch {}
@@ -142,7 +151,6 @@ export default function LiveTutorPage({ setActiveTab }) {
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // Voice input — writes the live transcript into the input field.
   const voice = useVoiceInput((text) => setInput(text));
 
   useEffect(() => {
@@ -182,6 +190,8 @@ export default function LiveTutorPage({ setActiveTab }) {
     setLastSnapshot(null);
   }
 
+  // Returns { base64, dataUrl } — both useful: base64 for the API,
+  // dataUrl for rendering in the UI alongside the assistant's response.
   function captureFrame() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -195,51 +205,77 @@ export default function LiveTutorPage({ setActiveTab }) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
     setLastSnapshot(dataUrl);
-    return dataUrl.split(",")[1];
+    return { dataUrl, base64: dataUrl.split(",")[1] };
   }
 
-  async function send(text) {
+  async function send(text, mode = "qa") {
     if (!text.trim() || streaming) return;
     if (!sharing) {
       setShareError("Share your screen first so I can see what you're looking at.");
       return;
     }
     setShareError(null);
-
-    // Stop voice if still active when the user submits.
     if (voice.listening) voice.stop();
 
-    const screenshot = captureFrame();
-    if (!screenshot) {
+    const frame = captureFrame();
+    if (!frame) {
       setShareError("Couldn't grab a screenshot — make sure your shared window is visible.");
       return;
     }
 
-    const userMsg = { role: "user", content: text };
+    const userMsg = {
+      role: "user",
+      content: text,
+      mode,
+      screenshot: frame.dataUrl, // kept for the overlay render under the AI reply
+    };
     const history = [...messages, userMsg];
-    setMessages([...history, { role: "assistant", content: "" }]);
+    setMessages([...history, { role: "assistant", content: "", mode }]);
     setInput("");
     setStreaming(true);
     setQuestionsAsked((n) => n + 1);
 
     let accumulated = "";
     try {
-      for await (const chunk of streamTutor(history, screenshot)) {
+      for await (const chunk of streamTutor(history, frame.base64, mode)) {
         accumulated += chunk;
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: accumulated };
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: accumulated,
+          };
           return updated;
         });
       }
     } finally {
+      // Stream finished. Parse boxes if we were in point mode.
+      if (mode === "point") {
+        const parsed = parseBoxes(accumulated);
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          updated[updated.length - 1] = {
+            ...last,
+            content: parsed.prose || last.content,
+            boxes: parsed.boxes,
+            parseError: parsed.parseError,
+          };
+          return updated;
+        });
+      }
       setStreaming(false);
     }
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    send(input.trim());
+  function handleAsk(e) {
+    e?.preventDefault?.();
+    send(input.trim(), "qa");
+  }
+
+  function handlePoint(e) {
+    e?.preventDefault?.();
+    send(input.trim(), "point");
   }
 
   function handleMicToggle() {
@@ -247,7 +283,6 @@ export default function LiveTutorPage({ setActiveTab }) {
     else { setInput(""); voice.start(); }
   }
 
-  // Cost shown to the nearest cent; clamp to two decimals.
   const estimatedCost = (questionsAsked * COST_PER_QUESTION_USD).toFixed(2);
 
   return (
@@ -265,7 +300,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                 Live Tutor
               </h1>
               <p className="text-slate-500 text-sm md:text-base">
-                I look at your screen. You ask. I explain.
+                I look at your screen. You ask. I explain. I can point.
               </p>
             </div>
           </div>
@@ -360,7 +395,6 @@ export default function LiveTutorPage({ setActiveTab }) {
 
             {/* Right: chat */}
             <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 flex flex-col min-h-[420px] max-h-[80vh]">
-              {/* Chat header with cost meter */}
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500 text-white">
                   <Sparkles className="h-4 w-4" strokeWidth={2.5} />
@@ -385,7 +419,7 @@ export default function LiveTutorPage({ setActiveTab }) {
                       {SUGGESTED_QUESTIONS.map((q) => (
                         <button
                           key={q}
-                          onClick={() => send(q)}
+                          onClick={() => send(q, "qa")}
                           disabled={streaming}
                           className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-slate-900 transition-colors disabled:opacity-50"
                         >
@@ -393,11 +427,21 @@ export default function LiveTutorPage({ setActiveTab }) {
                         </button>
                       ))}
                     </div>
+                    <p className="text-[11px] text-slate-400 mt-3 leading-relaxed">
+                      Tip: ask <strong className="text-slate-600">where</strong> something is, then hit the <Crosshair className="h-3 w-3 inline-block -mt-0.5 mx-0.5" strokeWidth={3} /> button to make me point at it.
+                    </p>
                   </div>
                 )}
 
                 {messages.map((m, i) => {
-                  const lesson = m.role === "assistant" ? detectRelatedLesson(m.content) : null;
+                  const isStreamingMe = streaming && i === messages.length - 1;
+                  const isPointMode   = m.mode === "point";
+                  const displayText   = isStreamingMe ? previewProse(m.content) : (m.content || "");
+                  const lesson        = (m.role === "assistant" && !isPointMode) ? detectRelatedLesson(m.content) : null;
+                  const showOverlay   = m.role === "assistant" && isPointMode && !isStreamingMe && m.boxes && m.boxes.length > 0;
+                  const overlaySrc    = showOverlay ? messages[i - 1]?.screenshot : null;
+                  const emptyBoxes    = m.role === "assistant" && isPointMode && !isStreamingMe && Array.isArray(m.boxes) && m.boxes.length === 0;
+
                   return (
                     <div key={i}>
                       <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -407,17 +451,45 @@ export default function LiveTutorPage({ setActiveTab }) {
                               ? "bg-blue-500 text-white"
                               : "bg-slate-100 text-slate-900"}`}
                         >
-                          {m.content || (streaming && i === messages.length - 1 ? (
-                            <span className="inline-flex gap-1">
-                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                          {/* Point mode badge on user messages */}
+                          {m.role === "user" && isPointMode && (
+                            <span className="inline-flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">
+                              <Crosshair className="h-2.5 w-2.5" strokeWidth={3} />
+                              Point
                             </span>
-                          ) : "")}
+                          )}
+                          <div>
+                            {displayText || (isStreamingMe ? (
+                              <span className="inline-flex gap-1">
+                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                              </span>
+                            ) : "")}
+                          </div>
                         </div>
                       </div>
-                      {/* Related lesson card — surfaced only on completed assistant messages */}
-                      {lesson && m.content && !(streaming && i === messages.length - 1) && (
+
+                      {/* Annotation overlay — assistant messages in point mode with parsed boxes */}
+                      {showOverlay && overlaySrc && (
+                        <div className="mt-2">
+                          <AnnotationOverlay src={overlaySrc} boxes={m.boxes} />
+                          <p className="text-[10px] text-slate-400 mt-1.5 px-1">
+                            {m.boxes.length === 1 ? "1 region highlighted" : `${m.boxes.length} regions highlighted`} · approximate
+                          </p>
+                        </div>
+                      )}
+
+                      {/* No-boxes-found notice in point mode */}
+                      {emptyBoxes && (
+                        <div className="mt-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={2.5} />
+                          <span>I couldn't locate that on the screen. Try rephrasing or zooming in.</span>
+                        </div>
+                      )}
+
+                      {/* Related practice lesson — QA mode only */}
+                      {lesson && m.content && !isStreamingMe && (
                         <button
                           onClick={() => setActiveTab?.("practice")}
                           className="mt-2 w-full text-left rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-2.5 flex items-center gap-3 transition-colors group"
@@ -449,7 +521,7 @@ export default function LiveTutorPage({ setActiveTab }) {
               )}
 
               {/* Composer */}
-              <form onSubmit={handleSubmit} className="p-3 border-t border-slate-100 flex gap-2">
+              <form onSubmit={handleAsk} className="p-3 border-t border-slate-100 flex gap-2">
                 {voice.supported && (
                   <button
                     type="button"
@@ -472,10 +544,21 @@ export default function LiveTutorPage({ setActiveTab }) {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={voice.listening ? "Listening…" : "What do you want to know?"}
+                  placeholder={voice.listening ? "Listening…" : "Ask or 'where is the …?'"}
                   disabled={streaming}
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors disabled:opacity-50"
                 />
+                {/* Point button — sends with mode="point" */}
+                <button
+                  type="button"
+                  onClick={handlePoint}
+                  disabled={!input.trim() || streaming}
+                  title="Point — ask the AI to draw boxes around the answer on your screen"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 hover:bg-blue-100 hover:text-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-slate-700 transition-colors active:scale-95"
+                >
+                  <Crosshair className="h-4 w-4" strokeWidth={2.5} />
+                </button>
+                {/* Send button — mode="qa" */}
                 <button
                   type="submit"
                   disabled={!input.trim() || streaming}
