@@ -14,6 +14,9 @@ import {
   Layers,          // Diversification
   Gauge,           // Beta
   ShieldCheck,     // Drawdowns
+  AlertTriangle,   // VaR
+  BarChart3,       // Capture Ratios
+  Network,         // Correlation
 } from "lucide-react";
 
 export const LESSONS = [
@@ -273,6 +276,173 @@ export const LESSONS = [
         ],
         correctIndex: 1,
         explanation: "Retirees withdraw money — selling at a drawdown locks in losses. Max Drawdown captures the worst-case scenario they'd actually experience. Vol treats up-moves and down-moves equally; retirees care way more about the downside.",
+      },
+    ],
+  },
+
+  {
+    id: "var",
+    title: "Value at Risk (VaR)",
+    subtitle: "How bad does the worst 5% look?",
+    icon: AlertTriangle,
+    color: "blue",
+    exercises: [
+      {
+        type: "mc",
+        question: "A monthly 95% VaR of -8% means…",
+        options: [
+          "The portfolio loses 8% every month",
+          "In the worst 5% of months, losses are expected to exceed 8%",
+          "There's a 95% chance of losing money",
+          "The portfolio gains at least 8% per month",
+        ],
+        correctIndex: 1,
+        explanation: "VaR at 95% confidence is the threshold the worst 5% of outcomes breach. -8% monthly VaR = once every ~20 months, you'd expect a worse month. It doesn't say HOW bad — just where the threshold is.",
+      },
+      {
+        type: "tf",
+        question: "VaR tells you the maximum possible loss.",
+        correct: false,
+        explanation: "VaR is a THRESHOLD, not a maximum. A 95% VaR of -10% means 5% of outcomes are worse than -10% — they could be much worse. That's why 'tail risk' beyond VaR matters. CVaR (Conditional VaR) captures the expected loss IF you breach.",
+      },
+      {
+        type: "mc",
+        question: "Which has more useful tail-risk info?",
+        options: [
+          "95% VaR alone",
+          "95% VaR + CVaR (expected loss when VaR is breached)",
+          "Just volatility",
+          "The portfolio's market cap",
+        ],
+        correctIndex: 1,
+        explanation: "VaR tells you where the threshold sits; CVaR tells you how bad it gets PAST that threshold. Together they capture both the frequency and severity of tail events — much more useful than VaR alone.",
+      },
+      {
+        type: "numeric",
+        question: "A portfolio has a mean monthly return of 1% and monthly volatility of 5%. Roughly, what's its 95% monthly VaR? (Use the 1.65 z-score for normal distribution.)",
+        answer: -7.25,
+        tolerance: 0.5,
+        unit: "%",
+        explanation: "Parametric VaR ≈ mean − z × stdev = 1% − 1.65 × 5% = 1% − 8.25% = -7.25%. This assumes normal returns — real-world tails are usually fatter, so historical VaR often exceeds parametric.",
+      },
+      {
+        type: "tf",
+        question: "A portfolio can have a low volatility but a high VaR if its return distribution has fat tails.",
+        correct: true,
+        explanation: "Exactly. Volatility captures average dispersion, but fat-tailed distributions (frequent extreme moves) can push VaR much further than vol would suggest. This is why 2008-style crashes blow through 'safe' assumptions.",
+      },
+    ],
+  },
+
+  {
+    id: "capture",
+    title: "Capture Ratios",
+    subtitle: "Riding rallies, dodging drops",
+    icon: BarChart3,
+    color: "blue",
+    exercises: [
+      {
+        type: "mc",
+        question: "What does an Upside Capture of 1.20 mean?",
+        options: [
+          "In up months, your portfolio averages 120% of the benchmark's gain",
+          "Your portfolio is 20% more volatile than the market",
+          "You captured 120% of all market moves",
+          "Your portfolio outperforms by 20% per year",
+        ],
+        correctIndex: 0,
+        explanation: "Upside Capture = (portfolio return in up months) / (benchmark return in up months). 1.20 means when the market is up, you typically beat it by 20%. Great in rallies.",
+      },
+      {
+        type: "mc",
+        question: "What does a Downside Capture of 0.70 mean?",
+        options: [
+          "Your portfolio falls 70% in crashes",
+          "In down months, your portfolio drops only 70% as much as the benchmark",
+          "You captured 70% of all market moves",
+          "Your beta is 0.70",
+        ],
+        correctIndex: 1,
+        explanation: "Downside Capture = (portfolio loss in down months) / (benchmark loss in down months). 0.70 means you lose less than the market when it falls. Lower is better here — this is the defensive metric.",
+      },
+      {
+        type: "tf",
+        question: "The IDEAL capture profile is upside > 1.0 AND downside < 1.0.",
+        correct: true,
+        explanation: "That's the holy grail: outperform when markets are up, underperform when markets are down. Active managers chase this constantly. Most simply track the index (both ~1.0); few sustainably achieve asymmetric capture.",
+      },
+      {
+        type: "numeric",
+        question: "Upside Capture is 1.10 and Downside Capture is 0.85. What's the capture ratio (up/down)?",
+        answer: 1.29,
+        tolerance: 0.02,
+        explanation: "Capture Ratio = Upside / Downside = 1.10 / 0.85 ≈ 1.29. A ratio above 1.0 means you're getting asymmetric exposure — more upside per unit of downside. Anything above ~1.2 is considered strong.",
+      },
+      {
+        type: "mc",
+        question: "Why might a conservative investor prefer 0.6 upside capture and 0.4 downside capture over 1.0/1.0?",
+        options: [
+          "Because lower numbers are always better",
+          "It misses 40% of rallies but only takes 40% of crashes — sleep-at-night portfolio",
+          "Because the Sharpe ratio is automatically higher",
+          "There's no reason; 1.0/1.0 is always better",
+        ],
+        correctIndex: 1,
+        explanation: "Both numbers below 1.0 means you participate less in BOTH directions. For someone who values drawdown protection over absolute returns (e.g., retirees), this asymmetric DAMPENING is exactly the trade-off they want.",
+      },
+    ],
+  },
+
+  {
+    id: "correlation",
+    title: "Correlation",
+    subtitle: "When two assets move together",
+    icon: Network,
+    color: "blue",
+    exercises: [
+      {
+        type: "mc",
+        question: "Correlation between SPY and QQQ is typically around 0.95. What does that mean?",
+        options: [
+          "QQQ usually returns 95% of what SPY returns",
+          "They almost always move in the same direction with similar magnitude",
+          "QQQ has 95% the volatility of SPY",
+          "They're identical investments",
+        ],
+        correctIndex: 1,
+        explanation: "Correlation measures co-movement on a -1 to +1 scale. 0.95 means SPY and QQQ move together nearly all the time. Holding both isn't really diversification — they're driven by the same big-tech megacap exposure.",
+      },
+      {
+        type: "tf",
+        question: "Correlation of -1.0 between two assets means combining them eliminates risk.",
+        correct: true,
+        explanation: "Perfectly negatively correlated assets are theoretically risk-eliminating if you can size them perfectly — when one goes up, the other goes down by the same amount. In practice this never holds exactly, but it's why hedges are valuable.",
+      },
+      {
+        type: "mc",
+        question: "Which pair offers the best diversification?",
+        options: [
+          "AAPL and MSFT (both tech megacaps)",
+          "SPY and VTI (both broad US equity)",
+          "SPY and TLT (equity and long-duration bonds)",
+          "QQQ and XLK (both tech-heavy)",
+        ],
+        correctIndex: 2,
+        explanation: "Equities and long-duration bonds historically have low or negative correlation — they respond to different drivers (growth vs rates). The other pairs are nearly redundant (correlation ~0.95+).",
+      },
+      {
+        type: "numeric",
+        question: "Two stocks each have 20% volatility and a correlation of 0.5. Equal-weight portfolio volatility = √(0.5×20² + 0.5×20² + 2×0.5×0.5×0.5×20×20). Compute it.",
+        answer: 17.32,
+        tolerance: 0.3,
+        unit: "%",
+        explanation: "Portfolio var = 0.5×400 + 0.5×400 + 2×0.25×0.5×400 = 200 + 200 + 100 = 500. √500 ≈ 22.36... wait — actually variance = 0.25×400 + 0.25×400 + 2×0.5×0.5×0.5×20×20 = 100 + 100 + 100 = 300. So vol = √300 ≈ 17.32%. Combining at 0.5 correlation already cuts vol from 20% to 17.3%.",
+      },
+      {
+        type: "tf",
+        question: "Correlation is constant — once measured, it stays the same.",
+        correct: false,
+        explanation: "Correlation is unstable and changes especially in crises. In 2008 and 2020, almost all 'uncorrelated' assets crashed together — correlation spiked toward 1.0 right when diversification was needed most. Always stress-test assumptions.",
       },
     ],
   },

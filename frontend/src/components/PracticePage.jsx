@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import {
   Check, X, Star, Flame, Trophy, ChevronLeft, Lock, Zap, ArrowRight,
+  Heart, HeartCrack, RotateCcw,
 } from "lucide-react";
 import { LESSONS, TOTAL_XP_AVAILABLE } from "../data/lessons";
 import {
@@ -126,6 +127,8 @@ function StatCard({ icon: Icon, tone, label, value, sub }) {
 // ────────────────────────────────────────────────────────────────────
 // LESSON PLAYER — one exercise at a time
 // ────────────────────────────────────────────────────────────────────
+const MAX_HEARTS = 5;
+
 function LessonPlayer({ lesson, onExit, onComplete }) {
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -133,6 +136,8 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   const [submitted, setSubmitted] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [hearts, setHearts] = useState(MAX_HEARTS);
+  const [failed, setFailed] = useState(false);
 
   const ex = lesson.exercises[idx];
   const total = lesson.exercises.length;
@@ -164,19 +169,74 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
   }
 
   function handleContinue() {
-    if (isCorrect) setCorrectCount((c) => c + 1);
+    let nextCorrect = correctCount;
+    let nextHearts = hearts;
+    if (isCorrect) {
+      nextCorrect = correctCount + 1;
+      setCorrectCount(nextCorrect);
+    } else {
+      nextHearts = Math.max(0, hearts - 1);
+      setHearts(nextHearts);
+      // Out of hearts → fail the lesson, no XP recorded
+      if (nextHearts === 0) {
+        setFailed(true);
+        return;
+      }
+    }
     if (idx < total - 1) {
       setIdx(idx + 1);
       setSelected(null);
       setNumericInput("");
       setSubmitted(false);
     } else {
-      const finalCorrect = correctCount + (isCorrect ? 1 : 0);
-      const xpEarned = finalCorrect * 10;
-      recordLessonComplete(lesson.id, finalCorrect, total, xpEarned);
+      const xpEarned = nextCorrect * 10;
+      recordLessonComplete(lesson.id, nextCorrect, total, xpEarned);
       setFinished(true);
-      setTimeout(() => onComplete(finalCorrect, total, xpEarned), 0);
+      setTimeout(() => onComplete(nextCorrect, total, xpEarned), 0);
     }
+  }
+
+  function handleRetry() {
+    setIdx(0);
+    setSelected(null);
+    setNumericInput("");
+    setSubmitted(false);
+    setCorrectCount(0);
+    setHearts(MAX_HEARTS);
+    setFailed(false);
+    setFinished(false);
+  }
+
+  // Failed (out of hearts)
+  if (failed) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-10 text-center">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full mb-6 bg-rose-500 text-white shadow-lg shadow-rose-200">
+          <HeartCrack className="h-12 w-12" strokeWidth={2.25} />
+        </div>
+        <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
+          Out of hearts!
+        </h2>
+        <p className="text-slate-500 text-base md:text-lg mb-8 max-w-md leading-relaxed">
+          No worries — review the explanations and try again. You got {correctCount} of {idx + 1} right before running out.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+          <button
+            onClick={handleRetry}
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-bold text-base py-4 flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-blue-200"
+          >
+            <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
+            Try again
+          </button>
+          <button
+            onClick={onExit}
+            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold text-base py-4 transition-colors"
+          >
+            Back to path
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (finished) {
@@ -208,7 +268,7 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Top bar: close + progress */}
+      {/* Top bar: close + progress + hearts */}
       <div className="px-6 py-4 flex items-center gap-4 border-b border-slate-100">
         <button
           onClick={onExit}
@@ -222,8 +282,14 @@ function LessonPlayer({ lesson, onExit, onComplete }) {
             style={{ width: `${progressPct}%` }}
           />
         </div>
-        <div className="text-xs font-bold tabular-nums text-slate-500 shrink-0">
-          {idx + 1} / {total}
+        <div className="flex items-center gap-1 shrink-0">
+          <Heart
+            className={`h-5 w-5 transition-all duration-300 ${hearts > 0 ? "text-rose-500 fill-rose-500" : "text-slate-300"}`}
+            strokeWidth={2.5}
+          />
+          <span className="text-sm font-extrabold tabular-nums text-slate-700">
+            {hearts}
+          </span>
         </div>
       </div>
 
