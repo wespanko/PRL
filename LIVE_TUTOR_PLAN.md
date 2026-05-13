@@ -83,13 +83,13 @@ A new **Live Tutor** tab inside the existing Panko Risk Lab web app. No Electron
 
 ### Phase 2 — Polish
 
-- [ ] Voice input (Web Speech API → text → existing flow)
-- [ ] "Related lesson" side card that pulls from Practice content when AI mentions a concept
-- [ ] Better empty / pre-share state with example questions
-- [ ] Token usage indicator (estimated $$ per question)
-- [ ] Stop-share auto-detection (browser fires `inactive` event)
-- [ ] Throttle / debounce captures
-- [ ] Mobile-friendly UI (even if no screen capture on mobile — can still do chat)
+- [x] Voice input (Web Speech API → text → existing flow) — shipped 2026-05-12
+- [x] "Related lesson" card that pulls from Practice when AI mentions a concept — shipped 2026-05-12
+- [x] Better empty / pre-share state with example questions — shipped in Phase 1
+- [x] Token usage indicator (estimated $$ per session) — shipped 2026-05-12
+- [x] Stop-share auto-detection (browser fires `inactive` event) — shipped in Phase 1
+- [ ] Throttle / debounce captures (still manual; auto-capture is Phase 3)
+- [ ] Mobile-friendly fallback (chat-only mode when no screen-share API)
 
 ### Phase 3 — Stretch
 
@@ -141,4 +141,5 @@ A new **Live Tutor** tab inside the existing Panko Risk Lab web app. No Electron
 
 ## Build log
 
-- **2026-05-12** — Plan saved. Starting Phase 1 implementation.
+- **2026-05-12** — Plan saved. Phase 1 MVP shipped: screen share, vision Q&A, /api/tutor endpoint, sidebar tab.
+- **2026-05-12** — Phase 2 polish shipped: voice input via Web Speech API (mic button in composer), related-Practice-lesson cross-link card under each AI answer (keyword detection across all 8 lesson topics), per-session cost meter pill in chat header.

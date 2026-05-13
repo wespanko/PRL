@@ -1,14 +1,18 @@
-// Live Tutor — Phase 1 MVP. See LIVE_TUTOR_PLAN.md for the full spec.
+// Live Tutor — Phase 2. See LIVE_TUTOR_PLAN.md for the full spec.
 //
-// User shares their screen via getDisplayMedia. When they ask a question,
-// we paint the current video frame to a hidden canvas, JPEG it, and POST
-// to /api/tutor with the base64 image + chat history. Response streams
-// back via SSE (same pattern as /api/chat).
+// Phase 1 (shipped): screen share + chat + Claude vision
+// Phase 2 (this commit): voice input, related-lesson cross-linking,
+//                        per-session cost meter
+//
+// User shares their screen via getDisplayMedia. When they ask a question
+// (text OR voice), we paint the current video frame to a hidden canvas,
+// JPEG it, and POST to /api/tutor with the base64 image + chat history.
 
 import { useState, useRef, useEffect } from "react";
 import {
   Eye, MonitorUp, MonitorOff, Send, Loader2, AlertTriangle,
-  Sparkles, Shield, Camera,
+  Sparkles, Shield, Camera, Mic, MicOff, GraduationCap, ArrowRight,
+  CircleDollarSign,
 } from "lucide-react";
 
 const SUGGESTED_QUESTIONS = [
@@ -18,6 +22,36 @@ const SUGGESTED_QUESTIONS = [
   "What's the risk of this holding?",
 ];
 
+// Rough cost estimate per vision call on claude-opus-4-7.
+// ~1500-3500 input tokens (image + system + history) + ~400 output tokens.
+// At $5/1M input + $25/1M output, that's ~$0.02-0.03 per question.
+const COST_PER_QUESTION_USD = 0.025;
+
+// Lessons we surface when the AI's answer mentions the concept. Maps the
+// case-insensitive substring(s) we look for in the response text to the
+// Practice lesson title. Order matters: longer / more-specific phrases
+// first so "downside capture" beats "drawdown" if both appear.
+const LESSON_PATTERNS = [
+  { match: ["upside capture", "downside capture", "capture ratio"], title: "Capture Ratios",        practiceId: "capture" },
+  { match: ["value at risk", "var ", "var,", "var.", "cvar"],       title: "Value at Risk",         practiceId: "var" },
+  { match: ["correlation"],                                          title: "Correlation",           practiceId: "correlation" },
+  { match: ["sharpe ratio", "sharpe"],                               title: "The Sharpe Ratio",     practiceId: "sharpe" },
+  { match: ["max drawdown", "drawdown"],                             title: "Drawdowns",             practiceId: "drawdowns" },
+  { match: ["beta"],                                                  title: "Beta & Market Risk",   practiceId: "beta" },
+  { match: ["diversif", "enp", "concentration"],                     title: "Real Diversification", practiceId: "diversification" },
+  { match: ["volatility", "standard deviation"],                     title: "Volatility & Returns", practiceId: "vol_basics" },
+];
+
+function detectRelatedLesson(text) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  for (const p of LESSON_PATTERNS) {
+    if (p.match.some((kw) => lower.includes(kw))) return p;
+  }
+  return null;
+}
+
+// ── streaming wire ───────────────────────────────────────────────────
 async function* streamTutor(messages, screenshotBase64) {
   const BASE = import.meta.env.VITE_API_URL ?? "";
   const res = await fetch(`${BASE}/api/tutor`, {
@@ -49,36 +83,79 @@ async function* streamTutor(messages, screenshotBase64) {
   }
 }
 
-export default function LiveTutorPage() {
+// ── voice input hook (Web Speech API) ────────────────────────────────
+function useVoiceInput(onText) {
+  const [listening, setListening] = useState(false);
+  const [supported, setSupported] = useState(false);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { setSupported(false); return; }
+    setSupported(true);
+    const r = new SR();
+    r.continuous = false;
+    r.interimResults = true;
+    r.lang = "en-US";
+    r.onresult = (event) => {
+      let text = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
+      }
+      onText(text);
+    };
+    r.onend = () => setListening(false);
+    r.onerror = () => setListening(false);
+    recognitionRef.current = r;
+    return () => { try { r.stop(); } catch {} };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function start() {
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.start();
+      setListening(true);
+    } catch { /* already running */ }
+  }
+  function stop() {
+    try { recognitionRef.current?.stop(); } catch {}
+    setListening(false);
+  }
+
+  return { listening, supported, start, stop };
+}
+
+// ── main page ────────────────────────────────────────────────────────
+export default function LiveTutorPage({ setActiveTab }) {
   const [sharing, setSharing] = useState(false);
   const [streamRef, setStreamRef] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
-  const [lastSnapshot, setLastSnapshot] = useState(null); // data URL for preview
+  const [lastSnapshot, setLastSnapshot] = useState(null);
   const [shareError, setShareError] = useState(null);
+  const [questionsAsked, setQuestionsAsked] = useState(0);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // ── Clean up the media stream on unmount / stop ───────────────────
-  useEffect(() => {
-    return () => {
-      if (streamRef) streamRef.getTracks().forEach((t) => t.stop());
-    };
-  }, [streamRef]);
+  // Voice input — writes the live transcript into the input field.
+  const voice = useVoiceInput((text) => setInput(text));
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    return () => { if (streamRef) streamRef.getTracks().forEach((t) => t.stop()); };
+  }, [streamRef]);
+
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   async function startSharing() {
     setShareError(null);
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: 5 }, // low fps; we only grab on demand
+        video: { frameRate: 5 },
         audio: false,
       });
       if (videoRef.current) {
@@ -87,14 +164,11 @@ export default function LiveTutorPage() {
       }
       setStreamRef(stream);
       setSharing(true);
-      // If user clicks the browser's native "Stop sharing" button, browser
-      // ends the track. Detect that to flip our UI back.
       stream.getVideoTracks()[0].addEventListener("ended", () => {
         setSharing(false);
         setStreamRef(null);
       });
     } catch (e) {
-      // User canceled the picker — that's not really an error.
       if (e.name !== "NotAllowedError") {
         setShareError(e.message || "Couldn't access screen share.");
       }
@@ -108,13 +182,11 @@ export default function LiveTutorPage() {
     setLastSnapshot(null);
   }
 
-  // ── Capture current frame to JPEG base64 ───────────────────────────
   function captureFrame() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return null;
     if (!video.videoWidth) return null;
-    // Cap the longer dimension at 1280 px to control upload size + token cost.
     const MAX = 1280;
     const scale = Math.min(1, MAX / Math.max(video.videoWidth, video.videoHeight));
     canvas.width  = Math.round(video.videoWidth  * scale);
@@ -123,7 +195,6 @@ export default function LiveTutorPage() {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
     setLastSnapshot(dataUrl);
-    // Strip the "data:image/jpeg;base64," prefix for the API
     return dataUrl.split(",")[1];
   }
 
@@ -134,6 +205,9 @@ export default function LiveTutorPage() {
       return;
     }
     setShareError(null);
+
+    // Stop voice if still active when the user submits.
+    if (voice.listening) voice.stop();
 
     const screenshot = captureFrame();
     if (!screenshot) {
@@ -146,6 +220,7 @@ export default function LiveTutorPage() {
     setMessages([...history, { role: "assistant", content: "" }]);
     setInput("");
     setStreaming(true);
+    setQuestionsAsked((n) => n + 1);
 
     let accumulated = "";
     try {
@@ -166,6 +241,14 @@ export default function LiveTutorPage() {
     e.preventDefault();
     send(input.trim());
   }
+
+  function handleMicToggle() {
+    if (voice.listening) voice.stop();
+    else { setInput(""); voice.start(); }
+  }
+
+  // Cost shown to the nearest cent; clamp to two decimals.
+  const estimatedCost = (questionsAsked * COST_PER_QUESTION_USD).toFixed(2);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 px-6 py-10 md:px-10">
@@ -277,11 +360,21 @@ export default function LiveTutorPage() {
 
             {/* Right: chat */}
             <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 flex flex-col min-h-[420px] max-h-[80vh]">
+              {/* Chat header with cost meter */}
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500 text-white">
                   <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                 </div>
                 <span className="font-extrabold text-slate-900 text-sm">Ask the tutor</span>
+                {questionsAsked > 0 && (
+                  <span
+                    className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold tabular-nums"
+                    title={`${questionsAsked} question${questionsAsked > 1 ? "s" : ""} this session at ~$${COST_PER_QUESTION_USD.toFixed(3)} per question`}
+                  >
+                    <CircleDollarSign className="h-3 w-3" strokeWidth={2.5} />
+                    ~${estimatedCost}
+                  </span>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
@@ -303,24 +396,49 @@ export default function LiveTutorPage() {
                   </div>
                 )}
 
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
-                        ${m.role === "user"
-                          ? "bg-blue-500 text-white"
-                          : "bg-slate-100 text-slate-900"}`}
-                    >
-                      {m.content || (streaming && i === messages.length - 1 ? (
-                        <span className="inline-flex gap-1">
-                          <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                          <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                          <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
-                        </span>
-                      ) : "")}
+                {messages.map((m, i) => {
+                  const lesson = m.role === "assistant" ? detectRelatedLesson(m.content) : null;
+                  return (
+                    <div key={i}>
+                      <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div
+                          className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                            ${m.role === "user"
+                              ? "bg-blue-500 text-white"
+                              : "bg-slate-100 text-slate-900"}`}
+                        >
+                          {m.content || (streaming && i === messages.length - 1 ? (
+                            <span className="inline-flex gap-1">
+                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                              <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                            </span>
+                          ) : "")}
+                        </div>
+                      </div>
+                      {/* Related lesson card — surfaced only on completed assistant messages */}
+                      {lesson && m.content && !(streaming && i === messages.length - 1) && (
+                        <button
+                          onClick={() => setActiveTab?.("practice")}
+                          className="mt-2 w-full text-left rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3 py-2.5 flex items-center gap-3 transition-colors group"
+                        >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white">
+                            <GraduationCap className="h-4 w-4" strokeWidth={2.5} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                              Related Practice lesson
+                            </div>
+                            <div className="text-sm font-bold text-blue-950 truncate">
+                              {lesson.title}
+                            </div>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-blue-500 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
+                        </button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={bottomRef} />
               </div>
 
@@ -330,13 +448,31 @@ export default function LiveTutorPage() {
                 </div>
               )}
 
+              {/* Composer */}
               <form onSubmit={handleSubmit} className="p-3 border-t border-slate-100 flex gap-2">
+                {voice.supported && (
+                  <button
+                    type="button"
+                    onClick={handleMicToggle}
+                    disabled={streaming}
+                    title={voice.listening ? "Stop listening" : "Speak your question"}
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-colors active:scale-95
+                      ${voice.listening
+                        ? "bg-rose-500 hover:bg-rose-600 text-white animate-pulse"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-700"}
+                      disabled:opacity-50`}
+                  >
+                    {voice.listening
+                      ? <MicOff className="h-4 w-4" strokeWidth={2.5} />
+                      : <Mic    className="h-4 w-4" strokeWidth={2.5} />}
+                  </button>
+                )}
                 <input
                   ref={inputRef}
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="What do you want to know?"
+                  placeholder={voice.listening ? "Listening…" : "What do you want to know?"}
                   disabled={streaming}
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors disabled:opacity-50"
                 />
@@ -348,6 +484,11 @@ export default function LiveTutorPage() {
                   {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
                 </button>
               </form>
+              {!voice.supported && messages.length === 0 && (
+                <div className="px-4 pb-3 text-[11px] text-slate-400">
+                  Voice input isn't supported in this browser — use Chrome or Edge to enable the mic.
+                </div>
+              )}
             </div>
           </div>
         )}

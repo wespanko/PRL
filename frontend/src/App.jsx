@@ -239,7 +239,7 @@ export default function App() {
 
           {activeTab === "tutor" && (
             <Suspense fallback={<RouteFallback />}>
-              <LiveTutorPage />
+              <LiveTutorPage setActiveTab={setActiveTab} />
             </Suspense>
           )}
 
