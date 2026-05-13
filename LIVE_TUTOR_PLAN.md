@@ -91,14 +91,230 @@ A new **Live Tutor** tab inside the existing Panko Risk Lab web app. No Electron
 - [ ] Throttle / debounce captures (still manual; auto-capture is Phase 3)
 - [ ] Mobile-friendly fallback (chat-only mode when no screen-share API)
 
-### Phase 3 — Stretch
+### Phase 3+ — Extended Roadmap (Week 1 of real product work)
 
-- [ ] Phone pairing (QR code → mobile companion app or PWA; phone shows AI guidance synced to desktop)
-- [ ] Continuous-capture mode with smart triggering (only send frames when user is on a new screen)
-- [ ] On-screen annotations (would require browser extension — separate product)
-- [ ] Account-synced session history
-- [ ] "Teach me about this button" → AI literally circles UI elements (vision model returns coords)
-- [ ] Voice output (TTS for AI responses)
+> Phase 1 and Phase 2 were thin slices — single-file changes, ~200 lines each. Below is the multi-day plan that makes Live Tutor a real product, not a demo. Each day is a substantive epic with multi-file changes, real architectural decisions, and acceptance criteria. Estimate: 6-8 productive hours per day, 7 days total.
+
+---
+
+#### **Day 1 — Visual annotations / pointing**
+
+The AI doesn't just describe — it draws. "Show me the buy button" → bounding box overlay appears on the screen preview.
+
+**Deliverables:**
+- Backend: prompt Claude vision to optionally return structured JSON of `{element_label, bbox: [x, y, w, h]}` arrays alongside text. Parse out of the streamed response.
+- Frontend: SVG overlay layer composited over the video preview. Renders rounded rectangles + label tags with the same blue accent.
+- Coordinate normalization: Claude returns bbox as % of image dimensions, frontend scales to current preview size.
+- New input mode: "Point" button alongside Send — phrasing the question as a spatial instruction ("where's X?") routes through a different system prompt that prioritizes box output.
+- Hover/tap on a box pulses it; click expands a popover with the box's label + description.
+
+**Acceptance criteria:**
+- Asking "where is the Buy button?" on a Robinhood screenshot renders a visible box around it
+- Boxes scale correctly when the user resizes the browser window
+- If Claude returns no boxes, UI falls back gracefully to text-only
+
+**File changes:**
+- `backend/main.py` — extend `TutorRequest` with `mode: "qa" | "point"`; add JSON parser for box output
+- `frontend/src/components/LiveTutorPage.jsx` — split into `LiveTutorPage`, `SharedScreenPanel`, `AnnotationOverlay`, `ChatPanel`
+- `frontend/src/components/AnnotationOverlay.jsx` — NEW, SVG rendering + scaling
+
+**Risks:**
+- Claude vision's spatial accuracy isn't perfect — boxes may be slightly off. Mitigate with visible "approximate" label, allow users to tap-near tolerance.
+- Streaming JSON is awkward. Fallback: have Claude emit boxes as a final JSON block after the prose answer; parse on stream-end.
+
+---
+
+#### **Day 2 — Smart continuous capture**
+
+Stop making users click "Send" every time. Auto-grab frames when the scene meaningfully changes.
+
+**Deliverables:**
+- "Live" toggle in the share panel. When on: poll for frames every 1s, compute perceptual hash, only consult AI if scene-similarity drops below threshold AND user has been idle on this scene for 2+ seconds.
+- Perceptual hash via `blockhash-core` (small JS lib) or a hand-rolled 8×8 luminance hash.
+- Auto-asked questions get a generic "what's notable here?" prompt with low max_tokens to keep cost down.
+- Hard rate limit: max 1 AI call per 10 seconds even in live mode.
+- "Why was this captured?" tooltip on auto-triggered turns — shows the previous frame so user understands what changed.
+
+**Acceptance criteria:**
+- Toggling "Live" on, then switching tabs to a new website, results in an AI response within 3-5 seconds without the user typing anything
+- Sitting still on the same screen for a minute produces 0 new AI calls
+- Cost meter ticks up only when AI is actually called
+
+**File changes:**
+- `frontend/src/utils/perceptualHash.js` — NEW, 8×8 luminance hash + hamming distance
+- `frontend/src/hooks/useSmartCapture.js` — NEW, interval + scene-detection logic
+- `frontend/src/components/LiveTutorPage.jsx` — wire up the new hook + UI toggle
+- `backend/main.py` — accept `auto_triggered: bool` for analytics
+
+**Risks:**
+- Browser tab in background throttles `setInterval` — need `requestVideoFrameCallback` instead
+- Privacy: auto-capture is more invasive. UI must show a recording indicator and let user pause/resume easily.
+
+---
+
+#### **Day 3 — Account system & server-side persistence**
+
+Move past localStorage. Make sessions cross-device. Set the foundation for paid tiers.
+
+**Deliverables:**
+- Backend: SQLite via SQLAlchemy. Schema: `users`, `tutor_sessions`, `tutor_messages`, `practice_progress`.
+- Magic-link auth: user types email → backend sends link via Resend / Postmark → click → JWT cookie set. No passwords.
+- Frontend: login screen (replaces WelcomePage gate when a user wants to sign in). Local profile becomes "guest mode" that can be migrated to a real account.
+- Sessions persist server-side; users see history list in the tutor: "Tuesday's session: 14 questions about beta and drawdown."
+- Practice progress (XP, streak, lessons mastered) syncs across devices.
+- Migration flow: signed-in user's first login pulls their localStorage into the server.
+
+**Acceptance criteria:**
+- Sign in on laptop, open phone (chat-only mode), see same XP and streak
+- Tutor session from yesterday is accessible today, with the chat transcript and the timestamps of each turn
+- Logged-out users can still use the app in guest mode with localStorage
+
+**File changes:**
+- `backend/main.py` — JWT middleware, auth endpoints
+- `backend/db/` — NEW, models + migrations
+- `backend/auth/` — NEW, magic-link send + verify
+- `frontend/src/utils/profile.js` — extend with server sync logic
+- `frontend/src/components/LoginPage.jsx` — NEW
+- `frontend/src/components/SessionHistoryDrawer.jsx` — NEW
+
+**Risks:**
+- Email deliverability for magic links — need a transactional email provider (free tier of Resend should work)
+- Render's free tier loses SQLite on restart — need persistent disk ($1/mo upgrade) or Postgres add-on
+- Schema migrations as the product evolves — pick Alembic now, save pain later
+
+---
+
+#### **Day 4 — Brokerage-aware tutoring**
+
+The AI recognizes which broker you're on and tailors guidance.
+
+**Deliverables:**
+- Vision sub-prompt: first pass classifies the screen — Robinhood / Fidelity / Schwab / E*TRADE / Vanguard / Webull / IBKR / Other / Not-a-broker. Cached for the session.
+- Broker knowledge base in `backend/data/brokers.py`: per-broker JSON of common UI elements ("Buy button is in the top-right green block on RH; bottom-center on Fidelity"), terminology differences ("RH calls this 'recurring investment'; Schwab calls it 'periodic investment'").
+- AI's main answer prompt is conditioned on the detected broker.
+- UI shows detected broker as a chip ("Looking at: Robinhood ✓") with a manual override dropdown.
+
+**Acceptance criteria:**
+- Asking "how do I set up auto-invest?" on Robinhood gives Robinhood-specific button instructions, not generic
+- Switching tabs to Fidelity changes the detected broker chip within 2 captures
+- "Other" broker fallback still works generically
+
+**File changes:**
+- `backend/data/brokers.py` — NEW, knowledge base (curated, ~100 lines per broker)
+- `backend/main.py` — two-stage call: detect → answer (cached detection per session)
+- `frontend/src/components/LiveTutorPage.jsx` — broker chip + manual override
+
+**Risks:**
+- Two API calls per question doubles cost — only run detection once per ~5 questions or on cache miss
+- Curating broker knowledge is grunt work — start with just Robinhood + Fidelity (covers ~60% of retail)
+
+---
+
+#### **Day 5 — Embedded mini-lessons + voice output**
+
+Don't make users leave the chat to learn. Pull Practice content inline.
+
+**Deliverables:**
+- When the AI detects a concept it should teach, instead of (or in addition to) the related-lesson card, surface an embedded mini-exercise from `data/lessons.js` directly in chat — single question, single answer, immediate feedback.
+- Mini-exercise UI is a compact version of the LessonPlayer (one question, no hearts, no progress bar).
+- "Check" / "Continue" inline; on correct answer, hearts/XP increment.
+- Voice output via browser `SpeechSynthesis` API (free, no Anthropic cost). Toggle in settings. Per-message replay button.
+- Voice plays automatically only if user has opted in (no surprise audio).
+
+**Acceptance criteria:**
+- AI says "the Sharpe ratio is..." → an embedded "Quick check: which Sharpe is best?" exercise appears below the response
+- Answering correctly earns 10 XP toward the Practice tab progress
+- Tapping the speaker icon on any AI message reads it aloud
+
+**File changes:**
+- `frontend/src/components/InlineExercise.jsx` — NEW, compact LessonPlayer derivative
+- `frontend/src/components/LiveTutorPage.jsx` — wire detection of "teach me" intent + inject exercises
+- `frontend/src/utils/voiceOutput.js` — NEW, SpeechSynthesis wrapper
+- `frontend/src/data/lessons.js` — add `quickCheck: true` flag to mark exercises suitable for inline use
+
+**Risks:**
+- Detecting "teach me this" intent from AI responses is heuristic — may show exercises too often (annoying) or too rarely (useless). Tune the keyword list and confidence threshold.
+- SpeechSynthesis voices vary by OS — quality is mediocre. Acceptable for v1; consider ElevenLabs later ($).
+
+---
+
+#### **Day 6 — Onboarding, quotas, error handling**
+
+Make first-run feel intentional. Set up monetization rails.
+
+**Deliverables:**
+- First-time tutor onboarding: 4-step animated walkthrough explaining what the tool does, how privacy works, what example questions to try, click-through to first share.
+- Free tier: 15 questions/day. Paid tier (placeholder, no Stripe yet): unlimited. Quota counter visible in account menu.
+- Quota-exhausted UI: friendly upgrade prompt; doesn't break the app.
+- Robust error handling: network failure shows retry button, vision API rate-limit shows friendly back-off message, screen-share permission denied gives explicit recovery instructions.
+- Analytics events (lightweight, self-hosted to a tiny SQLite table): tutor_share_started, tutor_question_asked, tutor_question_failed, related_lesson_clicked, embedded_exercise_completed.
+
+**Acceptance criteria:**
+- New user clicking "Live Tutor" for the first time sees the walkthrough; second visit skips it
+- Asking the 16th question on a free account shows the quota-cap UI gracefully
+- Killing the backend mid-stream shows a "Try again" button, not a stack trace
+
+**File changes:**
+- `frontend/src/components/LiveTutorOnboarding.jsx` — NEW, 4-step intro
+- `backend/main.py` — quota middleware (decrement on each /api/tutor call)
+- `backend/db/models.py` — `daily_quota` field on users
+- `frontend/src/utils/analytics.js` — NEW, fire-and-forget event sender
+- `backend/main.py` — `/api/event` ingest endpoint
+
+**Risks:**
+- Onboarding screens are easy to over-design — keep to 4 cards max, no friction
+- Quota enforcement on the backend means abuse-resistant; can't be bypassed by clearing localStorage
+
+---
+
+#### **Day 7 — Mobile companion (chat-only) + polish**
+
+Mobile browsers can't share screens, but they can still chat. And we need a polish pass before calling it done.
+
+**Deliverables:**
+- Mobile detection in LiveTutorPage. If `getDisplayMedia` unsupported: render a chat-only experience with photo upload from camera roll instead of live screen share.
+- "Pair with my desktop" entry point for stretch goal (uses session ID from desktop, just shows recent transcripts and lesson cards — Phase 2 of phone pairing).
+- Comprehensive empty-states throughout (no questions yet, no boxes returned, no broker detected, etc.)
+- Loading shimmer for AI responses (not just dots)
+- Accessibility pass: keyboard nav for chat, ARIA labels for all icons, focus management when modals open
+- Performance: ensure no unnecessary re-renders during streaming
+- End-to-end smoke test (Playwright): share → ask → answer → continue → stop share
+
+**Acceptance criteria:**
+- iPhone Safari opens Live Tutor and can upload a screenshot to ask about
+- All buttons reachable via Tab key
+- Lighthouse a11y score ≥ 95 on Live Tutor route
+- Playwright test runs green in CI
+
+**File changes:**
+- `frontend/src/components/LiveTutorPage.jsx` — mobile branch
+- `frontend/src/components/MobileLiveTutorChat.jsx` — NEW
+- `frontend/tests/livetutor.spec.js` — NEW, Playwright test
+- `.github/workflows/test.yml` — NEW, run Playwright on PR
+
+**Risks:**
+- Playwright in CI for screen-share is fiddly (need mock media stream) — can skip the share step and only test chat flow
+- Mobile camera-roll upload changes the architecture slightly — file upload vs. video frame extraction
+
+---
+
+### Stretch — Week 2
+
+These don't fit the week-1 budget but are the logical next moves:
+
+- **Phone pairing (real-time)** — QR-code pair flow, WebSocket sync, mobile shows pushed lesson cards as desktop shares screen. ~2-3 days.
+- **Session recording + replay** — save full Q&A as study notes; user can re-watch with their own screenshots and explanations. ~1 day.
+- **Personalized curriculum** — track which concepts each user struggles with; AI proactively suggests Practice lessons in dashboard. ~2 days.
+- **Stripe billing** — wire up actual paid tier. ~1 day.
+- **Multi-language support** — i18n the UI strings; Claude already speaks every language fluently. ~1 day.
+
+---
+
+## Pace check / honest disclosure
+
+Phases 1 and 2 took ~30 minutes of build time each. The Day 1-7 items above are not the same kind of work. Day 1 alone (annotations) needs: a real coordinate system, SVG overlay rendering, vision-output parsing, hover state, fallback handling, and visual debugging across at least 5 screenshots. That's ~6 hours of focused work, not 30 minutes. If we ship one day per session, the week takes 7 sessions. If we cram, we cut corners — and the user-visible result is "another half-working demo."
+
+Recommend: pick the day that excites you most and we go deep on it next.
 
 ## Technical decisions
 
@@ -143,3 +359,4 @@ A new **Live Tutor** tab inside the existing Panko Risk Lab web app. No Electron
 
 - **2026-05-12** — Plan saved. Phase 1 MVP shipped: screen share, vision Q&A, /api/tutor endpoint, sidebar tab.
 - **2026-05-12** — Phase 2 polish shipped: voice input via Web Speech API (mic button in composer), related-Practice-lesson cross-link card under each AI answer (keyword detection across all 8 lesson topics), per-session cost meter pill in chat header.
+- **2026-05-12** — Extended roadmap added. 7-day plan covering annotations, smart capture, accounts, brokerage-awareness, embedded lessons, onboarding/quotas, mobile companion. Each day = real epic, not a quick commit.
