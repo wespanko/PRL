@@ -15,10 +15,30 @@ import { useState, useRef, useEffect } from "react";
 import {
   Eye, MonitorUp, MonitorOff, Send, Loader2, AlertTriangle,
   Sparkles, Shield, Camera, Mic, MicOff, GraduationCap, ArrowRight,
-  CircleDollarSign, Crosshair,
+  CircleDollarSign, Crosshair, ClipboardList, MessageSquare,
 } from "lucide-react";
 import AnnotationOverlay from "./AnnotationOverlay";
 import { parseBoxes } from "../utils/parseBoxes";
+import { normalizeWeights } from "../utils/normalizeWeights";
+
+// Parse a pasted block of "TICKER WEIGHT" lines. Supports comma/colon
+// separators and trailing % signs. Returns [{ticker, weight}, ...] with
+// raw values (not yet normalized to 1.0).
+function parsePastedHoldings(text) {
+  if (!text) return [];
+  const out = [];
+  for (const raw of text.split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([A-Z][A-Z0-9.\-]*)\s*[,:]?\s*\$?([0-9]+\.?[0-9]*)\s*%?$/i);
+    if (!m) continue;
+    const ticker = m[1].toUpperCase();
+    const value = parseFloat(m[2]);
+    if (!Number.isFinite(value) || value <= 0) continue;
+    out.push({ ticker, weight: value });
+  }
+  return out;
+}
 
 const SUGGESTED_QUESTIONS = [
   "What am I looking at on this screen?",
@@ -136,7 +156,15 @@ function useVoiceInput(onText) {
 }
 
 // ── main page ────────────────────────────────────────────────────────
-export default function LiveTutorPage({ setActiveTab }) {
+export default function LiveTutorPage({
+  setActiveTab,
+  lastResults,
+  lastPayload,
+  onPasteHoldings,
+  analyzeLoading,
+  analyzeError,
+  onOpenAssistant,
+}) {
   const [sharing, setSharing] = useState(false);
   const [streamRef, setStreamRef] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -145,6 +173,15 @@ export default function LiveTutorPage({ setActiveTab }) {
   const [lastSnapshot, setLastSnapshot] = useState(null);
   const [shareError, setShareError] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
+
+  // Phase-1 empty-state UI: which sub-view is showing when not sharing.
+  // "default"     → returning-user 'Welcome back' card OR new-user 3 cards
+  // "paste"       → inline paste-holdings form
+  const [emptyView, setEmptyView] = useState("default");
+  const [pasteText, setPasteText] = useState("");
+  const [pasteError, setPasteError] = useState(null);
+
+  const hasPortfolio = !!(lastResults && lastPayload);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -283,6 +320,32 @@ export default function LiveTutorPage({ setActiveTab }) {
     else { setInput(""); voice.start(); }
   }
 
+  // ── paste-holdings flow ──────────────────────────────────────────
+  function handlePasteSubmit(e) {
+    e?.preventDefault?.();
+    if (analyzeLoading) return;
+    setPasteError(null);
+    const parsed = parsePastedHoldings(pasteText);
+    if (parsed.length === 0) {
+      setPasteError("I couldn't read any tickers. Use one row per holding: TICKER WEIGHT");
+      return;
+    }
+    const normalized = normalizeWeights(parsed);
+    if (normalized.length === 0) {
+      setPasteError("Need at least one positive-weight holding.");
+      return;
+    }
+    onPasteHoldings({
+      holdings: normalized,
+      start_date: "2022-01-01",
+      end_date: "2025-01-01",
+      benchmark: "SPY",
+      risk_free_rate: 0.045,
+    });
+    // Result will arrive via lastResults prop; the empty-state will then
+    // flip to the returning-user view automatically.
+  }
+
   const estimatedCost = (questionsAsked * COST_PER_QUESTION_USD).toFixed(2);
 
   return (
@@ -316,37 +379,80 @@ export default function LiveTutorPage({ setActiveTab }) {
           </div>
         </div>
 
-        {/* Pre-share gate */}
-        {!sharing && (
-          <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 md:p-12 text-center">
-            <div className="flex justify-center mb-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                <MonitorUp className="h-8 w-8" strokeWidth={2.25} />
+        {/* ── Empty state — paste-holdings sub-view ───────────────── */}
+        {!sharing && emptyView === "paste" && (
+          <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                <ClipboardList className="h-5 w-5" strokeWidth={2} />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">Paste your holdings</h2>
+                <p className="text-sm text-slate-500">One per line: ticker and weight (or dollars).</p>
               </div>
             </div>
-            <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-slate-900 mb-2">
-              Share your screen to get started
-            </h2>
-            <p className="text-slate-500 max-w-lg mx-auto leading-relaxed mb-6">
-              Open your brokerage (Robinhood, Fidelity, Schwab…), then click below. Your browser will ask which window to share. I'll only look when you ask a question.
-            </p>
-            <button
-              onClick={startSharing}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-extrabold text-base px-8 py-4 inline-flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-[0.99] shadow-md shadow-indigo-200"
-            >
-              <MonitorUp className="h-5 w-5" strokeWidth={2.5} />
-              Share my screen
-            </button>
-            {shareError && (
-              <div className="mt-5 mx-auto max-w-md rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm font-medium text-rose-700 flex gap-2 items-start text-left">
-                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
-                <span>{shareError}</span>
+            <form onSubmit={handlePasteSubmit}>
+              <textarea
+                value={pasteText}
+                onChange={(e) => { setPasteText(e.target.value); setPasteError(null); }}
+                placeholder={"AAPL 30\nMSFT 25\nSPY 45"}
+                rows={8}
+                disabled={analyzeLoading}
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-mono text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
+              />
+              {(pasteError || analyzeError) && (
+                <div className="mt-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+                  <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
+                  <span>{pasteError || analyzeError}</span>
+                </div>
+              )}
+              <div className="mt-4 flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={!pasteText.trim() || analyzeLoading}
+                  className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-lg font-semibold text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors active:scale-[0.99]"
+                >
+                  {analyzeLoading ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} />Running analysis…</>
+                  ) : (
+                    <>Run analysis <ArrowRight className="h-4 w-4" strokeWidth={2.5} /></>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setEmptyView("default"); setPasteError(null); }}
+                  disabled={analyzeLoading}
+                  className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
               </div>
-            )}
-            <p className="text-xs text-slate-500 mt-6">
-              Works best on Chrome, Edge, or Firefox on a desktop. Screen-share isn't available on most mobile browsers.
+            </form>
+            <p className="mt-4 text-xs text-slate-400 leading-relaxed">
+              Educational tool. Not financial advice.
             </p>
           </div>
+        )}
+
+        {/* ── Empty state — returning user (has saved portfolio) ──── */}
+        {!sharing && emptyView === "default" && hasPortfolio && (
+          <ReturningUserState
+            lastResults={lastResults}
+            lastPayload={lastPayload}
+            onStartShare={startSharing}
+            onOpenAssistant={onOpenAssistant}
+            onStartFresh={() => setEmptyView("paste")}
+          />
+        )}
+
+        {/* ── Empty state — new user (no portfolio) ───────────────── */}
+        {!sharing && emptyView === "default" && !hasPortfolio && (
+          <NewUserState
+            onStartShare={startSharing}
+            onChoosePaste={() => setEmptyView("paste")}
+            onJustAsk={() => onOpenAssistant?.()}
+            shareError={shareError}
+          />
         )}
 
         {/* Active share + chat */}
@@ -585,6 +691,153 @@ export default function LiveTutorPage({ setActiveTab }) {
         </p>
 
       </div>
+    </div>
+  );
+}
+
+// ── Empty state — new user, no portfolio loaded ────────────────────────
+function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
+  return (
+    <div>
+      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mb-1.5">
+        Let's look at your portfolio together.
+      </h2>
+      <p className="text-slate-500 mb-8">
+        Three ways to start. Pick whichever is easiest.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <EntryCard
+          icon={MonitorUp}
+          title="Share your brokerage"
+          body="Show me your account in Robinhood, Schwab, Fidelity — anywhere. I'll explain what I see and answer questions as you point at things."
+          cta="Share my screen"
+          onClick={onStartShare}
+        />
+        <EntryCard
+          icon={ClipboardList}
+          title="Paste your holdings"
+          body="Drop in tickers and weights (or dollar amounts). I'll run a full diagnostic and walk you through what it means."
+          cta="Paste holdings"
+          onClick={onChoosePaste}
+        />
+        <EntryCard
+          icon={MessageSquare}
+          title="Just ask me anything"
+          body="No portfolio yet? Ask me what a Sharpe ratio is, how to think about risk, or what to look for in a brokerage account. We can start abstract."
+          cta="Open the chat"
+          onClick={onJustAsk}
+        />
+      </div>
+
+      {shareError && (
+        <div className="mt-5 max-w-md rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
+          <span>{shareError}</span>
+        </div>
+      )}
+
+      <p className="mt-8 text-xs text-slate-500">Educational tool. Not financial advice.</p>
+    </div>
+  );
+}
+
+function EntryCard({ icon: Icon, title, body, cta, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-left rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-sm p-5 transition-all group flex flex-col"
+    >
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 mb-4 group-hover:bg-indigo-100 transition-colors">
+        <Icon className="h-5 w-5" strokeWidth={2} />
+      </div>
+      <h3 className="font-semibold text-slate-900 mb-1.5">{title}</h3>
+      <p className="text-sm text-slate-500 leading-relaxed flex-1 mb-4">{body}</p>
+      <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 group-hover:gap-1.5 transition-all">
+        {cta}
+        <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+      </span>
+    </button>
+  );
+}
+
+// ── Empty state — returning user with saved portfolio ──────────────────
+function ReturningUserState({ lastResults, lastPayload, onStartShare, onOpenAssistant, onStartFresh }) {
+  const tickers = lastResults?.tickers ?? [];
+  const head = tickers.slice(0, 3);
+  const extra = Math.max(0, tickers.length - 3);
+  const score = lastResults?.panko_score?.total ?? null;
+  const savedAt = (() => {
+    try {
+      const raw = localStorage.getItem("panko_last_session");
+      if (!raw) return null;
+      const { savedAt } = JSON.parse(raw);
+      return savedAt ? new Date(savedAt) : null;
+    } catch { return null; }
+  })();
+  const savedAtLabel = savedAt ? savedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+
+  const suggestions = [
+    "Walk me through my current risk profile",
+    "What's changed since last time I checked?",
+    "Share my screen — I want to look at something specific",
+  ];
+
+  function handleSuggestion(s) {
+    if (s.startsWith("Share my screen")) onStartShare();
+    else onOpenAssistant?.(s);
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mb-6">
+        Welcome back.
+      </h2>
+
+      {/* Compact portfolio summary */}
+      <div className="rounded-xl border border-slate-200 bg-white p-5 mb-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Portfolio</div>
+          <div className="font-mono text-sm font-medium text-slate-900">
+            {head.join(" · ")}{extra > 0 && <span className="text-slate-400"> · +{extra} more</span>}
+          </div>
+        </div>
+        {score != null && (
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Panko Score</div>
+            <div className="font-mono text-sm font-medium text-slate-900 tabular-nums">{Math.round(score)} / 100</div>
+          </div>
+        )}
+        {savedAtLabel && (
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Last snapshot</div>
+            <div className="font-mono text-sm font-medium text-slate-900">{savedAtLabel}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Suggested prompts */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {suggestions.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => handleSuggestion(s)}
+            className="rounded-full border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 px-4 py-2 text-sm font-medium text-slate-700 transition-colors"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={onStartFresh}
+        className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+      >
+        Start fresh with a different portfolio →
+      </button>
     </div>
   );
 }

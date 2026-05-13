@@ -50,10 +50,10 @@ function warmBackend() {
 
 export default function App() {
   const [profile, setProfile] = useState(loadProfile());
-  const [activeTab, setActiveTab] = useState(() => {
-    const p = loadProfile();
-    return p?.experience === "beginner" && !p?.onboarded ? "build" : "dashboard";
-  });
+  // Tutor-first product: everyone lands in Live Tutor on app load. The
+  // beginner-vs-experienced calibration belongs in the tutor's behavior,
+  // not in routing to a different tab.
+  const [activeTab, setActiveTab] = useState("tutor");
   // Restore the most recent analysis if the user is signed in and has one.
   // Lazy initializer so localStorage is read once at mount, not on every render.
   const [results, setResults] = useState(() => loadProfile() ? (loadSession()?.results ?? null) : null);
@@ -62,6 +62,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantPrefill, setAssistantPrefill] = useState("");
   const [simulateOverride, setSimulateOverride] = useState(null);
   const [simulatePayload, setSimulatePayload] = useState(null);
   const [simulateResults, setSimulateResults] = useState(null);
@@ -127,13 +128,13 @@ export default function App() {
     setProfile(null);
     setResults(null);
     setPayload(null);
-    setActiveTab("dashboard");
+    setActiveTab("tutor");
   }
 
   if (!profile) {
     return <WelcomePage onSignIn={(p) => {
       setProfile(p);
-      setActiveTab(p.experience === "beginner" ? "build" : "dashboard");
+      setActiveTab("tutor");
     }} />;
   }
 
@@ -239,7 +240,18 @@ export default function App() {
 
           {activeTab === "tutor" && (
             <Suspense fallback={<RouteFallback />}>
-              <LiveTutorPage setActiveTab={setActiveTab} />
+              <LiveTutorPage
+                setActiveTab={setActiveTab}
+                lastResults={results}
+                lastPayload={payload}
+                onPasteHoldings={handleSubmit}
+                analyzeLoading={loading}
+                analyzeError={error}
+                onOpenAssistant={(text) => {
+                  setAssistantPrefill(typeof text === "string" ? text : "");
+                  setAssistantOpen(true);
+                }}
+              />
             </Suspense>
           )}
 
@@ -285,6 +297,7 @@ export default function App() {
         onClose={() => setAssistantOpen(false)}
         lastResults={results}
         lastPayload={payload}
+        prefillInput={assistantPrefill}
       />
     </div>
   );

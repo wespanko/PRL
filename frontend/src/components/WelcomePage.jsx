@@ -362,7 +362,7 @@ export default function WelcomePage({ onSignIn }) {
                 onClick={handleFinish}
                 className="flex-1 px-6 py-3.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-colors active:scale-[0.99] flex items-center justify-center gap-2"
               >
-                Enter Panko
+                Meet your tutor
                 <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
               </button>
             </div>

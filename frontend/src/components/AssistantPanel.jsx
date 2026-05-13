@@ -36,7 +36,7 @@ async function* streamChat(messages, context) {
   }
 }
 
-export default function AssistantPanel({ isOpen, onClose, lastResults, lastPayload }) {
+export default function AssistantPanel({ isOpen, onClose, lastResults, lastPayload, prefillInput }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -45,6 +45,18 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
 
   useEffect(() => { if (isOpen) inputRef.current?.focus(); }, [isOpen]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+
+  // When LiveTutor (or any caller) opens the panel with a suggested
+  // prompt, drop that text into the input. We fire on every change so
+  // repeated clicks of the same chip still re-prefill.
+  useEffect(() => {
+    if (isOpen && prefillInput) {
+      setInput(prefillInput);
+      // Focus + select so user can edit or hit Enter immediately
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, prefillInput]);
 
   const context = buildPortfolioContext(lastResults, lastPayload);
   const hasPortfolio = !!context;
