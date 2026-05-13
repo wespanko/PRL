@@ -118,6 +118,15 @@ class ChatRequest(BaseModel):
     portfolio_context: dict[str, Any] | None = None
 
 
+class TutorRequest(BaseModel):
+    # Same chat shape as /api/chat, plus a single screenshot.
+    messages: list[ChatMessage]
+    # Base64-encoded JPEG of the user's current screen frame (no data: prefix).
+    screenshot_base64: str | None = None
+    # Optional MIME type — defaults to image/jpeg.
+    screenshot_media_type: str = "image/jpeg"
+
+
 def _build_system_prompt(ctx: dict | None) -> str:
     base = (
         "You are a personal portfolio analyst assistant. Be specific, honest, and direct. "
@@ -367,6 +376,87 @@ def chat(request: ChatRequest):
                 max_tokens=1024,
                 system=system,
                 messages=messages,
+            ) as s:
+                for text in s.text_stream:
+                    yield f"data: {json.dumps({'text': text})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'text': f'Error: {str(e)}'})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(stream(), media_type="text/event-stream")
+
+
+# ─── Live Tutor ───────────────────────────────────────────────────────────
+# The user shares their screen via the browser's getDisplayMedia API; the
+# frontend captures one frame per question and sends it here. We forward to
+# Claude with vision so the AI can actually see what the user is looking at
+# (e.g. their Robinhood / Fidelity screen) and explain it in plain English.
+
+TUTOR_SYSTEM_PROMPT = """You are the Panko Live Tutor — a friendly, plain-English investing teacher.
+
+The user is sharing their screen with you (likely a brokerage app, portfolio dashboard, news site, or chart). When they ask a question, you can SEE the screenshot they attached. Use it.
+
+Your job:
+1. Look carefully at what's on the screen before answering.
+2. Explain financial concepts and UI elements in beginner-friendly language. Avoid jargon unless you define it.
+3. When relevant, mention the Panko Practice lesson that covers the concept:
+   - "Volatility & Returns"  → for vol, std deviation, average return
+   - "The Sharpe Ratio"      → for risk-adjusted return
+   - "Real Diversification"  → for ENP, concentration, correlation diversification
+   - "Beta & Market Risk"    → for beta, market exposure
+   - "Drawdowns"             → for max drawdown, peak-to-trough
+   - "Value at Risk (VaR)"   → for VaR, CVaR, tail risk
+   - "Capture Ratios"        → for upside/downside capture
+   - "Correlation"           → for correlation matrices, hedging
+4. If the user asks about something that is NOT visible on screen, say so honestly. Do not invent UI elements, ticker prices, or features.
+5. Be concise. Two short paragraphs maximum unless asked for depth.
+6. Always remind: this is educational, not financial advice. Do not recommend buying or selling specific securities. You can discuss tradeoffs.
+
+If you don't see a screenshot, say "I don't have a screenshot to look at — share your screen and ask again, or describe what you see."
+"""
+
+
+@app.post("/api/tutor")
+def tutor(request: TutorRequest):
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        def no_key():
+            yield f"data: {json.dumps({'text': 'ANTHROPIC_API_KEY is not set on the server.'})}\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(no_key(), media_type="text/event-stream")
+
+    from anthropic import Anthropic
+    client = Anthropic(api_key=api_key)
+
+    # Build the message list. The latest user message gets the screenshot
+    # attached as an image content block; previous messages stay text-only
+    # to keep token usage down.
+    raw_messages = [{"role": m.role, "content": m.content} for m in request.messages]
+    if request.screenshot_base64 and raw_messages and raw_messages[-1]["role"] == "user":
+        last = raw_messages[-1]
+        raw_messages[-1] = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": request.screenshot_media_type,
+                        "data": request.screenshot_base64,
+                    },
+                },
+                {"type": "text", "text": last["content"]},
+            ],
+        }
+
+    def stream():
+        try:
+            with client.messages.stream(
+                model="claude-opus-4-7",
+                max_tokens=1024,
+                system=TUTOR_SYSTEM_PROMPT,
+                messages=raw_messages,
+                thinking={"type": "adaptive"},
             ) as s:
                 for text in s.text_stream:
                     yield f"data: {json.dumps({'text': text})}\n\n"

@@ -9,6 +9,7 @@ import {
   Activity,
   BookOpen,
   GraduationCap,
+  Eye,
   Settings,
   LogOut,
   ChevronUp,
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { id: "monitor",   label: "Monitor",   icon: Activity        },
   { id: "learn",     label: "Learn",     icon: BookOpen        },
   { id: "practice",  label: "Practice",  icon: GraduationCap   },
+  { id: "tutor",     label: "Live Tutor", icon: Eye            },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, onSignOut }) {
