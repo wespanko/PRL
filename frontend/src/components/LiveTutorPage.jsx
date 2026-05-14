@@ -13,7 +13,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import {
-  Eye, MonitorUp, MonitorOff, Send, Loader2, AlertTriangle,
+  MonitorUp, MonitorOff, Send, Loader2, AlertTriangle,
   Sparkles, Shield, Camera, Mic, MicOff, GraduationCap, ArrowRight,
   CircleDollarSign, Crosshair, ClipboardList, MessageSquare,
 } from "lucide-react";
@@ -372,32 +372,15 @@ export default function LiveTutorPage({
     <div className="min-h-screen text-slate-900 px-6 py-10 md:px-10">
       <div className="max-w-5xl mx-auto">
 
-        {/* Header */}
+        {/* Header — no icon, wordmark carries the brand on its own. */}
         <header className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-              <Eye className="h-5 w-5" strokeWidth={2} />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
-                Panko
-              </h1>
-              <p className="text-slate-500 text-sm md:text-base">
-                Your personal assistant to make markets less confusing.
-              </p>
-            </div>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
+            Panko
+          </h1>
+          <p className="text-slate-500 text-sm md:text-base mt-1">
+            Your personal assistant to make markets less confusing.
+          </p>
         </header>
-
-        {/* Privacy callout */}
-        <div className="mb-6 rounded-lg bg-indigo-50 border border-indigo-200 p-4 flex gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
-            <Shield className="h-4 w-4" strokeWidth={2.5} />
-          </div>
-          <div className="text-sm leading-relaxed text-indigo-900/90">
-            <strong className="text-indigo-900">Your screen, your control.</strong> A snapshot is sent only when you ask a question. You pick which window to share, and you can stop anytime. Nothing is stored on Panko's servers; the image is forwarded to Anthropic Claude for analysis and discarded.
-          </div>
-        </div>
 
         {/* ── Empty state — paste-holdings sub-view ───────────────── */}
         {!sharing && emptyView === "paste" && (
@@ -488,6 +471,19 @@ export default function LiveTutorPage({
 
         {/* Active share + chat */}
         {sharing && (
+          <div>
+            {/* Privacy hint — only relevant during an active share, so it
+                lives in the share view rather than as a permanent banner. */}
+            <div className="mb-3 flex items-start gap-2 text-xs text-slate-500">
+              <Shield className="h-3.5 w-3.5 mt-0.5 shrink-0 text-slate-400" strokeWidth={2.25} />
+              <span>
+                <strong className="text-slate-700 font-semibold">Your screen, your control.</strong>{" "}
+                A snapshot is sent only when you ask a question. You pick which window to share,
+                and you can stop anytime. Nothing is stored on Panko's servers; the image is
+                forwarded to Claude for analysis and discarded.
+              </span>
+            </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
             {/* Left: live preview */}
@@ -719,6 +715,7 @@ export default function LiveTutorPage({
               )}
             </div>
           </div>
+          </div>
         )}
 
         {/* Hidden canvas for frame capture */}
@@ -750,6 +747,7 @@ function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
           icon={MonitorUp}
           title="Share your brokerage"
           body="Show me your account in Robinhood, Schwab, Fidelity — anywhere. I'll explain what I see and answer questions as you point at things."
+          hint="A snapshot is only sent when you ask a question."
           cta="Share my screen"
           onClick={onStartShare}
         />
@@ -757,6 +755,7 @@ function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
           icon={ClipboardList}
           title="Paste your holdings"
           body="Drop in tickers and weights (or dollar amounts). I'll run a full diagnostic and walk you through what it means."
+          hint="Just tickers and weights — no account login required."
           cta="Paste holdings"
           onClick={onChoosePaste}
         />
@@ -764,6 +763,7 @@ function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
           icon={MessageSquare}
           title="Just ask me anything"
           body="No portfolio yet? Ask me what a Sharpe ratio is, how to think about risk, or what to look for in a brokerage account. We can start abstract."
+          hint="No portfolio needed — we can start abstract."
           cta="Open the chat"
           onClick={onJustAsk}
         />
@@ -781,7 +781,7 @@ function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
   );
 }
 
-function EntryCard({ icon: Icon, title, body, cta, onClick }) {
+function EntryCard({ icon: Icon, title, body, hint, cta, onClick }) {
   return (
     <button
       type="button"
@@ -792,7 +792,10 @@ function EntryCard({ icon: Icon, title, body, cta, onClick }) {
         <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
       <h3 className="font-semibold text-slate-900 mb-1.5">{title}</h3>
-      <p className="text-sm text-slate-500 leading-relaxed flex-1 mb-4">{body}</p>
+      <p className="text-sm text-slate-500 leading-relaxed mb-3">{body}</p>
+      {hint && (
+        <p className="text-[11px] text-slate-400 leading-snug mb-4 flex-1">{hint}</p>
+      )}
       <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 group-hover:gap-1.5 transition-all">
         {cta}
         <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
