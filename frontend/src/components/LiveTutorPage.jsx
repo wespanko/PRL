@@ -384,14 +384,14 @@ export default function LiveTutorPage({
 
         {/* ── Empty state — paste-holdings sub-view ───────────────── */}
         {!sharing && emptyView === "paste" && (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
+          <div className="rounded-md border border-neutral-200 bg-white p-6 md:p-8">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
                 <ClipboardList className="h-5 w-5" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">Paste your holdings</h2>
-                <p className="text-sm text-slate-500">One per line: ticker and weight (or dollars).</p>
+                <h2 className="text-lg font-semibold text-neutral-900">Paste your holdings</h2>
+                <p className="text-sm text-neutral-500">One per line: ticker and weight (or dollars).</p>
               </div>
             </div>
             <form onSubmit={handlePasteSubmit}>
@@ -401,10 +401,10 @@ export default function LiveTutorPage({
                 placeholder={"AAPL 30\nMSFT 25\nSPY 45"}
                 rows={8}
                 disabled={analyzeLoading}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-mono text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
+                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-mono text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
               />
               {(pasteError || analyzeError) && (
-                <div className="mt-3 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+                <div className="mt-3 rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
                   <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
                   <span>{pasteError || analyzeError}</span>
                 </div>
@@ -413,7 +413,7 @@ export default function LiveTutorPage({
                 <button
                   type="submit"
                   disabled={!pasteText.trim() || analyzeLoading}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-lg font-semibold text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors active:scale-[0.99]"
+                  className="bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-md font-semibold text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors active:scale-[0.99]"
                 >
                   {analyzeLoading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} />Running analysis…</>
@@ -527,15 +527,15 @@ export default function LiveTutorPage({
             </div>
 
             {/* Right: chat */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 flex flex-col min-h-[420px] max-h-[80vh]">
-              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-200">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white">
+            <div className="lg:col-span-2 bg-white rounded-md border border-neutral-200 flex flex-col min-h-[420px] max-h-[80vh]">
+              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-neutral-200">
+                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-900 text-white">
                   <Sparkles className="h-4 w-4" strokeWidth={2.5} />
                 </div>
-                <span className="font-extrabold text-slate-900 text-sm">Ask the tutor</span>
+                <span className="font-semibold text-neutral-900 text-sm">Ask the tutor</span>
                 {questionsAsked > 0 && (
                   <span
-                    className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold tabular-nums"
+                    className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[10px] font-mono font-semibold tabular-nums"
                     title={`${questionsAsked} question${questionsAsked > 1 ? "s" : ""} this session at ~$${COST_PER_QUESTION_USD.toFixed(3)} per question`}
                   >
                     <CircleDollarSign className="h-3 w-3" strokeWidth={2.5} />
@@ -554,7 +554,7 @@ export default function LiveTutorPage({
                           key={q}
                           onClick={() => send(q, "qa")}
                           disabled={streaming}
-                          className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-500 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-slate-900 transition-colors disabled:opacity-50"
+                          className="w-full text-left px-3 py-2.5 rounded-md bg-white border border-neutral-200 text-sm font-medium text-neutral-700 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-50"
                         >
                           {q}
                         </button>
@@ -579,10 +579,10 @@ export default function LiveTutorPage({
                     <div key={i}>
                       <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div
-                          className={`max-w-[88%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                          className={`max-w-[88%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
                             ${m.role === "user"
-                              ? "bg-indigo-600 text-white"
-                              : "bg-slate-100 text-slate-900"}`}
+                              ? "bg-neutral-900 text-white"
+                              : "bg-neutral-100 text-neutral-900"}`}
                         >
                           {/* Point mode badge on user messages */}
                           {m.role === "user" && isPointMode && (
@@ -630,20 +630,20 @@ export default function LiveTutorPage({
                       ) : (lesson && m.content && !isStreamingMe && (
                         <button
                           onClick={() => setActiveTab?.("practice")}
-                          className="mt-2 w-full text-left rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-50 px-3 py-2.5 flex items-center gap-3 transition-colors group"
+                          className="mt-2 w-full text-left rounded-md border border-neutral-200 bg-white hover:border-neutral-900 px-3 py-2.5 flex items-center gap-3 transition-colors group"
                         >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
                             <GraduationCap className="h-4 w-4" strokeWidth={2.5} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">
-                              Related Practice lesson
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                              Practice lesson
                             </div>
-                            <div className="text-sm font-bold text-indigo-900 truncate">
+                            <div className="text-sm font-semibold text-neutral-900 truncate">
                               {lesson.title}
                             </div>
                           </div>
-                          <ArrowRight className="h-4 w-4 text-indigo-600 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
+                          <ArrowRight className="h-4 w-4 text-neutral-900 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
                         </button>
                       ))}
                       {m.snapshotCard && <SnapshotCard payload={m.snapshotCard} />}
@@ -687,7 +687,7 @@ export default function LiveTutorPage({
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={voice.listening ? "Listening…" : "Ask or 'where is the …?'"}
                   disabled={streaming}
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-500 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2.5 text-sm font-medium text-neutral-900 placeholder:text-neutral-500 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
                 />
                 {/* Point button — sends with mode="point" */}
                 <button
@@ -695,7 +695,7 @@ export default function LiveTutorPage({
                   onClick={handlePoint}
                   disabled={!input.trim() || streaming}
                   title="Point — ask the AI to draw boxes around the answer on your screen"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 disabled:bg-slate-100 disabled:text-slate-500 text-slate-500 transition-colors active:scale-95"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-400 text-neutral-600 transition-colors active:scale-95"
                 >
                   <Crosshair className="h-4 w-4" strokeWidth={2.5} />
                 </button>
@@ -703,7 +703,7 @@ export default function LiveTutorPage({
                 <button
                   type="submit"
                   disabled={!input.trim() || streaming}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500 text-white transition-colors active:scale-95"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white transition-colors active:scale-95"
                 >
                   {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
                 </button>
@@ -734,13 +734,17 @@ export default function LiveTutorPage({
 // ── Empty state — new user, no portfolio loaded ────────────────────────
 function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
   return (
-    <div>
-      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mb-1.5">
-        Let's look at your portfolio together.
-      </h2>
-      <p className="text-slate-500 mb-8">
-        Three ways to start. Pick whichever is easiest.
-      </p>
+    <div className="space-y-8">
+      {/* H2 + subtitle read as a tight pair (4px gap), separated from the
+          card grid below by the parent's space-y-8 (32px). */}
+      <div className="space-y-1">
+        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-neutral-900">
+          Let's look at your portfolio together.
+        </h2>
+        <p className="text-neutral-500">
+          Three ways to start. Pick whichever is easiest.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <EntryCard
@@ -770,13 +774,13 @@ function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
       </div>
 
       {shareError && (
-        <div className="mt-5 max-w-md rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+        <div className="max-w-md rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
           <span>{shareError}</span>
         </div>
       )}
 
-      <p className="mt-8 text-xs text-slate-500">Educational tool. Not financial advice.</p>
+      <p className="text-xs text-neutral-500">Educational tool. Not financial advice.</p>
     </div>
   );
 }
@@ -786,17 +790,17 @@ function EntryCard({ icon: Icon, title, body, hint, cta, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="text-left rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-sm p-5 transition-all group flex flex-col"
+      className="text-left rounded-md border border-neutral-200 bg-white hover:border-neutral-900 p-5 transition-colors group flex flex-col"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 mb-4 group-hover:bg-indigo-100 transition-colors">
+      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-neutral-100 text-neutral-700 mb-4 transition-colors">
         <Icon className="h-5 w-5" strokeWidth={2} />
       </div>
-      <h3 className="font-semibold text-slate-900 mb-1.5">{title}</h3>
-      <p className="text-sm text-slate-500 leading-relaxed mb-3">{body}</p>
+      <h3 className="font-semibold text-neutral-900 mb-1.5">{title}</h3>
+      <p className="text-sm text-neutral-500 leading-relaxed mb-3">{body}</p>
       {hint && (
-        <p className="text-[11px] text-slate-400 leading-snug mb-4 flex-1">{hint}</p>
+        <p className="text-[11px] text-neutral-400 leading-snug mb-4 flex-1">{hint}</p>
       )}
-      <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 group-hover:gap-1.5 transition-all">
+      <span className="inline-flex items-center gap-1 text-sm font-semibold text-neutral-900 group-hover:gap-1.5 transition-all">
         {cta}
         <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
       </span>
@@ -888,7 +892,7 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
             <MessageSquare className="h-4 w-4" strokeWidth={2} />
           </div>
           <div>
@@ -919,7 +923,7 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
                   key={q}
                   onClick={() => send(q)}
                   disabled={streaming}
-                  className="w-full text-left px-3 py-2.5 rounded-md bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 hover:text-slate-900 transition-colors disabled:opacity-50"
+                  className="w-full text-left px-3 py-2.5 rounded-md bg-white border border-neutral-200 text-sm font-medium text-neutral-700 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-50"
                 >
                   {q}
                 </button>
@@ -932,10 +936,10 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
           <div key={i}>
             <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                className={`max-w-[85%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
                   ${m.role === "user"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-slate-100 text-slate-900"}`}
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-900"}`}
               >
                 {m.content || (streaming && i === messages.length - 1 ? (
                   <span className="inline-flex gap-1">
@@ -976,12 +980,12 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
           onChange={(e) => setInput(e.target.value)}
           placeholder="What do you want to know?"
           disabled={streaming}
-          className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-4 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
+          className="flex-1 bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2.5 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={!input.trim() || streaming}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white transition-colors active:scale-95"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white transition-colors active:scale-95"
         >
           {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
         </button>
@@ -1018,41 +1022,44 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPag
   }
 
   return (
-    <div>
-      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 mb-6">
+    <div className="space-y-8">
+      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-neutral-900">
         Welcome back.
       </h2>
 
-      {/* Compact portfolio summary */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 mb-6 flex flex-wrap items-center gap-x-8 gap-y-3">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Portfolio</div>
-          <div className="font-mono text-sm font-medium text-slate-900">
-            {head.join(" · ")}{extra > 0 && <span className="text-slate-400"> · +{extra} more</span>}
+      {/* Compact portfolio summary. All numerals (and the date for visual
+          cohesion) are font-mono + tabular-nums so the row reads as a
+          terminal-spec snapshot. */}
+      <div className="rounded-md border border-neutral-200 bg-white p-5 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="space-y-1">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Portfolio</div>
+          <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">
+            {head.join(" · ")}{extra > 0 && <span className="text-neutral-400"> · +{extra} more</span>}
           </div>
         </div>
         {score != null && (
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Panko Score</div>
-            <div className="font-mono text-sm font-medium text-slate-900 tabular-nums">{Math.round(score)} / 100</div>
+          <div className="space-y-1">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Panko Score</div>
+            <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">{Math.round(score)} / 100</div>
           </div>
         )}
         {savedAtLabel && (
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Last snapshot</div>
-            <div className="font-mono text-sm font-medium text-slate-900">{savedAtLabel}</div>
+          <div className="space-y-1">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Last snapshot</div>
+            <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">{savedAtLabel}</div>
           </div>
         )}
       </div>
 
-      {/* Suggested prompts */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      {/* Suggested prompts — sharp rectangles (rounded-md), neutral border at
+          rest, black fill on hover. Reads like keyboard-shortcut buttons. */}
+      <div className="flex flex-wrap gap-2">
         {suggestions.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => handleSuggestion(s)}
-            className="rounded-full border border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 px-4 py-2 text-sm font-medium text-slate-700 transition-colors"
+            className="rounded-md border border-neutral-200 bg-white hover:border-neutral-900 hover:bg-neutral-900 hover:text-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors"
           >
             {s}
           </button>
@@ -1062,7 +1069,7 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPag
       <button
         type="button"
         onClick={onStartFresh}
-        className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+        className="text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
       >
         Start fresh with a different portfolio →
       </button>

@@ -92,6 +92,9 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
   }, [menuOpen]);
 
   // ── Shared building blocks ─────────────────────────────────────────
+  // Flat-text treatment: NavItems are never "contained shapes" — only the
+  // Panko button at the top has a visible fill. Active state cues are weight
+  // + text color (and a subtle bg-neutral-100 on hover), nothing rectangular.
   function NavItem({ item, active, disabled }) {
     const Icon = item.icon;
     return (
@@ -100,15 +103,15 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
         type="button"
         onClick={() => !disabled && setActiveTab(item.id)}
         title={disabled ? "Run an analysis first" : item.label}
-        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors
           ${active
-            ? "bg-indigo-50 text-indigo-700"
+            ? "font-semibold text-neutral-900 bg-neutral-100"
             : disabled
-              ? "text-slate-400 cursor-not-allowed"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+              ? "font-medium text-neutral-400 cursor-not-allowed"
+              : "font-medium text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"}`}
       >
         <Icon
-          className={`h-4 w-4 shrink-0 ${active ? "text-indigo-600" : "text-slate-500"}`}
+          className={`h-4 w-4 shrink-0 ${active ? "text-neutral-900" : "text-neutral-500"}`}
           strokeWidth={2}
         />
         <span className="flex-1 text-left">{item.label}</span>
@@ -121,15 +124,15 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
       <button
         type="button"
         onClick={() => toggleGroup(name)}
-        className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-700 transition-colors group"
+        className="w-full flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 hover:text-neutral-700 transition-colors group"
         aria-expanded={expanded}
       >
         <ChevronRight
-          className={`h-3 w-3 transition-transform duration-150 ${expanded ? "rotate-90" : ""} text-slate-400 group-hover:text-slate-600`}
+          className={`h-3 w-3 transition-transform duration-150 ${expanded ? "rotate-90" : ""} text-neutral-400 group-hover:text-neutral-600`}
           strokeWidth={2.5}
         />
         <span>{label}</span>
-        <span className="ml-auto text-[10px] font-medium text-slate-400 tabular-nums">{count}</span>
+        <span className="ml-auto text-[10px] font-mono font-medium text-neutral-400 tabular-nums">{count}</span>
       </button>
     );
   }
@@ -145,17 +148,19 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
       </div>
 
       <nav className="flex-1 overflow-y-auto -mr-2 pr-2">
-        {/* ── Live Tutor — pinned, primary ───────────────────────── */}
+        {/* ── Panko — pinned, primary. The ONLY contained shape in the
+            sidebar. Active = filled rectangle; inactive = quiet text with
+            soft hover-fill. Everything below this button is flat text. */}
         <button
           type="button"
           onClick={() => setActiveTab("tutor")}
-          className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-semibold transition-all
+          className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm font-semibold transition-colors
             ${tutorActive
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"}`}
+              ? "bg-neutral-900 text-white"
+              : "bg-transparent text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"}`}
         >
           <Eye
-            className={`h-5 w-5 shrink-0 ${tutorActive ? "text-white" : "text-indigo-600"}`}
+            className={`h-5 w-5 shrink-0 ${tutorActive ? "text-white" : "text-neutral-700"}`}
             strokeWidth={2}
           />
           <span className="flex-1 text-left">Panko</span>
@@ -194,7 +199,7 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
         </div>
 
         {/* ── Settings + legal at bottom of scrollable area ─────── */}
-        <div className="mt-6 pt-4 border-t border-slate-100 space-y-0.5">
+        <div className="mt-6 pt-4 border-t border-neutral-100 space-y-0.5">
           <NavItem
             item={{ id: "settings", label: "Settings", icon: Settings }}
             active={activeTab === "settings"}
