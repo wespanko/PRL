@@ -158,13 +158,7 @@ export default function Sidebar({ activeTab, setActiveTab, hasResults, profile, 
             className={`h-5 w-5 shrink-0 ${tutorActive ? "text-white" : "text-indigo-600"}`}
             strokeWidth={2}
           />
-          <span className="flex-1 text-left">Live Tutor</span>
-          {tutorActive && (
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-            </span>
-          )}
+          <span className="flex-1 text-left">Panko</span>
         </button>
 
         {/* ── Tools group ───────────────────────────────────────── */}

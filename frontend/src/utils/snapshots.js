@@ -16,12 +16,13 @@ function detailedFingerprint(payload) {
   return `${weights}|${payload.start_date}|${payload.end_date}`;
 }
 
-export function saveSnapshot(payload, results, name = null) {
+export function saveSnapshot(payload, results, name = null, note = null) {
   const snaps = getSnapshots();
   const snap = {
     id: `${Date.now()}_${tickerFingerprint(payload)}`,
     timestamp: new Date().toISOString(),
     name: name || null,
+    note: note || null,
     pinned: false,
     fingerprint: tickerFingerprint(payload),
     detailedFingerprint: detailedFingerprint(payload),

@@ -21,6 +21,9 @@ import AnnotationOverlay from "./AnnotationOverlay";
 import { parseBoxes } from "../utils/parseBoxes";
 import { normalizeWeights } from "../utils/normalizeWeights";
 import { buildPortfolioContext } from "../utils/portfolioContext";
+import { streamTutorEvents, getCompletedLessonIds } from "../utils/streamTutorEvents";
+import { saveSnapshot } from "../utils/snapshots";
+import { ToolStatusPill, LessonCard, SnapshotCard } from "./AgentTools";
 
 // Parse a pasted block of "TICKER WEIGHT" lines. Supports comma/colon
 // separators and trailing % signs. Returns [{ticker, weight}, ...] with
@@ -82,38 +85,20 @@ function previewProse(content) {
 }
 
 // ── streaming wire ───────────────────────────────────────────────────
-async function* streamTutor(messages, screenshotBase64, mode) {
+// Wraps the unified streamTutorEvents() helper so callers can iterate over
+// event objects of kind "text" | "tool_use" | "tool_ui".
+async function* streamTutor(messages, screenshotBase64, mode, portfolioContext, savedPayload) {
   const BASE = import.meta.env.VITE_API_URL ?? "";
-  // Strip UI-only fields before sending; backend only wants role + content.
   const wireMessages = messages.map((m) => ({ role: m.role, content: m.content }));
-  const res = await fetch(`${BASE}/api/tutor`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      messages: wireMessages,
-      screenshot_base64: screenshotBase64,
-      screenshot_media_type: "image/jpeg",
-      mode,
-    }),
+  yield* streamTutorEvents(`${BASE}/api/tutor`, {
+    messages: wireMessages,
+    screenshot_base64: screenshotBase64,
+    screenshot_media_type: "image/jpeg",
+    mode,
+    portfolio_context: portfolioContext,
+    saved_payload: savedPayload,
+    lessons_completed: getCompletedLessonIds(),
   });
-  if (!res.ok) { yield "Error connecting to tutor."; return; }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const parts = buf.split("\n\n");
-    buf = parts.pop();
-    for (const part of parts) {
-      const line = part.trim();
-      if (!line.startsWith("data: ")) continue;
-      const data = line.slice(6);
-      if (data === "[DONE]") return;
-      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore */ }
-    }
-  }
 }
 
 // ── voice input hook (Web Speech API) ────────────────────────────────
@@ -174,6 +159,7 @@ export default function LiveTutorPage({
   const [lastSnapshot, setLastSnapshot] = useState(null);
   const [shareError, setShareError] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(0);
+  const [toolStatus, setToolStatus] = useState(null);
 
   // Phase-1 empty-state UI: which sub-view is showing when not sharing.
   // "default" → returning-user 'Welcome back' card OR new-user 3 cards
@@ -252,6 +238,10 @@ export default function LiveTutorPage({
     return { dataUrl, base64: dataUrl.split(",")[1] };
   }
 
+  function handleOpenLesson() {
+    setActiveTab?.("practice");
+  }
+
   async function send(text, mode = "qa") {
     if (!text.trim() || streaming) return;
     if (!sharing) {
@@ -277,20 +267,42 @@ export default function LiveTutorPage({
     setMessages([...history, { role: "assistant", content: "", mode }]);
     setInput("");
     setStreaming(true);
+    setToolStatus(null);
     setQuestionsAsked((n) => n + 1);
+
+    const portfolioContext = buildPortfolioContext(lastResults, lastPayload);
+    const hasPortfolio = !!portfolioContext;
 
     let accumulated = "";
     try {
-      for await (const chunk of streamTutor(history, frame.base64, mode)) {
-        accumulated += chunk;
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            ...updated[updated.length - 1],
-            content: accumulated,
-          };
-          return updated;
-        });
+      for await (const ev of streamTutor(history, frame.base64, mode, portfolioContext, hasPortfolio ? lastPayload : null)) {
+        if (ev.kind === "tool_use") {
+          setToolStatus(ev.status);
+        } else if (ev.kind === "tool_ui") {
+          setToolStatus(null);
+          if (ev.tool === "save_snapshot" && hasPortfolio) {
+            try { saveSnapshot(lastPayload, lastResults, ev.payload?.label, ev.payload?.note); } catch {}
+          }
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = { ...updated[updated.length - 1] };
+            if (ev.tool === "suggest_lesson")  last.lessonCard   = ev.payload;
+            if (ev.tool === "save_snapshot")   last.snapshotCard = ev.payload;
+            updated[updated.length - 1] = last;
+            return updated;
+          });
+        } else if (ev.kind === "text") {
+          setToolStatus(null);
+          accumulated += ev.text;
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: accumulated,
+            };
+            return updated;
+          });
+        }
       }
     } finally {
       // Stream finished. Parse boxes if we were in point mode.
@@ -309,6 +321,7 @@ export default function LiveTutorPage({
         });
       }
       setStreaming(false);
+      setToolStatus(null);
     }
   }
 
@@ -367,10 +380,10 @@ export default function LiveTutorPage({
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
-                Live Tutor
+                Panko
               </h1>
               <p className="text-slate-500 text-sm md:text-base">
-                I look at your screen. You ask. I explain. I can point.
+                Your personal assistant to make markets less confusing.
               </p>
             </div>
           </div>
@@ -469,6 +482,7 @@ export default function LiveTutorPage({
             lastPayload={lastPayload}
             initialPrompt={chatSeed}
             onBack={() => { setChatSeed(""); setEmptyView("default"); }}
+            onOpenLesson={handleOpenLesson}
           />
         )}
 
@@ -611,8 +625,13 @@ export default function LiveTutorPage({
                         </div>
                       )}
 
-                      {/* Related practice lesson — QA mode only */}
-                      {lesson && m.content && !isStreamingMe && (
+                      {/* Lesson card — prefer the model's explicit suggest_lesson
+                          tool call; fall back to regex-detected related lesson
+                          when the model just mentions a concept without calling
+                          the tool. */}
+                      {m.lessonCard ? (
+                        <LessonCard payload={m.lessonCard} onOpenLesson={handleOpenLesson} />
+                      ) : (lesson && m.content && !isStreamingMe && (
                         <button
                           onClick={() => setActiveTab?.("practice")}
                           className="mt-2 w-full text-left rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-50 px-3 py-2.5 flex items-center gap-3 transition-colors group"
@@ -630,7 +649,8 @@ export default function LiveTutorPage({
                           </div>
                           <ArrowRight className="h-4 w-4 text-indigo-600 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
                         </button>
-                      )}
+                      ))}
+                      {m.snapshotCard && <SnapshotCard payload={m.snapshotCard} />}
                     </div>
                   );
                 })}
@@ -642,6 +662,8 @@ export default function LiveTutorPage({
                   {shareError}
                 </div>
               )}
+
+              <ToolStatusPill status={toolStatus} />
 
               {/* Composer */}
               <form onSubmit={handleAsk} className="p-3 border-t border-slate-200 flex gap-2">
@@ -783,38 +805,12 @@ function EntryCard({ icon: Icon, title, body, cta, onClick }) {
 // Talks to /api/chat (same endpoint as the floating AssistantPanel) so the
 // user can ask questions without screen-sharing OR pasting holdings. The
 // user stays inside Live Tutor — this is the chat surface, not a redirect
-// to a different component. Backend prompt unification is Phase 2.
-async function* streamGeneralChat(messages, portfolioContext) {
-  const BASE = import.meta.env.VITE_API_URL ?? "";
-  const res = await fetch(`${BASE}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, portfolio_context: portfolioContext }),
-  });
-  if (!res.ok) { yield "Error connecting to tutor."; return; }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const parts = buf.split("\n\n");
-    buf = parts.pop();
-    for (const part of parts) {
-      const line = part.trim();
-      if (!line.startsWith("data: ")) continue;
-      const data = line.slice(6);
-      if (data === "[DONE]") return;
-      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore */ }
-    }
-  }
-}
-
-function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack }) {
+// to a different component.
+function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLesson }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState(initialPrompt ?? "");
   const [streaming, setStreaming] = useState(false);
+  const [toolStatus, setToolStatus] = useState(null);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -831,19 +827,47 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack }) {
     setMessages([...history, { role: "assistant", content: "" }]);
     setInput("");
     setStreaming(true);
+    setToolStatus(null);
+
+    const BASE = import.meta.env.VITE_API_URL ?? "";
+    const body = {
+      messages: history,
+      portfolio_context: context,
+      saved_payload: hasPortfolio ? lastPayload : null,
+      lessons_completed: getCompletedLessonIds(),
+    };
 
     let accumulated = "";
     try {
-      for await (const chunk of streamGeneralChat(history, context)) {
-        accumulated += chunk;
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: accumulated };
-          return updated;
-        });
+      for await (const ev of streamTutorEvents(`${BASE}/api/chat`, body)) {
+        if (ev.kind === "tool_use") {
+          setToolStatus(ev.status);
+        } else if (ev.kind === "tool_ui") {
+          setToolStatus(null);
+          if (ev.tool === "save_snapshot" && hasPortfolio) {
+            try { saveSnapshot(lastPayload, lastResults, ev.payload?.label, ev.payload?.note); } catch {}
+          }
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = { ...updated[updated.length - 1] };
+            if (ev.tool === "suggest_lesson")  last.lessonCard   = ev.payload;
+            if (ev.tool === "save_snapshot")   last.snapshotCard = ev.payload;
+            updated[updated.length - 1] = last;
+            return updated;
+          });
+        } else if (ev.kind === "text") {
+          setToolStatus(null);
+          accumulated += ev.text;
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...updated[updated.length - 1], content: accumulated };
+            return updated;
+          });
+        }
       }
     } finally {
       setStreaming(false);
+      setToolStatus(null);
     }
   }
 
@@ -902,25 +926,43 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack }) {
         )}
 
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
-                ${m.role === "user"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-900"}`}
-            >
-              {m.content || (streaming && i === messages.length - 1 ? (
-                <span className="inline-flex gap-1">
-                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
-                </span>
-              ) : "")}
+          <div key={i}>
+            <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                  ${m.role === "user"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-slate-100 text-slate-900"}`}
+              >
+                {m.content || (streaming && i === messages.length - 1 ? (
+                  <span className="inline-flex gap-1">
+                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                  </span>
+                ) : "")}
+              </div>
             </div>
+            {m.lessonCard && (
+              <div className="flex justify-start mt-1">
+                <div className="max-w-[85%] w-full">
+                  <LessonCard payload={m.lessonCard} onOpenLesson={onOpenLesson} />
+                </div>
+              </div>
+            )}
+            {m.snapshotCard && (
+              <div className="flex justify-start mt-1">
+                <div className="max-w-[85%] w-full">
+                  <SnapshotCard payload={m.snapshotCard} />
+                </div>
+              </div>
+            )}
           </div>
         ))}
         <div ref={bottomRef} />
       </div>
+
+      <ToolStatusPill status={toolStatus} />
 
       {/* Composer */}
       <form onSubmit={handleSubmit} className="p-3 border-t border-slate-200 flex gap-2">

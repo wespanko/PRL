@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Send, Sparkles, Loader2 } from "lucide-react";
 import { buildPortfolioContext } from "../utils/portfolioContext";
+import { streamTutorEvents, getCompletedLessonIds } from "../utils/streamTutorEvents";
+import { saveSnapshot } from "../utils/snapshots";
+import { ToolStatusPill, LessonCard, SnapshotCard } from "./AgentTools";
 
 const SUGGESTED = [
   "Why is my downside capture so high?",
@@ -9,37 +12,11 @@ const SUGGESTED = [
   "Am I beating the market or just riding beta?",
 ];
 
-async function* streamChat(messages, context) {
-  const BASE = import.meta.env.VITE_API_URL ?? "";
-  const res = await fetch(`${BASE}/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, portfolio_context: context }),
-  });
-  if (!res.ok) { yield "Error connecting to assistant."; return; }
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const parts = buf.split("\n\n");
-    buf = parts.pop();
-    for (const part of parts) {
-      const line = part.trim();
-      if (!line.startsWith("data: ")) continue;
-      const data = line.slice(6);
-      if (data === "[DONE]") return;
-      try { yield JSON.parse(data).text ?? ""; } catch { /* ignore */ }
-    }
-  }
-}
-
-export default function AssistantPanel({ isOpen, onClose, lastResults, lastPayload, prefillInput }) {
+export default function AssistantPanel({ isOpen, onClose, lastResults, lastPayload, prefillInput, setActiveTab }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [toolStatus, setToolStatus] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -61,25 +38,68 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
   const context = buildPortfolioContext(lastResults, lastPayload);
   const hasPortfolio = !!context;
 
+  function handleOpenLesson(lessonId) {
+    if (!setActiveTab) return;
+    onClose?.();
+    setActiveTab("practice");
+  }
+
   async function send(text) {
     const userMsg = { role: "user", content: text };
     const history = [...messages, userMsg];
     setMessages([...history, { role: "assistant", content: "" }]);
     setInput("");
     setStreaming(true);
+    setToolStatus(null);
+
+    const BASE = import.meta.env.VITE_API_URL ?? "";
+    const body = {
+      messages: history,
+      portfolio_context: context,
+      saved_payload: hasPortfolio ? lastPayload : null,
+      lessons_completed: getCompletedLessonIds(),
+    };
 
     let accumulated = "";
     try {
-      for await (const chunk of streamChat(history, context)) {
-        accumulated += chunk;
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: accumulated };
-          return updated;
-        });
+      for await (const ev of streamTutorEvents(`${BASE}/api/chat`, body)) {
+        if (ev.kind === "tool_use") {
+          setToolStatus(ev.status);
+        } else if (ev.kind === "tool_ui") {
+          // Hide the pill the moment the tool result comes back.
+          setToolStatus(null);
+          if (ev.tool === "save_snapshot" && hasPortfolio) {
+            try {
+              saveSnapshot(lastPayload, lastResults, ev.payload?.label, ev.payload?.note);
+            } catch { /* localStorage full — ignore */ }
+          }
+          // Attach the card payload to the in-flight assistant message.
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = { ...updated[updated.length - 1] };
+            if (ev.tool === "suggest_lesson")  last.lessonCard   = ev.payload;
+            if (ev.tool === "save_snapshot")   last.snapshotCard = ev.payload;
+            updated[updated.length - 1] = last;
+            return updated;
+          });
+        } else if (ev.kind === "text") {
+          // First text chunk after a tool means the model is narrating —
+          // pill should already be gone, but make sure.
+          if (toolStatus) setToolStatus(null);
+          accumulated += ev.text;
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: accumulated,
+            };
+            return updated;
+          });
+        }
       }
     } finally {
       setStreaming(false);
+      setToolStatus(null);
     }
   }
 
@@ -152,42 +172,69 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
                   </div>
                 </>
               ) : (
-                <div className="text-center py-10">
-                  <div className="flex justify-center mb-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                      <Sparkles className="h-6 w-6" strokeWidth={2} />
-                    </div>
+                <>
+                  <p className="text-base font-bold text-slate-900 mb-1">Ask anything.</p>
+                  <p className="text-sm text-slate-500 mb-4">No portfolio loaded yet — we can still talk through concepts. Try:</p>
+                  <div className="space-y-2">
+                    {[
+                      "What's a Sharpe ratio in plain English?",
+                      "How should I think about diversification?",
+                      "What does beta actually mean for my returns?",
+                    ].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => send(s)}
+                        className="w-full text-left px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 text-sm font-medium text-slate-500 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-slate-900 transition-colors"
+                      >
+                        {s}
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-sm text-slate-500 leading-relaxed">
-                    Run an analysis first, then come back to ask questions about your portfolio.
-                  </p>
-                </div>
+                </>
               )}
             </div>
           )}
 
           <div className="space-y-3">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
-                    ${m.role === "user"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-100 text-slate-900"}`}
-                >
-                  {m.content || (streaming && i === messages.length - 1 ? (
-                    <span className="inline-flex gap-1">
-                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                      <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
-                    </span>
-                  ) : "")}
+              <div key={i}>
+                <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap
+                      ${m.role === "user"
+                        ? "bg-indigo-600 text-white"
+                        : "bg-slate-100 text-slate-900"}`}
+                  >
+                    {m.content || (streaming && i === messages.length - 1 ? (
+                      <span className="inline-flex gap-1">
+                        <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                        <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                        <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    ) : "")}
+                  </div>
                 </div>
+                {m.lessonCard && (
+                  <div className="flex justify-start mt-1">
+                    <div className="max-w-[85%] w-full">
+                      <LessonCard payload={m.lessonCard} onOpenLesson={handleOpenLesson} />
+                    </div>
+                  </div>
+                )}
+                {m.snapshotCard && (
+                  <div className="flex justify-start mt-1">
+                    <div className="max-w-[85%] w-full">
+                      <SnapshotCard payload={m.snapshotCard} />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
           <div ref={bottomRef} />
         </div>
+
+        <ToolStatusPill status={toolStatus} />
 
         {/* Input */}
         <form onSubmit={handleSubmit} className="px-5 py-4 border-t border-slate-200 flex gap-2">
@@ -195,13 +242,13 @@ export default function AssistantPanel({ isOpen, onClose, lastResults, lastPaylo
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={hasPortfolio ? "Ask about your portfolio…" : "Load a portfolio first…"}
-            disabled={streaming || !hasPortfolio}
+            placeholder={hasPortfolio ? "Ask about your portfolio…" : "Ask anything about investing…"}
+            disabled={streaming}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 outline-none focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-colors disabled:opacity-50"
           />
           <button
             type="submit"
-            disabled={!input.trim() || streaming || !hasPortfolio}
+            disabled={!input.trim() || streaming}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-500 text-white transition-colors active:scale-[0.95]"
           >
             {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}

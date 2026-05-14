@@ -298,6 +298,7 @@ export default function App() {
         lastResults={results}
         lastPayload={payload}
         prefillInput={assistantPrefill}
+        setActiveTab={setActiveTab}
       />
     </div>
   );
