@@ -189,6 +189,22 @@ export default function LiveTutorPage({
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
+  // Attach the live stream to the <video> element once BOTH exist.
+  //
+  // The video element only mounts when `sharing === true`, which happens via
+  // setSharing(true) inside startSharing. At the moment getDisplayMedia
+  // returns, sharing is still false and videoRef.current is null — so an
+  // inline `videoRef.current.srcObject = stream` from inside startSharing is
+  // dead code. This effect runs after React mounts the video element and
+  // wires the stream up then.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!sharing || !streamRef || !video) return;
+    if (video.srcObject === streamRef) return;
+    video.srcObject = streamRef;
+    video.play().catch(() => { /* play() rejects on autoplay restrictions; harmless */ });
+  }, [sharing, streamRef]);
+
   async function startSharing() {
     setShareError(null);
     try {
@@ -196,10 +212,6 @@ export default function LiveTutorPage({
         video: { frameRate: 5 },
         audio: false,
       });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(() => {});
-      }
       setStreamRef(stream);
       setSharing(true);
       stream.getVideoTracks()[0].addEventListener("ended", () => {
