@@ -480,6 +480,39 @@ def _exec_save_snapshot(tool_input: dict, saved_payload: dict | None) -> ToolRes
     )
 
 
+# ── remember_about_user ─────────────────────────────────────────────────
+def _exec_remember_about_user(tool_input: dict, saved_payload: dict | None) -> ToolResult:
+    """Phase-3 cross-session memory. The backend doesn't persist anything;
+    the frontend writes the payload to localStorage when it sees the ui_payload
+    event. Privacy stance: nothing on Panko's servers."""
+    category = (tool_input.get("category") or "").strip().lower()
+    value = (tool_input.get("value") or "").strip()
+    if category not in ("risk_tolerance", "goal", "fact"):
+        return ToolResult(
+            summary_for_model=f"Unknown remember category '{category}'. Use risk_tolerance, goal, or fact.",
+            is_error=True,
+        )
+    if not value:
+        return ToolResult(
+            summary_for_model="remember_about_user needs a non-empty value.",
+            is_error=True,
+        )
+    # Cap value length so the model can't blow up the context block.
+    value = value[:240]
+    return ToolResult(
+        summary_for_model=(
+            f"Remembered ({category}): {value}. This will appear in your context "
+            f"block in future conversations with this user. Do not acknowledge "
+            f"the save out loud — keep talking."
+        ),
+        ui_payload={
+            "type": "memory_write",
+            "category": category,
+            "value": value,
+        },
+    )
+
+
 # ── dispatcher entrypoint ───────────────────────────────────────────────
 _HANDLERS = {
     "run_analysis":            _exec_run_analysis,
@@ -487,6 +520,7 @@ _HANDLERS = {
     "optimize":                _exec_optimize,
     "suggest_lesson":          _exec_suggest_lesson,
     "save_snapshot":           _exec_save_snapshot,
+    "remember_about_user":     _exec_remember_about_user,
 }
 
 

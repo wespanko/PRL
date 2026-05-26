@@ -1,0 +1,14 @@
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: "happy-dom",
+    globals: true,
+    setupFiles: ["./src/test/setup.js"],
+    css: false,
+    // Playwright specs live under e2e/ — keep Vitest away from them.
+    exclude: ["e2e/**", "node_modules/**", "dist/**"],
+  },
+});

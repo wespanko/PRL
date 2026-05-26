@@ -1,24 +1,30 @@
 name: Keep backend warm
 
 # Render's free tier spins web services down after 15 min idle, then takes
-# ~30s to cold-start. We hit /api/health every 10 min so the service never
-# falls below the idle threshold and users never see the cold-start delay.
+# ~30s to cold-start. GitHub Actions cron has a known 5-15 min delay during
+# busy hours, so a 10-min cadence can drift past the 15-min spin-down window
+# (this is what caused the 2026-05-25 outage). We now ping every 5 min so a
+# single skipped run still leaves headroom before idle. For higher reliability,
+# add an external pinger like UptimeRobot (see DEPLOY.md → "Keeping the
+# backend warm").
 #
-# Costs: ~5s of runner time per ping × 6/hr × 24 × 30 = ~6 hr/month, well
-# under the 2000-min/month free tier. Cron has a known 5-15 min delay during
-# busy hours — the 10-min interval leaves buffer before the 15-min spin-down.
+# Costs: ~5s of runner time per ping × 12/hr × 24 × 30 = ~12 hr/month, well
+# under the 2000-min/month free tier.
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:   # allow manual triggering from the Actions tab
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
       - name: Ping backend health endpoint
         run: |
-          curl --fail --max-time 60 --retry 2 --retry-delay 10 \
+          # --retry 3 + 60s max-time covers a full Render cold start (~30s)
+          # plus headroom. Failures here are usually transient network blips,
+          # not real downtime.
+          curl --fail --max-time 60 --retry 3 --retry-delay 15 \
             https://panko-backend-ho2k.onrender.com/api/health

@@ -119,6 +119,38 @@ TOOLS = [
             "required": ["label"],
         },
     },
+    {
+        "name": "remember_about_user",
+        "description": (
+            "Persist a durable fact about the user across sessions. Use SPARINGLY — only when the user tells you something that should "
+            "still be true a month from now (risk tolerance, retirement timeline, hard constraints like 'no individual stocks', recurring "
+            "behavioral patterns you've observed, stated goals). Do NOT call this for transient state, in-the-moment reactions, the "
+            "specific number they're worried about today, or anything visible in their current portfolio (the analysis tool already has that). "
+            "The fact will appear in your context block in EVERY future conversation, so make it short, declarative, and load-bearing."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string",
+                    "enum": ["risk_tolerance", "goal", "fact"],
+                    "description": (
+                        "risk_tolerance: overall risk posture (one of 'conservative', 'balanced', 'aggressive'). "
+                        "goal: a stated objective ('retire by 2040', 'fund a house in 5 years'). "
+                        "fact: any other durable thing worth remembering."
+                    ),
+                },
+                "value": {
+                    "type": "string",
+                    "description": (
+                        "The fact itself, in short declarative form. For risk_tolerance, just the bare word. "
+                        "For goals and facts, one sentence max. No 'the user is...' framing — write it as a profile line."
+                    ),
+                },
+            },
+            "required": ["category", "value"],
+        },
+    },
 ]
 
 
@@ -130,4 +162,5 @@ TOOL_STATUS_COPY = {
     "optimize":                "Optimizing…",
     "suggest_lesson":          "Finding a lesson…",
     "save_snapshot":           "Saving snapshot…",
+    "remember_about_user":     "",  # silent — no status pill for memory writes
 }

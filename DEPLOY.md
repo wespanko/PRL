@@ -54,7 +54,18 @@ Verify on the GitHub web UI that you do **not** see `backend/.env` in the repo. 
 5. Wait for build to finish (~2-3 minutes). When the status flips to **Live**, copy the URL — it'll look like `https://panko-backend.onrender.com`.
 6. Smoke test: paste `https://panko-backend.onrender.com/api/health` into a browser. Should return `{"status":"ok"}`. If it does, backend is live.
 
-> **Note on free tier:** the service spins down after 15 minutes of no traffic. The first request after that takes ~30 seconds to wake up. After that it's instant until the next idle period. Fine for friend-testing.
+> **Note on free tier:** the service spins down after 15 minutes of no traffic. The first request after that takes ~30 seconds to wake up. After that it's instant until the next idle period. Keep-warm setup is in the next section.
+
+### Keeping the backend warm
+
+We ship `.github/workflows/keepalive.yml`, a 5-minute cron that pings `/api/health` from GitHub Actions. **This is not enough on its own** — GH Actions cron is known to skip runs by 5-15 minutes during busy periods, which can drift past Render's 15-minute idle threshold. The 2026-05-25 outage was exactly this.
+
+For a real-user-grade keep-warm, layer one of these on top:
+
+1. **UptimeRobot (recommended, free).** Sign up at uptimerobot.com, add a new HTTPS monitor pointed at `https://panko-backend-ho2k.onrender.com/api/health`, interval 5 minutes. No drift, no cron, free for 50 monitors. ~3 minutes of setup.
+2. **Render Starter tier ($7/mo).** Eliminates the spin-down entirely, plus you get persistent disk. The real answer once you have real users.
+
+You can delete `keepalive.yml` once UptimeRobot is in place — keeping both is harmless but wasteful.
 
 ---
 

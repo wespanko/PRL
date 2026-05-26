@@ -1,15 +1,18 @@
-// Live Tutor — Day 1 of the extended roadmap (LIVE_TUTOR_PLAN.md).
+// Live Tutor — marquee surface, rebuilt against Public/Robinhood-style
+// consumer-fintech aesthetic. Warm cream background, soft rounded cards,
+// emerald accent on primary actions, pill CTAs, generous whitespace.
 //
-// Phase 1: screen share + chat + Claude vision
-// Phase 2: voice input, related-lesson cards, cost meter
-// Day 1  : visual annotations — "Point" mode emits bounding boxes for UI
-//          elements, rendered as an SVG overlay on the captured frame.
+// Three empty-state sub-views (no active screen share):
+//   "default" → returning-user 'Welcome back' OR new-user 3 entry cards
+//   "paste"   → inline paste-holdings form
+//   "chat"    → in-page Q&A chat using /api/chat
 //
-// Composer has TWO submit actions now:
-//   • Send (Send icon)        → mode="qa", standard prose response
-//   • Point (Crosshair icon)  → mode="point", AI returns prose + bboxes,
-//                               UI draws them on the screenshot below the
-//                               assistant message.
+// During an active share, the right pane talks to /api/tutor with screen
+// snapshots. Two composer actions:
+//   Send  → mode="qa"    standard prose response
+//   Point → mode="point" prose + JSON bboxes drawn as an SVG overlay
+//
+// State + SSE wire live in hooks/useScreenShare and hooks/useTutorStream.
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -20,14 +23,12 @@ import {
 import AnnotationOverlay from "./AnnotationOverlay";
 import { parseBoxes } from "../utils/parseBoxes";
 import { normalizeWeights } from "../utils/normalizeWeights";
-import { buildPortfolioContext } from "../utils/portfolioContext";
-import { streamTutorEvents, getCompletedLessonIds } from "../utils/streamTutorEvents";
-import { saveSnapshot } from "../utils/snapshots";
 import { ToolStatusPill, LessonCard, SnapshotCard } from "./AgentTools";
+import { useScreenShare } from "../hooks/useScreenShare";
+import { useTutorStream } from "../hooks/useTutorStream";
 
-// Parse a pasted block of "TICKER WEIGHT" lines. Supports comma/colon
-// separators and trailing % signs. Returns [{ticker, weight}, ...] with
-// raw values (not yet normalized to 1.0).
+// ── helpers (unchanged from previous build) ───────────────────────────
+
 function parsePastedHoldings(text) {
   if (!text) return [];
   const out = [];
@@ -73,10 +74,6 @@ function detectRelatedLesson(text) {
   return null;
 }
 
-// While streaming in point mode, the AI's response will eventually contain
-// a ```json [...] ``` block. Strip everything from that marker onward for
-// display purposes so the user doesn't see raw JSON flash by. Once the
-// stream completes, parseBoxes() does the real extraction.
 function previewProse(content) {
   if (!content) return "";
   const i = content.indexOf("```json");
@@ -84,24 +81,6 @@ function previewProse(content) {
   return content.slice(0, i).trim();
 }
 
-// ── streaming wire ───────────────────────────────────────────────────
-// Wraps the unified streamTutorEvents() helper so callers can iterate over
-// event objects of kind "text" | "tool_use" | "tool_ui".
-async function* streamTutor(messages, screenshotBase64, mode, portfolioContext, savedPayload) {
-  const BASE = import.meta.env.VITE_API_URL ?? "";
-  const wireMessages = messages.map((m) => ({ role: m.role, content: m.content }));
-  yield* streamTutorEvents(`${BASE}/api/tutor`, {
-    messages: wireMessages,
-    screenshot_base64: screenshotBase64,
-    screenshot_media_type: "image/jpeg",
-    mode,
-    portfolio_context: portfolioContext,
-    saved_payload: savedPayload,
-    lessons_completed: getCompletedLessonIds(),
-  });
-}
-
-// ── voice input hook (Web Speech API) ────────────────────────────────
 function useVoiceInput(onText) {
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(false);
@@ -151,174 +130,56 @@ export default function LiveTutorPage({
   analyzeError,
   onOpenAssistant,
 }) {
-  const [sharing, setSharing] = useState(false);
-  const [streamRef, setStreamRef] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [lastSnapshot, setLastSnapshot] = useState(null);
-  const [shareError, setShareError] = useState(null);
-  const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [toolStatus, setToolStatus] = useState(null);
+  const share  = useScreenShare();
+  const stream = useTutorStream({ endpoint: "tutor", lastResults, lastPayload });
 
-  // Phase-1 empty-state UI: which sub-view is showing when not sharing.
-  // "default" → returning-user 'Welcome back' card OR new-user 3 cards
-  // "paste"   → inline paste-holdings form
-  // "chat"    → in-page abstract-Q&A chat (Option C). Calls /api/chat
-  //             directly so the user stays inside Live Tutor (NOT a
-  //             redirect to the floating AssistantPanel).
+  const [input, setInput] = useState("");
+  const [questionsAsked, setQuestionsAsked] = useState(0);
+
   const [emptyView, setEmptyView] = useState("default");
   const [pasteText, setPasteText] = useState("");
   const [pasteError, setPasteError] = useState(null);
-  // Pre-fill text for the in-page chat (e.g. when a returning-user chip
-  // sends them in with a specific question). Cleared on back.
   const [chatSeed, setChatSeed] = useState("");
 
   const hasPortfolio = !!(lastResults && lastPayload);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
   const voice = useVoiceInput((text) => setInput(text));
 
   useEffect(() => {
-    return () => { if (streamRef) streamRef.getTracks().forEach((t) => t.stop()); };
-  }, [streamRef]);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-
-  // Attach the live stream to the <video> element once BOTH exist.
-  //
-  // The video element only mounts when `sharing === true`, which happens via
-  // setSharing(true) inside startSharing. At the moment getDisplayMedia
-  // returns, sharing is still false and videoRef.current is null — so an
-  // inline `videoRef.current.srcObject = stream` from inside startSharing is
-  // dead code. This effect runs after React mounts the video element and
-  // wires the stream up then.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!sharing || !streamRef || !video) return;
-    if (video.srcObject === streamRef) return;
-    video.srcObject = streamRef;
-    video.play().catch(() => { /* play() rejects on autoplay restrictions; harmless */ });
-  }, [sharing, streamRef]);
-
-  async function startSharing() {
-    setShareError(null);
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: 5 },
-        audio: false,
-      });
-      setStreamRef(stream);
-      setSharing(true);
-      stream.getVideoTracks()[0].addEventListener("ended", () => {
-        setSharing(false);
-        setStreamRef(null);
-      });
-    } catch (e) {
-      if (e.name !== "NotAllowedError") {
-        setShareError(e.message || "Couldn't access screen share.");
-      }
-    }
-  }
-
-  function stopSharing() {
-    if (streamRef) streamRef.getTracks().forEach((t) => t.stop());
-    setStreamRef(null);
-    setSharing(false);
-    setLastSnapshot(null);
-  }
-
-  // Returns { base64, dataUrl } — both useful: base64 for the API,
-  // dataUrl for rendering in the UI alongside the assistant's response.
-  function captureFrame() {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return null;
-    if (!video.videoWidth) return null;
-    const MAX = 1280;
-    const scale = Math.min(1, MAX / Math.max(video.videoWidth, video.videoHeight));
-    canvas.width  = Math.round(video.videoWidth  * scale);
-    canvas.height = Math.round(video.videoHeight * scale);
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-    setLastSnapshot(dataUrl);
-    return { dataUrl, base64: dataUrl.split(",")[1] };
-  }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [stream.messages]);
 
   function handleOpenLesson() {
     setActiveTab?.("practice");
   }
 
   async function send(text, mode = "qa") {
-    if (!text.trim() || streaming) return;
-    if (!sharing) {
-      setShareError("Share your screen first so I can see what you're looking at.");
+    if (!text.trim() || stream.streaming) return;
+    if (!share.sharing) {
+      share.setShareError("Share your screen first so I can see what you're looking at.");
       return;
     }
-    setShareError(null);
+    share.setShareError(null);
     if (voice.listening) voice.stop();
 
-    const frame = captureFrame();
+    const frame = share.captureFrame();
     if (!frame) {
-      setShareError("Couldn't grab a screenshot — make sure your shared window is visible.");
+      share.setShareError("Couldn't grab a screenshot — make sure your shared window is visible.");
       return;
     }
 
-    const userMsg = {
-      role: "user",
-      content: text,
-      mode,
-      screenshot: frame.dataUrl, // kept for the overlay render under the AI reply
-    };
-    const history = [...messages, userMsg];
-    setMessages([...history, { role: "assistant", content: "", mode }]);
     setInput("");
-    setStreaming(true);
-    setToolStatus(null);
     setQuestionsAsked((n) => n + 1);
 
-    const portfolioContext = buildPortfolioContext(lastResults, lastPayload);
-    const hasPortfolio = !!portfolioContext;
-
-    let accumulated = "";
-    try {
-      for await (const ev of streamTutor(history, frame.base64, mode, portfolioContext, hasPortfolio ? lastPayload : null)) {
-        if (ev.kind === "tool_use") {
-          setToolStatus(ev.status);
-        } else if (ev.kind === "tool_ui") {
-          setToolStatus(null);
-          if (ev.tool === "save_snapshot" && hasPortfolio) {
-            try { saveSnapshot(lastPayload, lastResults, ev.payload?.label, ev.payload?.note); } catch {}
-          }
-          setMessages((prev) => {
-            const updated = [...prev];
-            const last = { ...updated[updated.length - 1] };
-            if (ev.tool === "suggest_lesson")  last.lessonCard   = ev.payload;
-            if (ev.tool === "save_snapshot")   last.snapshotCard = ev.payload;
-            updated[updated.length - 1] = last;
-            return updated;
-          });
-        } else if (ev.kind === "text") {
-          setToolStatus(null);
-          accumulated += ev.text;
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              ...updated[updated.length - 1],
-              content: accumulated,
-            };
-            return updated;
-          });
-        }
-      }
-    } finally {
-      // Stream finished. Parse boxes if we were in point mode.
-      if (mode === "point") {
+    await stream.send(text, {
+      mode,
+      screenshot: frame.dataUrl,
+      screenshotBase64: frame.base64,
+      onComplete: (accumulated, setMessages) => {
+        if (mode !== "point") return;
         const parsed = parseBoxes(accumulated);
         setMessages((prev) => {
           const updated = [...prev];
@@ -331,10 +192,8 @@ export default function LiveTutorPage({
           };
           return updated;
         });
-      }
-      setStreaming(false);
-      setToolStatus(null);
-    }
+      },
+    });
   }
 
   function handleAsk(e) {
@@ -352,7 +211,6 @@ export default function LiveTutorPage({
     else { setInput(""); voice.start(); }
   }
 
-  // ── paste-holdings flow ──────────────────────────────────────────
   function handlePasteSubmit(e) {
     e?.preventDefault?.();
     if (analyzeLoading) return;
@@ -374,35 +232,48 @@ export default function LiveTutorPage({
       benchmark: "SPY",
       risk_free_rate: 0.045,
     });
-    // Result will arrive via lastResults prop; the empty-state will then
-    // flip to the returning-user view automatically.
   }
 
   const estimatedCost = (questionsAsked * COST_PER_QUESTION_USD).toFixed(2);
 
   return (
-    <div className="min-h-screen text-slate-900 px-6 py-10 md:px-10">
-      <div className="max-w-5xl mx-auto">
+    // Warm cream background — sets the whole product apart from white-on-white
+    // generic SaaS. Page never goes edge-to-edge; content stays inside a
+    // comfortable max-w container.
+    <div className="min-h-screen text-neutral-900 px-6 py-12 md:px-10 md:py-16" style={{ backgroundColor: "#FAF8F2" }}>
+      <div className="max-w-4xl mx-auto">
 
-        {/* Header — no icon, wordmark carries the brand on its own. */}
-        <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
-            Panko
-          </h1>
-          <p className="text-slate-500 text-sm md:text-base mt-1">
-            Your personal assistant to make markets less confusing.
-          </p>
-        </header>
+        {/* Hero — a friendly avatar plus a real greeting. Reads as a person,
+            not a wordmark. Avatar uses the brand accent (emerald) so the
+            accent registers immediately. */}
+        {!share.sharing && (
+          <header className="mb-12">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-[0_8px_24px_rgba(16,185,129,0.25)]">
+                <Sparkles className="h-6 w-6" strokeWidth={2.25} />
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Panko · Live Tutor</div>
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-neutral-900 leading-tight">
+                  {hasPortfolio ? "Welcome back." : "Hi — I'm Panko."}
+                </h1>
+              </div>
+            </div>
+            <p className="text-base md:text-lg text-neutral-600 leading-relaxed max-w-xl">
+              I'll explain what's actually going on with your portfolio. Share your screen, paste your holdings, or just ask me anything.
+            </p>
+          </header>
+        )}
 
         {/* ── Empty state — paste-holdings sub-view ───────────────── */}
-        {!sharing && emptyView === "paste" && (
-          <div className="rounded-md border border-neutral-200 bg-white p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
+        {!share.sharing && emptyView === "paste" && (
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
                 <ClipboardList className="h-5 w-5" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-neutral-900">Paste your holdings</h2>
+                <h2 className="text-xl font-bold text-neutral-900 tracking-tight">Paste your holdings</h2>
                 <p className="text-sm text-neutral-500">One per line: ticker and weight (or dollars).</p>
               </div>
             </div>
@@ -413,19 +284,19 @@ export default function LiveTutorPage({
                 placeholder={"AAPL 30\nMSFT 25\nSPY 45"}
                 rows={8}
                 disabled={analyzeLoading}
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm font-mono text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
+                className="w-full rounded-2xl bg-stone-50 border border-stone-200 px-4 py-3 text-sm font-mono text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all disabled:opacity-50"
               />
               {(pasteError || analyzeError) && (
-                <div className="mt-3 rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+                <div className="mt-3 rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
                   <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
                   <span>{pasteError || analyzeError}</span>
                 </div>
               )}
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-5 flex items-center gap-3">
                 <button
                   type="submit"
                   disabled={!pasteText.trim() || analyzeLoading}
-                  className="bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-md font-semibold text-sm px-5 py-2.5 inline-flex items-center gap-2 transition-colors active:scale-[0.99]"
+                  className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-neutral-200 disabled:text-neutral-400 text-white rounded-full font-semibold text-sm px-6 py-3 inline-flex items-center gap-2 transition-all active:scale-[0.98] shadow-[0_4px_12px_rgba(16,185,129,0.25)] disabled:shadow-none"
                 >
                   {analyzeLoading ? (
                     <><Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} />Running analysis…</>
@@ -437,41 +308,41 @@ export default function LiveTutorPage({
                   type="button"
                   onClick={() => { setEmptyView("default"); setPasteError(null); }}
                   disabled={analyzeLoading}
-                  className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-50"
+                  className="text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-50 px-4 py-3"
                 >
                   Cancel
                 </button>
               </div>
             </form>
-            <p className="mt-4 text-xs text-slate-400 leading-relaxed">
+            <p className="mt-5 text-xs text-neutral-400 leading-relaxed">
               Educational tool. Not financial advice.
             </p>
           </div>
         )}
 
         {/* ── Empty state — returning user (has saved portfolio) ──── */}
-        {!sharing && emptyView === "default" && hasPortfolio && (
+        {!share.sharing && emptyView === "default" && hasPortfolio && (
           <ReturningUserState
             lastResults={lastResults}
             lastPayload={lastPayload}
-            onStartShare={startSharing}
+            onStartShare={share.startSharing}
             onAskInPage={(seed) => { setChatSeed(seed); setEmptyView("chat"); }}
             onStartFresh={() => setEmptyView("paste")}
           />
         )}
 
         {/* ── Empty state — new user (no portfolio) ───────────────── */}
-        {!sharing && emptyView === "default" && !hasPortfolio && (
+        {!share.sharing && emptyView === "default" && !hasPortfolio && (
           <NewUserState
-            onStartShare={startSharing}
+            onStartShare={share.startSharing}
             onChoosePaste={() => setEmptyView("paste")}
             onJustAsk={() => { setChatSeed(""); setEmptyView("chat"); }}
-            shareError={shareError}
+            shareError={share.shareError}
           />
         )}
 
         {/* ── Empty state — in-page chat (Option C) ──────────────── */}
-        {!sharing && emptyView === "chat" && (
+        {!share.sharing && emptyView === "chat" && (
           <JustAskChat
             lastResults={lastResults}
             lastPayload={lastPayload}
@@ -481,261 +352,249 @@ export default function LiveTutorPage({
           />
         )}
 
-        {/* Active share + chat */}
-        {sharing && (
+        {/* ── Active share + chat ──────────────────────────────── */}
+        {share.sharing && (
           <div>
-            {/* Privacy hint — only relevant during an active share, so it
-                lives in the share view rather than as a permanent banner. */}
-            <div className="mb-3 flex items-start gap-2 text-xs text-slate-500">
-              <Shield className="h-3.5 w-3.5 mt-0.5 shrink-0 text-slate-400" strokeWidth={2.25} />
+            {/* Privacy hint — only relevant during an active share. */}
+            <div className="mb-4 flex items-start gap-2 text-xs text-neutral-600 bg-emerald-50 rounded-2xl px-4 py-3 border border-emerald-100">
+              <Shield className="h-3.5 w-3.5 mt-0.5 shrink-0 text-emerald-600" strokeWidth={2.25} />
               <span>
-                <strong className="text-slate-700 font-semibold">Your screen, your control.</strong>{" "}
-                A snapshot is sent only when you ask a question. You pick which window to share,
-                and you can stop anytime. Nothing is stored on Panko's servers; the image is
-                forwarded to Claude for analysis and discarded.
+                <strong className="text-emerald-800 font-semibold">Your screen, your control.</strong>{" "}
+                A snapshot is sent only when you ask a question. Stop anytime. Nothing is stored on Panko's servers; images go to Claude for analysis and are discarded.
               </span>
             </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
 
-            {/* Left: live preview */}
-            <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75 animate-ping" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
-                  </span>
-                  <span className="text-sm font-bold text-slate-900">Sharing live</span>
+              {/* Left: live preview */}
+              <div className="lg:col-span-3 bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center justify-between px-5 py-4">
+                  <div className="flex items-center gap-2.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75 animate-ping" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
+                    </span>
+                    <span className="text-sm font-semibold text-neutral-900">Sharing live</span>
+                  </div>
+                  <button
+                    onClick={share.stopSharing}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-rose-600 transition-colors px-3 py-1.5 rounded-full hover:bg-rose-50"
+                  >
+                    <MonitorOff className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    Stop
+                  </button>
                 </div>
-                <button
-                  onClick={stopSharing}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors"
-                >
-                  <MonitorOff className="h-4 w-4" strokeWidth={2.5} />
-                  Stop sharing
-                </button>
-              </div>
-              <div className="aspect-video bg-slate-900 relative">
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-contain"
-                  autoPlay
-                  muted
-                  playsInline
-                />
-              </div>
-              {lastSnapshot && (
-                <div className="px-4 py-3 border-t border-slate-200 flex items-center gap-3">
-                  <Camera className="h-4 w-4 text-slate-500 shrink-0" strokeWidth={2.25} />
-                  <span className="text-xs text-slate-500">Last frame sent to AI</span>
-                  <img
-                    src={lastSnapshot}
-                    alt="Last snapshot"
-                    className="h-10 w-auto rounded-lg border border-slate-200 ml-auto"
+                <div className="aspect-video bg-neutral-900 relative mx-5 rounded-2xl overflow-hidden">
+                  <video
+                    ref={share.videoRef}
+                    className="absolute inset-0 w-full h-full object-contain"
+                    autoPlay
+                    muted
+                    playsInline
                   />
                 </div>
-              )}
-            </div>
-
-            {/* Right: chat */}
-            <div className="lg:col-span-2 bg-white rounded-md border border-neutral-200 flex flex-col min-h-[420px] max-h-[80vh]">
-              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-neutral-200">
-                <div className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-900 text-white">
-                  <Sparkles className="h-4 w-4" strokeWidth={2.5} />
-                </div>
-                <span className="font-semibold text-neutral-900 text-sm">Ask the tutor</span>
-                {questionsAsked > 0 && (
-                  <span
-                    className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[10px] font-mono font-semibold tabular-nums"
-                    title={`${questionsAsked} question${questionsAsked > 1 ? "s" : ""} this session at ~$${COST_PER_QUESTION_USD.toFixed(3)} per question`}
-                  >
-                    <CircleDollarSign className="h-3 w-3" strokeWidth={2.5} />
-                    ~${estimatedCost}
-                  </span>
+                {share.lastSnapshot && (
+                  <div className="px-5 py-4 flex items-center gap-3">
+                    <Camera className="h-4 w-4 text-neutral-500 shrink-0" strokeWidth={2.25} />
+                    <span className="text-xs text-neutral-500">Last frame sent to AI</span>
+                    <img
+                      src={share.lastSnapshot}
+                      alt="Last snapshot"
+                      className="h-10 w-auto rounded-lg border border-stone-200 ml-auto"
+                    />
+                  </div>
                 )}
               </div>
 
-              <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-                {messages.length === 0 && (
-                  <div>
-                    <p className="text-sm text-slate-500 mb-3">Try one of these:</p>
-                    <div className="space-y-2">
-                      {SUGGESTED_QUESTIONS.map((q) => (
-                        <button
-                          key={q}
-                          onClick={() => send(q, "qa")}
-                          disabled={streaming}
-                          className="w-full text-left px-3 py-2.5 rounded-md bg-white border border-neutral-200 text-sm font-medium text-neutral-700 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-50"
-                        >
-                          {q}
-                        </button>
-                      ))}
+              {/* Right: chat */}
+              <div className="lg:col-span-2 bg-white rounded-3xl flex flex-col min-h-[460px] max-h-[80vh] shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
+                    <Sparkles className="h-4 w-4" strokeWidth={2.5} />
+                  </div>
+                  <span className="font-bold text-neutral-900 tracking-tight">Panko</span>
+                  {questionsAsked > 0 && (
+                    <span
+                      className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-neutral-600 text-[11px] font-mono font-semibold tabular-nums"
+                      title={`${questionsAsked} question${questionsAsked > 1 ? "s" : ""} this session at ~$${COST_PER_QUESTION_USD.toFixed(3)} per question`}
+                    >
+                      <CircleDollarSign className="h-3 w-3" strokeWidth={2.5} />
+                      ~${estimatedCost}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
+                  {stream.messages.length === 0 && (
+                    <div>
+                      <p className="text-sm text-neutral-500 mb-3">Try one of these:</p>
+                      <div className="space-y-2">
+                        {SUGGESTED_QUESTIONS.map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => send(q, "qa")}
+                            disabled={stream.streaming}
+                            className="w-full text-left px-4 py-3 rounded-2xl bg-stone-50 hover:bg-emerald-50 text-sm font-medium text-neutral-700 hover:text-emerald-800 transition-colors disabled:opacity-50"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-neutral-500 mt-4 leading-relaxed px-1">
+                        Tip: ask <strong className="text-neutral-700">where</strong> something is, then hit <Crosshair className="h-3 w-3 inline-block -mt-0.5 mx-0.5" strokeWidth={3} /> to make me point at it.
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
-                      Tip: ask <strong className="text-slate-500">where</strong> something is, then hit the <Crosshair className="h-3 w-3 inline-block -mt-0.5 mx-0.5" strokeWidth={3} /> button to make me point at it.
-                    </p>
+                  )}
+
+                  {stream.messages.map((m, i) => {
+                    const isStreamingMe = stream.streaming && i === stream.messages.length - 1;
+                    const isPointMode   = m.mode === "point";
+                    const displayText   = isStreamingMe ? previewProse(m.content) : (m.content || "");
+                    const lesson        = (m.role === "assistant" && !isPointMode) ? detectRelatedLesson(m.content) : null;
+                    const showOverlay   = m.role === "assistant" && isPointMode && !isStreamingMe && m.boxes && m.boxes.length > 0;
+                    const overlaySrc    = showOverlay ? stream.messages[i - 1]?.screenshot : null;
+                    const emptyBoxes    = m.role === "assistant" && isPointMode && !isStreamingMe && Array.isArray(m.boxes) && m.boxes.length === 0;
+
+                    return (
+                      <div key={i}>
+                        <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                          <div
+                            className={`max-w-[88%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap
+                              ${m.role === "user"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-stone-100 text-neutral-900"}`}
+                          >
+                            {m.role === "user" && isPointMode && (
+                              <span className="inline-flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full bg-white/25 text-[10px] font-bold uppercase tracking-wider">
+                                <Crosshair className="h-2.5 w-2.5" strokeWidth={3} />
+                                Point
+                              </span>
+                            )}
+                            <div>
+                              {displayText || (isStreamingMe ? (
+                                <span className="inline-flex gap-1">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                                </span>
+                              ) : "")}
+                            </div>
+                          </div>
+                        </div>
+
+                        {showOverlay && overlaySrc && (
+                          <div className="mt-2">
+                            <AnnotationOverlay src={overlaySrc} boxes={m.boxes} />
+                            <p className="text-[10px] text-neutral-500 mt-1.5 px-1">
+                              {m.boxes.length === 1 ? "1 region highlighted" : `${m.boxes.length} regions highlighted`} · approximate
+                            </p>
+                          </div>
+                        )}
+
+                        {emptyBoxes && (
+                          <div className="mt-2 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-100 text-xs text-amber-800 flex items-start gap-2">
+                            <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={2.5} />
+                            <span>I couldn't locate that on the screen. Try rephrasing or zooming in.</span>
+                          </div>
+                        )}
+
+                        {m.lessonCard ? (
+                          <LessonCard payload={m.lessonCard} onOpenLesson={handleOpenLesson} />
+                        ) : (lesson && m.content && !isStreamingMe && (
+                          <button
+                            onClick={() => setActiveTab?.("practice")}
+                            className="mt-2 w-full text-left rounded-2xl bg-stone-50 hover:bg-emerald-50 px-4 py-3 flex items-center gap-3 transition-colors group"
+                          >
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                              <GraduationCap className="h-4 w-4" strokeWidth={2.5} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                                Practice lesson
+                              </div>
+                              <div className="text-sm font-semibold text-neutral-900 truncate">
+                                {lesson.title}
+                              </div>
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-neutral-700 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
+                          </button>
+                        ))}
+                        {m.snapshotCard && <SnapshotCard payload={m.snapshotCard} />}
+                      </div>
+                    );
+                  })}
+                  <div ref={bottomRef} />
+                </div>
+
+                {share.shareError && (
+                  <div className="mx-5 mb-2 rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-xs font-medium text-rose-700">
+                    {share.shareError}
                   </div>
                 )}
 
-                {messages.map((m, i) => {
-                  const isStreamingMe = streaming && i === messages.length - 1;
-                  const isPointMode   = m.mode === "point";
-                  const displayText   = isStreamingMe ? previewProse(m.content) : (m.content || "");
-                  const lesson        = (m.role === "assistant" && !isPointMode) ? detectRelatedLesson(m.content) : null;
-                  const showOverlay   = m.role === "assistant" && isPointMode && !isStreamingMe && m.boxes && m.boxes.length > 0;
-                  const overlaySrc    = showOverlay ? messages[i - 1]?.screenshot : null;
-                  const emptyBoxes    = m.role === "assistant" && isPointMode && !isStreamingMe && Array.isArray(m.boxes) && m.boxes.length === 0;
+                <ToolStatusPill status={stream.toolStatus} />
 
-                  return (
-                    <div key={i}>
-                      <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                        <div
-                          className={`max-w-[88%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
-                            ${m.role === "user"
-                              ? "bg-neutral-900 text-white"
-                              : "bg-neutral-100 text-neutral-900"}`}
-                        >
-                          {/* Point mode badge on user messages */}
-                          {m.role === "user" && isPointMode && (
-                            <span className="inline-flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider">
-                              <Crosshair className="h-2.5 w-2.5" strokeWidth={3} />
-                              Point
-                            </span>
-                          )}
-                          <div>
-                            {displayText || (isStreamingMe ? (
-                              <span className="inline-flex gap-1">
-                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                                <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
-                              </span>
-                            ) : "")}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Annotation overlay — assistant messages in point mode with parsed boxes */}
-                      {showOverlay && overlaySrc && (
-                        <div className="mt-2">
-                          <AnnotationOverlay src={overlaySrc} boxes={m.boxes} />
-                          <p className="text-[10px] text-slate-500 mt-1.5 px-1">
-                            {m.boxes.length === 1 ? "1 region highlighted" : `${m.boxes.length} regions highlighted`} · approximate
-                          </p>
-                        </div>
-                      )}
-
-                      {/* No-boxes-found notice in point mode */}
-                      {emptyBoxes && (
-                        <div className="mt-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-700 flex items-start gap-2">
-                          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={2.5} />
-                          <span>I couldn't locate that on the screen. Try rephrasing or zooming in.</span>
-                        </div>
-                      )}
-
-                      {/* Lesson card — prefer the model's explicit suggest_lesson
-                          tool call; fall back to regex-detected related lesson
-                          when the model just mentions a concept without calling
-                          the tool. */}
-                      {m.lessonCard ? (
-                        <LessonCard payload={m.lessonCard} onOpenLesson={handleOpenLesson} />
-                      ) : (lesson && m.content && !isStreamingMe && (
-                        <button
-                          onClick={() => setActiveTab?.("practice")}
-                          className="mt-2 w-full text-left rounded-md border border-neutral-200 bg-white hover:border-neutral-900 px-3 py-2.5 flex items-center gap-3 transition-colors group"
-                        >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
-                            <GraduationCap className="h-4 w-4" strokeWidth={2.5} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                              Practice lesson
-                            </div>
-                            <div className="text-sm font-semibold text-neutral-900 truncate">
-                              {lesson.title}
-                            </div>
-                          </div>
-                          <ArrowRight className="h-4 w-4 text-neutral-900 group-hover:translate-x-0.5 transition-transform shrink-0" strokeWidth={2.5} />
-                        </button>
-                      ))}
-                      {m.snapshotCard && <SnapshotCard payload={m.snapshotCard} />}
-                    </div>
-                  );
-                })}
-                <div ref={bottomRef} />
-              </div>
-
-              {shareError && (
-                <div className="mx-4 mb-2 rounded-xl bg-rose-50 border border-rose-200 px-3 py-2 text-xs font-medium text-rose-700">
-                  {shareError}
-                </div>
-              )}
-
-              <ToolStatusPill status={toolStatus} />
-
-              {/* Composer */}
-              <form onSubmit={handleAsk} className="p-3 border-t border-slate-200 flex gap-2">
-                {voice.supported && (
+                {/* Composer — pill-shaped, generous padding, big primary Send */}
+                <form onSubmit={handleAsk} className="p-4 flex gap-2 items-center">
+                  {voice.supported && (
+                    <button
+                      type="button"
+                      onClick={handleMicToggle}
+                      disabled={stream.streaming}
+                      title={voice.listening ? "Stop listening" : "Speak your question"}
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors active:scale-95
+                        ${voice.listening
+                          ? "bg-rose-500 hover:bg-rose-600 text-white animate-pulse"
+                          : "bg-stone-100 hover:bg-stone-200 text-neutral-700"}
+                        disabled:opacity-50`}
+                    >
+                      {voice.listening
+                        ? <MicOff className="h-4 w-4" strokeWidth={2.5} />
+                        : <Mic    className="h-4 w-4" strokeWidth={2.5} />}
+                    </button>
+                  )}
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={voice.listening ? "Listening…" : "Ask anything…"}
+                    disabled={stream.streaming}
+                    className="flex-1 bg-stone-50 rounded-full px-5 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:ring-4 focus:ring-emerald-100 border border-transparent focus:border-emerald-300 transition-all disabled:opacity-50"
+                  />
                   <button
                     type="button"
-                    onClick={handleMicToggle}
-                    disabled={streaming}
-                    title={voice.listening ? "Stop listening" : "Speak your question"}
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors active:scale-95
-                      ${voice.listening
-                        ? "bg-rose-500 hover:bg-rose-600 text-white animate-pulse"
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-500"}
-                      disabled:opacity-50`}
+                    onClick={handlePoint}
+                    disabled={!input.trim() || stream.streaming}
+                    title="Point — draw boxes on the screen"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 disabled:bg-stone-50 disabled:text-neutral-300 text-neutral-700 transition-colors active:scale-95"
                   >
-                    {voice.listening
-                      ? <MicOff className="h-4 w-4" strokeWidth={2.5} />
-                      : <Mic    className="h-4 w-4" strokeWidth={2.5} />}
+                    <Crosshair className="h-4 w-4" strokeWidth={2.5} />
                   </button>
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || stream.streaming}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-200 disabled:text-neutral-400 text-white transition-colors active:scale-95 shadow-[0_4px_12px_rgba(16,185,129,0.25)] disabled:shadow-none"
+                  >
+                    {stream.streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
+                  </button>
+                </form>
+                {!voice.supported && stream.messages.length === 0 && (
+                  <div className="px-5 pb-3 text-[11px] text-neutral-500">
+                    Voice input isn't supported in this browser — use Chrome or Edge to enable the mic.
+                  </div>
                 )}
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={voice.listening ? "Listening…" : "Ask or 'where is the …?'"}
-                  disabled={streaming}
-                  className="flex-1 bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2.5 text-sm font-medium text-neutral-900 placeholder:text-neutral-500 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
-                />
-                {/* Point button — sends with mode="point" */}
-                <button
-                  type="button"
-                  onClick={handlePoint}
-                  disabled={!input.trim() || streaming}
-                  title="Point — ask the AI to draw boxes around the answer on your screen"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-100 hover:bg-neutral-200 hover:text-neutral-900 disabled:bg-neutral-100 disabled:text-neutral-400 text-neutral-600 transition-colors active:scale-95"
-                >
-                  <Crosshair className="h-4 w-4" strokeWidth={2.5} />
-                </button>
-                {/* Send button — mode="qa" */}
-                <button
-                  type="submit"
-                  disabled={!input.trim() || streaming}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white transition-colors active:scale-95"
-                >
-                  {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
-                </button>
-              </form>
-              {!voice.supported && messages.length === 0 && (
-                <div className="px-4 pb-3 text-[11px] text-slate-500">
-                  Voice input isn't supported in this browser — use Chrome or Edge to enable the mic.
-                </div>
-              )}
+              </div>
             </div>
-          </div>
           </div>
         )}
 
         {/* Hidden canvas for frame capture */}
-        <canvas ref={canvasRef} className="hidden" />
+        <canvas ref={share.canvasRef} className="hidden" />
 
-        {/* Footer disclaimer */}
-        <p className="mt-8 text-xs text-slate-500 text-center max-w-2xl mx-auto leading-relaxed">
-          Educational tool. Not financial advice. The AI is reading pixels — it may misinterpret what it sees. Always verify before acting.
+        {/* Footer — soft and friendly, not legalese-aggressive */}
+        <p className="mt-16 text-xs text-neutral-400 text-center max-w-2xl mx-auto leading-relaxed">
+          Educational tool. Not financial advice. I'm reading pixels — I may misinterpret what I see. Always verify before acting.
         </p>
 
       </div>
@@ -746,73 +605,70 @@ export default function LiveTutorPage({
 // ── Empty state — new user, no portfolio loaded ────────────────────────
 function NewUserState({ onStartShare, onChoosePaste, onJustAsk, shareError }) {
   return (
-    <div className="space-y-8">
-      {/* H2 + subtitle read as a tight pair (4px gap), separated from the
-          card grid below by the parent's space-y-8 (32px). */}
-      <div className="space-y-1">
-        <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-neutral-900">
-          Let's look at your portfolio together.
-        </h2>
-        <p className="text-neutral-500">
-          Three ways to start. Pick whichever is easiest.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <EntryCard
+          accent="emerald"
           icon={MonitorUp}
-          title="Share your brokerage"
-          body="Show me your account in Robinhood, Schwab, Fidelity — anywhere. I'll explain what I see and answer questions as you point at things."
+          title="Share your screen"
+          body="Show me your Robinhood, Schwab, Fidelity — anywhere. I'll explain what I see and point at things as you ask."
           hint="A snapshot is only sent when you ask a question."
-          cta="Share my screen"
+          cta="Start sharing"
           onClick={onStartShare}
         />
         <EntryCard
+          accent="amber"
           icon={ClipboardList}
           title="Paste your holdings"
-          body="Drop in tickers and weights (or dollar amounts). I'll run a full diagnostic and walk you through what it means."
-          hint="Just tickers and weights — no account login required."
+          body="Drop in tickers and weights. I'll run a full diagnostic and walk you through what it means."
+          hint="No account login required."
           cta="Paste holdings"
           onClick={onChoosePaste}
         />
         <EntryCard
+          accent="sky"
           icon={MessageSquare}
-          title="Just ask me anything"
-          body="No portfolio yet? Ask me what a Sharpe ratio is, how to think about risk, or what to look for in a brokerage account. We can start abstract."
-          hint="No portfolio needed — we can start abstract."
-          cta="Open the chat"
+          title="Just ask anything"
+          body="Sharpe ratio? Diversification? How to read a brokerage screen? Ask away — no portfolio needed."
+          hint="We can start abstract."
+          cta="Open chat"
           onClick={onJustAsk}
         />
       </div>
 
       {shareError && (
-        <div className="max-w-md rounded-md bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
+        <div className="max-w-md rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-sm text-rose-700 flex gap-2 items-start">
           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" strokeWidth={2.5} />
           <span>{shareError}</span>
         </div>
       )}
-
-      <p className="text-xs text-neutral-500">Educational tool. Not financial advice.</p>
     </div>
   );
 }
 
-function EntryCard({ icon: Icon, title, body, hint, cta, onClick }) {
+const ACCENT = {
+  emerald: { bg: "bg-emerald-100", text: "text-emerald-700", hoverBg: "group-hover:bg-emerald-500", hoverText: "group-hover:text-white" },
+  amber:   { bg: "bg-amber-100",   text: "text-amber-700",   hoverBg: "group-hover:bg-amber-500",   hoverText: "group-hover:text-white" },
+  sky:     { bg: "bg-sky-100",     text: "text-sky-700",     hoverBg: "group-hover:bg-sky-500",     hoverText: "group-hover:text-white" },
+};
+
+function EntryCard({ accent = "emerald", icon: Icon, title, body, hint, cta, onClick }) {
+  const a = ACCENT[accent];
   return (
     <button
       type="button"
       onClick={onClick}
-      className="text-left rounded-md border border-neutral-200 bg-white hover:border-neutral-900 p-5 transition-colors group flex flex-col"
+      className="text-left bg-white rounded-3xl p-6 transition-all group flex flex-col shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-1 duration-200"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-neutral-100 text-neutral-700 mb-4 transition-colors">
-        <Icon className="h-5 w-5" strokeWidth={2} />
+      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${a.bg} ${a.text} ${a.hoverBg} ${a.hoverText} mb-5 transition-colors`}>
+        <Icon className="h-5 w-5" strokeWidth={2.25} />
       </div>
-      <h3 className="font-semibold text-neutral-900 mb-1.5">{title}</h3>
-      <p className="text-sm text-neutral-500 leading-relaxed mb-3">{body}</p>
+      <h3 className="font-bold text-neutral-900 mb-2 tracking-tight text-lg">{title}</h3>
+      <p className="text-sm text-neutral-500 leading-relaxed mb-3 flex-1">{body}</p>
       {hint && (
-        <p className="text-[11px] text-neutral-400 leading-snug mb-4 flex-1">{hint}</p>
+        <p className="text-[11px] text-neutral-400 leading-snug mb-5">{hint}</p>
       )}
-      <span className="inline-flex items-center gap-1 text-sm font-semibold text-neutral-900 group-hover:gap-1.5 transition-all">
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-900 group-hover:gap-2 transition-all">
         {cta}
         <ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
       </span>
@@ -820,74 +676,22 @@ function EntryCard({ icon: Icon, title, body, hint, cta, onClick }) {
   );
 }
 
-// ── In-page chat (Option C — abstract Q&A without screen share) ──────
-// Talks to /api/chat (same endpoint as the floating AssistantPanel) so the
-// user can ask questions without screen-sharing OR pasting holdings. The
-// user stays inside Live Tutor — this is the chat surface, not a redirect
-// to a different component.
+// ── In-page chat (no screen share, just Q&A) ────────────────────────────
 function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLesson }) {
-  const [messages, setMessages] = useState([]);
+  const stream = useTutorStream({ endpoint: "chat", lastResults, lastPayload });
   const [input, setInput] = useState(initialPrompt ?? "");
-  const [streaming, setStreaming] = useState(false);
-  const [toolStatus, setToolStatus] = useState(null);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
-  const context = buildPortfolioContext(lastResults, lastPayload);
-  const hasPortfolio = !!context;
+  const hasPortfolio = !!(lastResults && lastPayload);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [stream.messages]);
 
-  async function send(text) {
-    if (!text.trim() || streaming) return;
-    const userMsg = { role: "user", content: text };
-    const history = [...messages, userMsg];
-    setMessages([...history, { role: "assistant", content: "" }]);
+  function send(text) {
+    if (!text.trim() || stream.streaming) return;
     setInput("");
-    setStreaming(true);
-    setToolStatus(null);
-
-    const BASE = import.meta.env.VITE_API_URL ?? "";
-    const body = {
-      messages: history,
-      portfolio_context: context,
-      saved_payload: hasPortfolio ? lastPayload : null,
-      lessons_completed: getCompletedLessonIds(),
-    };
-
-    let accumulated = "";
-    try {
-      for await (const ev of streamTutorEvents(`${BASE}/api/chat`, body)) {
-        if (ev.kind === "tool_use") {
-          setToolStatus(ev.status);
-        } else if (ev.kind === "tool_ui") {
-          setToolStatus(null);
-          if (ev.tool === "save_snapshot" && hasPortfolio) {
-            try { saveSnapshot(lastPayload, lastResults, ev.payload?.label, ev.payload?.note); } catch {}
-          }
-          setMessages((prev) => {
-            const updated = [...prev];
-            const last = { ...updated[updated.length - 1] };
-            if (ev.tool === "suggest_lesson")  last.lessonCard   = ev.payload;
-            if (ev.tool === "save_snapshot")   last.snapshotCard = ev.payload;
-            updated[updated.length - 1] = last;
-            return updated;
-          });
-        } else if (ev.kind === "text") {
-          setToolStatus(null);
-          accumulated += ev.text;
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { ...updated[updated.length - 1], content: accumulated };
-            return updated;
-          });
-        }
-      }
-    } finally {
-      setStreaming(false);
-      setToolStatus(null);
-    }
+    stream.send(text);
   }
 
   function handleSubmit(e) {
@@ -900,42 +704,40 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
     : ["What's a Sharpe ratio in plain English?", "How should I think about diversification?", "What does 'beta' actually mean for my returns?"];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white flex flex-col min-h-[480px] max-h-[78vh]">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-neutral-100 text-neutral-700">
-            <MessageSquare className="h-4 w-4" strokeWidth={2} />
+    <div className="bg-white rounded-3xl flex flex-col min-h-[520px] max-h-[78vh] shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center justify-between px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
+            <MessageSquare className="h-4 w-4" strokeWidth={2.25} />
           </div>
           <div>
-            <div className="text-sm font-semibold text-slate-900">
+            <div className="text-base font-bold text-neutral-900 tracking-tight">
               {hasPortfolio ? "Ask about your portfolio" : "Ask anything"}
             </div>
-            <div className="text-[11px] text-slate-500">
-              {hasPortfolio ? "Loaded portfolio is available as context." : "No portfolio yet — we can start abstract."}
+            <div className="text-xs text-neutral-500">
+              {hasPortfolio ? "Your loaded portfolio is available as context." : "No portfolio needed — we can start abstract."}
             </div>
           </div>
         </div>
         <button
           onClick={onBack}
-          className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+          className="text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors px-3 py-1.5 rounded-full hover:bg-stone-100"
         >
           ← Back
         </button>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {messages.length === 0 && (
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        {stream.messages.length === 0 && (
           <div>
-            <p className="text-sm text-slate-500 mb-3">Try one of these:</p>
+            <p className="text-sm text-neutral-500 mb-3">Try one of these:</p>
             <div className="space-y-2">
               {SUGGESTED.map((q) => (
                 <button
                   key={q}
                   onClick={() => send(q)}
-                  disabled={streaming}
-                  className="w-full text-left px-3 py-2.5 rounded-md bg-white border border-neutral-200 text-sm font-medium text-neutral-700 hover:border-neutral-900 hover:bg-neutral-900 hover:text-white transition-colors disabled:opacity-50"
+                  disabled={stream.streaming}
+                  className="w-full text-left px-4 py-3 rounded-2xl bg-stone-50 hover:bg-emerald-50 text-sm font-medium text-neutral-700 hover:text-emerald-800 transition-colors disabled:opacity-50"
                 >
                   {q}
                 </button>
@@ -944,33 +746,33 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
           </div>
         )}
 
-        {messages.map((m, i) => (
+        {stream.messages.map((m, i) => (
           <div key={i}>
             <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[85%] rounded-md px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap
+                className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap
                   ${m.role === "user"
-                    ? "bg-neutral-900 text-white"
-                    : "bg-neutral-100 text-neutral-900"}`}
+                    ? "bg-emerald-500 text-white"
+                    : "bg-stone-100 text-neutral-900"}`}
               >
-                {m.content || (streaming && i === messages.length - 1 ? (
+                {m.content || (stream.streaming && i === stream.messages.length - 1 ? (
                   <span className="inline-flex gap-1">
-                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
-                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "150ms" }} />
-                    <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" style={{ animationDelay: "300ms" }} />
+                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" style={{ animationDelay: "150ms" }} />
+                    <span className="h-1.5 w-1.5 rounded-full bg-neutral-400 animate-pulse" style={{ animationDelay: "300ms" }} />
                   </span>
                 ) : "")}
               </div>
             </div>
             {m.lessonCard && (
-              <div className="flex justify-start mt-1">
+              <div className="flex justify-start mt-2">
                 <div className="max-w-[85%] w-full">
                   <LessonCard payload={m.lessonCard} onOpenLesson={onOpenLesson} />
                 </div>
               </div>
             )}
             {m.snapshotCard && (
-              <div className="flex justify-start mt-1">
+              <div className="flex justify-start mt-2">
                 <div className="max-w-[85%] w-full">
                   <SnapshotCard payload={m.snapshotCard} />
                 </div>
@@ -981,36 +783,35 @@ function JustAskChat({ lastResults, lastPayload, initialPrompt, onBack, onOpenLe
         <div ref={bottomRef} />
       </div>
 
-      <ToolStatusPill status={toolStatus} />
+      <ToolStatusPill status={stream.toolStatus} />
 
-      {/* Composer */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-slate-200 flex gap-2">
+      <form onSubmit={handleSubmit} className="p-4 flex gap-2 items-center">
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="What do you want to know?"
-          disabled={streaming}
-          className="flex-1 bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2.5 text-sm font-medium text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors disabled:opacity-50"
+          disabled={stream.streaming}
+          className="flex-1 bg-stone-50 rounded-full px-5 py-3 text-[15px] text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-white focus:ring-4 focus:ring-emerald-100 border border-transparent focus:border-emerald-300 transition-all disabled:opacity-50"
         />
         <button
           type="submit"
-          disabled={!input.trim() || streaming}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 text-white transition-colors active:scale-95"
+          disabled={!input.trim() || stream.streaming}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-200 disabled:text-neutral-400 text-white transition-colors active:scale-95 shadow-[0_4px_12px_rgba(16,185,129,0.25)] disabled:shadow-none"
         >
-          {streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
+          {stream.streaming ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2.5} /> : <Send className="h-4 w-4" strokeWidth={2.5} />}
         </button>
       </form>
     </div>
   );
 }
 
-// ── Empty state — returning user with saved portfolio ──────────────────
+// ── Returning user — has a saved portfolio ──────────────────────────────
 function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPage, onStartFresh }) {
   const tickers = lastResults?.tickers ?? [];
-  const head = tickers.slice(0, 3);
-  const extra = Math.max(0, tickers.length - 3);
+  const head = tickers.slice(0, 5);
+  const extra = Math.max(0, tickers.length - 5);
   const score = lastResults?.panko_score?.total ?? null;
   const savedAt = (() => {
     try {
@@ -1020,12 +821,14 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPag
       return savedAt ? new Date(savedAt) : null;
     } catch { return null; }
   })();
-  const savedAtLabel = savedAt ? savedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+  const savedAtLabel = savedAt
+    ? savedAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : null;
 
   const suggestions = [
-    "Walk me through my current risk profile",
-    "What's changed since last time I checked?",
-    "Share my screen — I want to look at something specific",
+    "Walk me through my risk profile",
+    "What's changed since last check?",
+    "Share my screen — I want to look at something",
   ];
 
   function handleSuggestion(s) {
@@ -1033,47 +836,62 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPag
     else onAskInPage(s);
   }
 
-  return (
-    <div className="space-y-8">
-      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-neutral-900">
-        Welcome back.
-      </h2>
+  // Color the score band based on how the portfolio is doing.
+  const scoreColor = score == null
+    ? "bg-stone-100 text-neutral-700"
+    : score >= 75
+      ? "bg-emerald-100 text-emerald-800"
+      : score >= 50
+        ? "bg-amber-100 text-amber-800"
+        : "bg-rose-100 text-rose-800";
 
-      {/* Compact portfolio summary. All numerals (and the date for visual
-          cohesion) are font-mono + tabular-nums so the row reads as a
-          terminal-spec snapshot. */}
-      <div className="rounded-md border border-neutral-200 bg-white p-5 flex flex-wrap items-center gap-x-8 gap-y-3">
-        <div className="space-y-1">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Portfolio</div>
-          <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">
-            {head.join(" · ")}{extra > 0 && <span className="text-neutral-400"> · +{extra} more</span>}
+  return (
+    <div className="space-y-6">
+      {/* Portfolio summary — a real card, not a row of labels. Big readable
+          numbers, ticker chips, friendly color band on the score. */}
+      <div className="bg-white rounded-3xl p-6 md:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+        <div className="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 mb-1">Your portfolio</div>
+            <div className="text-sm text-neutral-500">
+              {savedAtLabel ? `Last looked at ${savedAtLabel}` : "Loaded from your last session"}
+            </div>
           </div>
+          {score != null && (
+            <div className={`px-4 py-3 rounded-2xl ${scoreColor}`}>
+              <div className="text-[10px] font-bold uppercase tracking-wider opacity-70">Panko Score</div>
+              <div className="font-mono text-2xl font-bold tabular-nums leading-none mt-0.5">
+                {Math.round(score)}<span className="text-base opacity-50"> / 100</span>
+              </div>
+            </div>
+          )}
         </div>
-        {score != null && (
-          <div className="space-y-1">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Panko Score</div>
-            <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">{Math.round(score)} / 100</div>
-          </div>
-        )}
-        {savedAtLabel && (
-          <div className="space-y-1">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Last snapshot</div>
-            <div className="font-mono text-sm font-medium text-neutral-900 tabular-nums">{savedAtLabel}</div>
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {head.map((t) => (
+            <span key={t} className="font-mono text-xs font-semibold tabular-nums px-3 py-1.5 rounded-full bg-stone-100 text-neutral-700">
+              {t}
+            </span>
+          ))}
+          {extra > 0 && (
+            <span className="font-mono text-xs font-medium px-3 py-1.5 rounded-full bg-stone-50 text-neutral-500">
+              +{extra} more
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Suggested prompts — sharp rectangles (rounded-md), neutral border at
-          rest, black fill on hover. Reads like keyboard-shortcut buttons. */}
-      <div className="flex flex-wrap gap-2">
+      {/* Suggested actions — soft pill buttons */}
+      <div className="space-y-2">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 px-1">Or pick up where you left off</div>
         {suggestions.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => handleSuggestion(s)}
-            className="rounded-md border border-neutral-200 bg-white hover:border-neutral-900 hover:bg-neutral-900 hover:text-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors"
+            className="w-full text-left bg-white hover:bg-emerald-50 rounded-2xl px-5 py-4 text-sm font-medium text-neutral-700 hover:text-emerald-800 transition-colors shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex items-center justify-between gap-3 group"
           >
-            {s}
+            <span>{s}</span>
+            <ArrowRight className="h-4 w-4 text-neutral-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all" strokeWidth={2.5} />
           </button>
         ))}
       </div>
@@ -1081,7 +899,7 @@ function ReturningUserState({ lastResults, lastPayload, onStartShare, onAskInPag
       <button
         type="button"
         onClick={onStartFresh}
-        className="text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
+        className="text-sm font-semibold text-neutral-500 hover:text-neutral-900 transition-colors"
       >
         Start fresh with a different portfolio →
       </button>
