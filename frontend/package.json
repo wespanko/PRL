@@ -1,33 +1,25 @@
 {
-  "name": "panko-risk-frontend",
+  "name": "trade-reality-check",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "e2e": "playwright test"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@sentry/react": "^8.46.0",
-    "lucide-react": "^1.14.0",
+    "lucide-react": "^0.460.0",
+    "papaparse": "^5.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.12.0"
+    "recharts": "^2.13.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@vitejs/plugin-react": "^4.3.0",
-    "autoprefixer": "^10.5.0",
-    "happy-dom": "^16.5.3",
-    "postcss": "^8.5.14",
-    "tailwindcss": "^3.4.19",
-    "vite": "^5.4.0",
-    "vitest": "^2.1.8"
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "vite": "^5.4.11"
   }
 }
