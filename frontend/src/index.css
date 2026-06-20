@@ -7,7 +7,7 @@ html, body, #root {
 }
 
 body {
-  font-feature-settings: "ss01", "cv11";
+  font-feature-settings: "ss01", "cv11", "tnum";
 }
 
 * {
@@ -15,8 +15,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle scrollbar in dark theme */
+input[type="range"] {
+  height: 4px;
+  background: #18181b;
+  border-radius: 2px;
+}
+
+/* Terminal scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #27272a; border-radius: 6px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #27272a; border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }

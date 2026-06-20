@@ -1,31 +1,25 @@
-# Trade Reality Check
+# Panko Quant Lab
 
-A trader-behavior and risk analytics MVP. Upload your trade history and find out:
+A quant terminal for retail traders. Backtest preset strategies, stress-test them with Monte Carlo and walk-forward analysis, and learn the concepts behind the metrics — all in the browser, no backend, no login.
 
-- whether you have a measurable edge
-- whether your profits are outlier-driven
-- which behaviors are causing your drawdowns
-- how your trade distribution holds up against a prop firm's drawdown limits
+**Educational analytics. No trading signals. No investment advice.**
 
-**Analytics only. No trading signals. No investment advice.**
+## What it does
 
-## What it is
+- **Strategy** — pick from 5 preset strategies (SMA crossover, RSI mean reversion, Donchian breakout, 12-month momentum, buy & hold benchmark), tune parameters with sliders, configure execution costs.
+- **Backtest** — runs the strategy over historical bars with a no-lookahead engine (signal at today's close, fill at tomorrow's open). Shows equity vs benchmark, drawdown, key metrics (CAGR, Sharpe, Sortino, max DD, win rate, profit factor, expectancy, exposure, alpha) with hover-tooltip definitions.
+- **Robustness** — Monte Carlo bootstrap of trade returns + walk-forward fold-by-fold stability. Catches strategies that look great in-sample but fall apart out-of-sample.
+- **Data** — synthetic sample universe built into the app, plus CSV bar upload (date + OHLC + volume, any column names).
+- **Learn** — five short opinionated explainers: Sharpe ratio, walk-forward bias, Monte Carlo caveats, overfitting, sample size.
 
-A single-page React app. No backend, no database, no login. Your CSV is parsed and analyzed entirely in the browser — nothing is uploaded.
+## Stack
 
-The report covers:
+- Vite + React 18 + Tailwind
+- Recharts for charts
+- PapaParse for CSV parsing
+- No backend, no database, no auth. Everything runs in the browser.
 
-- **Reality Check Score (0–100)** with a plain-English label and a sample-size confidence indicator.
-- **Key metrics**: total P&L, win rate, profit factor, expectancy, avg win/loss, best/worst, std dev, Sharpe-like.
-- **Equity curve + drawdown chart** with max drawdown and worst streaks.
-- **Daily P&L stats**: best day, worst day, days traded, trades per day.
-- **Outlier dependence**: P&L excluding top 1 / top 3 trades, percent of gross profit from top trades, plus an outlier warning when applicable.
-- **Behavior leaks** (severity-tagged): big-loss tail, outlier dependence, sizing inconsistency, overtrading, revenge trading after a loss, late-day deterioration, noisy/unproven edge.
-- **Time-of-day analysis** (hour-by-hour P&L + premarket/regular/afternoon/overnight buckets) when timestamps are present.
-- **Prop-firm survival simulator**: Monte Carlo on your historical trade distribution against an account size, max drawdown, daily loss limit, and profit target.
-- **Recommended rules** generated from the patterns above.
-
-## Run it
+## Run
 
 ```bash
 cd frontend
@@ -35,58 +29,63 @@ npm run dev
 
 Open http://localhost:5173.
 
-To produce a static build:
-
+Production build:
 ```bash
 npm run build
 npm run preview
 ```
 
-The build outputs to `frontend/dist/`. It is a fully static site — host it on Vercel, Netlify, Cloudflare Pages, or any static host.
+Outputs a fully static site in `frontend/dist/` — host on Vercel, Netlify, Cloudflare Pages, or any static host.
 
-## CSV format
+## Architecture
 
-The parser auto-detects common column names from broker, prop firm, and journal exports.
+```
+frontend/src/
+  lib/
+    strategies.js       Preset strategies + signal functions
+    backtest.js         No-lookahead backtest engine + metrics
+    monteCarlo.js       Bootstrap of trade returns + daily returns
+    walkForward.js      N-fold stability analysis
+    sampleData.js       Synthetic OHLC universe (3 symbols)
+    parseBars.js        Forgiving CSV bar parser
+    glossary.js         Metric one-liners for tooltips
+    format.js           Number formatting
 
-| Concept | Recognized as (case/spacing-insensitive) |
-| --- | --- |
-| Date / time | `date`, `datetime`, `time`, `timestamp`, `opened`, `closed`, `entrytime`, `exittime` |
-| Symbol | `symbol`, `instrument`, `ticker`, `contract` |
-| Side | `side`, `direction`, `type`, `action`, `buysell`, `longshort` (values: long/short, buy/sell, b/s) |
-| Quantity | `quantity`, `qty`, `contracts`, `size`, `lots`, `shares` |
-| Entry price | `entry`, `entryprice`, `open`, `openprice`, `buyprice`, `fillprice` |
-| Exit price | `exit`, `exitprice`, `close`, `closeprice`, `sellprice` |
-| Gross P&L | `grosspnl`, `grossprofit` |
-| Net P&L | `netpnl`, `pnl`, `profit`, `result`, `realizedpnl` |
-| Fees | `commission`, `fees`, `cost` |
-| Duration | `duration`, `holdtime`, `timeintrade` |
-| Account | `account`, `accountname`, `broker` |
+  components/
+    layout/             Sidebar, TopBar, Panel
+    strategy/           StrategyView (picker + params + market + execution)
+    backtest/           BacktestView, EquityVsBenchmark, DrawdownChartBT, MetricGrid, TradesTable
+    robustness/         RobustnessView, MonteCarloPanel, WalkForwardPanel
+    data/               DataView (sample universe + CSV upload)
+    learn/              LearnView + lessons data
+    common/             InfoTip (hover tooltip)
+    Footer.jsx
+```
 
-If a net P&L column is present, it is used directly. Otherwise the parser falls back to `gross - fees`, then to `(exit - entry) × side × quantity − fees`. P&L computed this last way is flagged in the report as **approximate** — for futures the dollar value per point can be different from 1 (e.g. NQ = $20/pt) and we do not currently apply contract-specific multipliers.
+## Honest limitations
 
-## MVP limitations
-
-- Futures point values are not applied automatically. Estimated P&L from entry/exit assumes $1 per point per contract.
-- Time-of-day analysis uses the local time of the dates parsed. Time zones are not normalized.
-- The simulator samples trades with replacement and treats every day as independent. Real intra-day path dependence (e.g. trailing drawdown vs end-of-day drawdown) is approximated.
-- No login, no saved reports — close the tab and the data is gone.
-- No broker-specific CSV templates yet. Most exports work but oddly-named columns may need a one-line rename.
+- **Synthetic sample data.** The 3 built-in symbols (`SPX-syn`, `QQQ-syn`, `GROWTH-syn`) are generated with seeded RNGs to produce realistic-looking drift, vol, and regime shifts. They are not real market data. Upload your own CSV bars for real results.
+- **Long-only.** The MVP doesn't support shorting, leverage, or multi-asset portfolios. Single asset, fully invested when "long," cash otherwise.
+- **Walk-forward without re-optimization.** True walk-forward optimization re-fits parameters per fold. This MVP uses the same parameters across all folds — a much weaker (but still useful) stability check.
+- **Bootstrap assumes IID.** Monte Carlo resamples individual trades. Real trade returns have serial correlation; block bootstrap would be more honest. We surface the caveat in the panel.
+- **No futures point values.** Each share/contract uses the bar's price as its dollar value. For futures, you'd want a contract-specific multiplier.
 
 ## Roadmap
 
-- Broker / platform-specific CSV presets (Tradovate, Rithmic, Topstep, NinjaTrader, Tradezella).
-- Futures contract specs (point value, tick value) for accurate estimated P&L.
-- PDF export of the report.
-- User accounts and saved reports.
-- Benchmark comparisons (your distribution vs aggregate distributions across user base).
-- Advanced Monte Carlo: trailing vs end-of-day drawdown, weekend/holiday handling, intra-day path simulation.
-- Strategy tagging — break the report down per strategy or per setup.
-- Coach dashboard for funded-trader programs / mentors.
-- AI-generated weekly trading autopsy.
+- Real historical data via a small serverless backend (yfinance / Polygon / Stooq).
+- True walk-forward optimization (parameter grid per fold).
+- Multi-asset portfolio backtests.
+- Strategy code editor (JS sandbox) for custom logic, not just presets.
+- Out-of-sample reserve (hold the last N% of data invisible until final verdict).
+- PDF report export.
+- Saved strategies + user accounts.
+- Benchmark universe (SPY, QQQ, IWM, etc).
+- Forward / paper trading hookup.
+- Lessons V2: pictures, examples, interactive demos.
 
 ## Privacy
 
-Your CSV is read by the browser and analyzed in-memory. The file is not sent to any server. Closing the tab clears it.
+CSV files you upload are parsed entirely in your browser and discarded when you close the tab. Nothing is sent to a server.
 
 ## License
 
