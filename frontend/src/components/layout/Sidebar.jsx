@@ -1,24 +1,23 @@
-import { Cpu, BarChart2, ShieldCheck, BookOpen, Database } from "lucide-react";
+import { TrendingUp, Zap, Target, BookOpen } from "lucide-react";
 
 const NAV = [
-  { id: "strategy", label: "STRATEGY", icon: Cpu, hint: "Build & configure" },
-  { id: "backtest", label: "BACKTEST", icon: BarChart2, hint: "Performance" },
-  { id: "robustness", label: "ROBUSTNESS", icon: ShieldCheck, hint: "Monte Carlo & WFA" },
-  { id: "data", label: "DATA", icon: Database, hint: "Symbols & uploads" },
-  { id: "learn", label: "LEARN", icon: BookOpen, hint: "Quant concepts" },
+  { id: "markets", label: "MARKETS", icon: TrendingUp },
+  { id: "arbitrage", label: "ARBITRAGE", icon: Zap },
+  { id: "calibration", label: "CALIBRATION", icon: Target },
+  { id: "learn", label: "LEARN", icon: BookOpen },
 ];
 
 export default function Sidebar({ active, onChange }) {
   return (
     <aside className="w-44 shrink-0 border-r border-zinc-900 bg-black flex flex-col">
       <div className="px-3 py-4 border-b border-zinc-900">
-        <div className="font-mono text-[11px] tracking-widest text-amber-400">PANKO//QL</div>
-        <div className="font-mono text-[10px] text-zinc-500 mt-0.5">QUANT LAB v0.3</div>
+        <div className="font-mono text-[11px] tracking-widest text-amber-400">PANKO//PM</div>
+        <div className="font-mono text-[10px] text-zinc-500 mt-0.5">PREDICTION TERMINAL</div>
       </div>
       <nav className="flex-1 py-2">
         {NAV.map((item) => {
           const Icon = item.icon;
-          const isActive = active === item.id;
+          const isActive = active === item.id || (active === "marketDetail" && item.id === "markets");
           return (
             <button
               key={item.id}
@@ -36,8 +35,8 @@ export default function Sidebar({ active, onChange }) {
         })}
       </nav>
       <div className="px-3 py-3 border-t border-zinc-900 font-mono text-[10px] text-zinc-600 leading-relaxed">
-        <div>EDU TOOL · NO ADVICE</div>
-        <div className="mt-1">In-browser. Nothing stored.</div>
+        <div>POLYMARKET ONLY · MVP</div>
+        <div className="mt-1">EDU TOOL · NO ADVICE</div>
       </div>
     </aside>
   );

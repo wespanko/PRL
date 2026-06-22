@@ -1,29 +1,36 @@
-// One-line definitions used for inline tooltips on metric cards.
-// Deeper explanations live in Learn pages.
+// Inline tooltip definitions for the prediction-market terminal.
 
 export const GLOSSARY = {
-  sharpe:
-    "Risk-adjusted return: mean return divided by volatility, annualized. Higher = better. >1 is decent, >2 is great, but be skeptical of any number above 3 — usually overfitting.",
-  sortino:
-    "Like Sharpe, but divides by downside volatility only. Treats upside swings as a feature, not a risk.",
-  cagr:
-    "Compound annual growth rate. The constant annual return that would have produced the same final equity over the period.",
-  maxDrawdown:
-    "Largest peak-to-trough decline in equity. The size of the worst losing streak. If you can't stomach this number, the strategy is unusable.",
-  winRate:
-    "Percent of trades that closed profitable. Low win rate isn't bad if your winners are large — trend-following typically wins 35–45%.",
-  profitFactor:
-    "Gross profit divided by gross loss. >1 means profitable. >2 is strong but check the sample size.",
-  expectancy:
-    "Average profit per trade. Tells you how much you make per round-turn on average.",
-  exposure:
-    "Percent of trading days the strategy was actually in a position. Low exposure means you're often in cash — buy-and-hold isn't a fair comparison.",
-  monteCarlo:
-    "Bootstrap your trade returns into 1,000 random orderings to see the range of outcomes. Tests whether the result is lucky, robust, or unlucky.",
-  walkForward:
-    "Split the period into folds and re-evaluate per fold. Catches strategies that work in one regime and fail in others.",
-  inSampleBias:
-    "Performance over the data you tuned on overstates real-world expectation. The walk-forward and out-of-sample numbers are closer to the truth.",
+  yesPrice:
+    "The current price of a YES share, in dollars. Equivalent to the market-implied probability that YES resolves true. $0.74 means the market is saying 74% chance YES wins.",
+  noPrice:
+    "Price of a NO share. YES + NO should sum to $1.00; deviations are the basis.",
+  basis:
+    "YES price + NO price - 1. Should be near zero. Positive basis = paying a premium for both sides (avoid). Negative basis = you can buy both sides for less than $1 and lock a profit (rare; the venue's AMM usually closes these fast).",
+  volume:
+    "Cumulative dollar volume traded since market open. Higher = more participants, tighter spreads, better fills.",
+  volume24h:
+    "Volume in the last 24 hours. Filter for liquid markets here — many old markets have high cumulative volume but no current activity.",
+  liquidity:
+    "Approximate depth of book — how much you can trade at near-current prices without moving the price. Polymarket reports this as on-chain CLOB liquidity.",
+  edge:
+    "Your probability minus the market price. +5¢ = you think YES wins 5% more often than the market does. Edge is what makes a bet +EV.",
+  ev:
+    "Expected value per $1 bet. Computed as (your_prob / market_price) - 1 for a YES bet. +20% means each $1 returns $1.20 in expectation.",
+  kelly:
+    "Optimal fraction of bankroll to bet given your edge. Kelly maximizes log growth. Most pros bet 1/4 or 1/2 of Kelly to reduce volatility.",
+  brier:
+    "Mean squared error of your forecasts vs. outcomes. Lower is better. 0 = perfect; 0.25 = coin flip; >0.25 = worse than guessing.",
+  logLoss:
+    "Penalizes confident wrong predictions much more than Brier. The metric a calibration-aware bettor optimizes.",
+  ece:
+    "Expected Calibration Error. Weighted average gap between your stated probability and the actual hit rate, per bucket. <5% is well-calibrated.",
+  brierSkill:
+    "Brier skill score: 1 = perfect, 0 = no skill (same as always saying 50%), negative = worse than 50/50. The number that says whether you have an edge.",
+  resolution:
+    "How the market knows YES vs NO. Polymarket uses UMA optimistic oracle: anyone can propose a resolution; disputes go to UMA tokenholders.",
+  ammSpread:
+    "Polymarket's CLOB has an AMM behind it. Spreads on illiquid markets can be large (5–10¢). Always check the orderbook before assuming a printed price is the price you'll get.",
 };
 
 export function tip(key) {

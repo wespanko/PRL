@@ -1,79 +1,49 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./components/layout/Sidebar";
 import TopBar from "./components/layout/TopBar";
-import StrategyView from "./components/strategy/StrategyView";
-import BacktestView from "./components/backtest/BacktestView";
-import RobustnessView from "./components/robustness/RobustnessView";
-import DataView from "./components/data/DataView";
+import MarketsView from "./components/markets/MarketsView";
+import MarketDetail from "./components/markets/MarketDetail";
+import ArbView from "./components/arbitrage/ArbView";
+import CalibrationView from "./components/calibration/CalibrationView";
 import LearnView from "./components/learn/LearnView";
 import Footer from "./components/Footer";
-import { defaultParams, STRATEGY_LIST } from "./lib/strategies";
-import { getBars, getSampleSymbols } from "./lib/sampleData";
-import { backtest } from "./lib/backtest";
+import { listActiveMarkets } from "./lib/polymarket";
 
 export default function App() {
-  const [view, setView] = useState("strategy");
+  const [view, setView] = useState("markets");
+  const [selectedMarket, setSelectedMarket] = useState(null);
+  const [apiStatus, setApiStatus] = useState("loading");
 
-  const [strategyId, setStrategyId] = useState("sma_cross");
-  const [params, setParams] = useState(defaultParams("sma_cross"));
-  const [symbol, setSymbol] = useState(getSampleSymbols()[0] || "");
-  const [customBars, setCustomBars] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { fromCache, error } = await listActiveMarkets({ limit: 1 });
+      if (cancelled) return;
+      setApiStatus(fromCache || error ? "demo" : "live");
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const [startingCash, setStartingCash] = useState(100000);
-  const [commissionPerTrade, setCommissionPerTrade] = useState(1);
-  const [slippageBps, setSlippageBps] = useState(5);
-
-  const [result, setResult] = useState(null);
-  const [running, setRunning] = useState(false);
-
-  const bars = useMemo(() => {
-    if (customBars && customBars.symbol === symbol) return customBars.bars;
-    return getBars(symbol);
-  }, [symbol, customBars]);
-
-  const runBacktest = () => {
-    if (!bars.length) return;
-    setRunning(true);
-    setTimeout(() => {
-      const r = backtest(bars, strategyId, params, { startingCash, commissionPerTrade, slippageBps });
-      setResult(r);
-      setRunning(false);
-      setView("backtest");
-    }, 16);
+  const openMarket = (market) => {
+    setSelectedMarket(market);
+    setView("marketDetail");
   };
 
-  const clearResult = () => {
-    setResult(null);
-    setView("strategy");
+  const setNav = (id) => {
+    if (id === "markets") setSelectedMarket(null);
+    setView(id);
   };
 
   return (
     <div className="flex h-screen bg-black">
-      <Sidebar active={view} onChange={setView} />
+      <Sidebar active={view} onChange={setNav} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar
-          symbol={symbol}
-          strategyId={strategyId}
-          params={params}
-          hasResult={!!result}
-          onRun={runBacktest}
-          onClear={clearResult}
-          running={running}
-        />
+        <TopBar view={view} apiStatus={apiStatus} />
         <main className="flex-1 overflow-auto bg-black p-4">
-          {view === "strategy" && (
-            <StrategyView
-              strategyId={strategyId} setStrategyId={setStrategyId}
-              params={params} setParams={setParams}
-              symbol={symbol} setSymbol={setSymbol}
-              startingCash={startingCash} setStartingCash={setStartingCash}
-              commissionPerTrade={commissionPerTrade} setCommissionPerTrade={setCommissionPerTrade}
-              slippageBps={slippageBps} setSlippageBps={setSlippageBps}
-            />
-          )}
-          {view === "backtest" && <BacktestView result={result} />}
-          {view === "robustness" && <RobustnessView result={result} symbol={symbol} />}
-          {view === "data" && <DataView symbol={symbol} setSymbol={setSymbol} customBars={customBars} setCustomBars={setCustomBars} />}
+          {view === "markets" && <MarketsView onOpenMarket={openMarket} />}
+          {view === "marketDetail" && <MarketDetail market={selectedMarket} onBack={() => setNav("markets")} />}
+          {view === "arbitrage" && <ArbView onOpenMarket={openMarket} />}
+          {view === "calibration" && <CalibrationView />}
           {view === "learn" && <LearnView />}
           <Footer />
         </main>

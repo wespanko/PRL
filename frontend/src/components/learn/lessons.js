@@ -1,121 +1,123 @@
-// Lesson data. Each lesson is a JS object with sections.
-// Rendered by LearnPage. Keeping content in code (vs markdown) for the MVP
-// so we avoid adding a markdown dependency.
+// Prediction-market explainers. Replaces the backtest lessons.
 
 export const LESSONS = [
   {
-    id: "sharpe",
-    title: "Sharpe Ratio — what it really means",
-    summary: "Risk-adjusted return. The single most-cited stat in quant. Also one of the most misused.",
+    id: "edge-ev",
+    title: "Edge & Expected Value — when is a bet worth taking?",
+    summary: "If your probability differs from the market price, you have an edge. The size of that edge — and whether it survives fees + spread — is what matters.",
+    minutes: 4,
+    sections: [
+      {
+        h: "The setup",
+        body: "A YES share on Polymarket pays $1 if YES wins, $0 if NO wins. The price (e.g. $0.40) is the market-implied probability. If you think the true probability is 0.50, your edge is +10¢. EV per dollar bet = (your_prob / market_price) − 1 = (0.50 / 0.40) − 1 = +25%.",
+      },
+      {
+        h: "What kills your edge",
+        body: "1) Spread. The mid is not your fill — you pay 1–5¢ extra on illiquid contracts. 2) Resolution risk. Polymarket's UMA oracle is good but not perfect; disputed markets can resolve unfavorably. 3) Time value. A 10¢ edge over 6 months is much weaker than 10¢ over a week (capital tied up).",
+      },
+      {
+        h: "Calibrating 'I have edge'",
+        body: "Most people overestimate their edge. Track yourself: log bets, compute Brier score (in the CALIBRATION view). If your Brier is above 0.20, you are NOT skilled at probability estimation yet — bet small while you calibrate.",
+      },
+      {
+        h: "The annualization trap",
+        body: "A 30% return over 6 months is great. The same return over 18 months is mediocre. Look at the ANNL EDGE RETURN metric in the market detail panel — it bakes in time to resolution. Edges look smaller annualized than they feel.",
+      },
+    ],
+  },
+  {
+    id: "kelly",
+    title: "Kelly Criterion — how big to bet",
+    summary: "The mathematically optimal bet size when you have a quantifiable edge. Maximizes log growth — but full Kelly is volatile, so most people use a fraction.",
     minutes: 4,
     sections: [
       {
         h: "The formula",
-        body: "Sharpe = (mean return − risk-free rate) / std-dev of returns. Most backtests omit the risk-free rate and just compute mean/sigma. To annualize, multiply by √(periods per year). For daily returns, that's √252.",
+        body: "For a binary bet: f* = (b·p − (1 − p)) / b, where p is your probability of winning and b is the decimal odds against (so for YES at $0.40, b = (1 − 0.40) / 0.40 = 1.5). f* is the fraction of bankroll to bet. If f* ≤ 0, don't bet.",
       },
       {
-        h: "What's a 'good' Sharpe?",
-        body: "Above 1.0 is decent. Above 2.0 is strong. Above 3.0 — be suspicious. Most professional quant funds operate at 1.0–2.0 Sharpe net of fees. If your retail backtest claims 4.0, you have almost certainly fit to noise, made a lookahead mistake, or are looking at in-sample data.",
+        h: "Why full Kelly hurts",
+        body: "Full Kelly maximizes long-run log growth — but it's extremely volatile. A typical full-Kelly bettor sees 30–50% drawdowns regularly. Most pros bet 1/4 to 1/2 Kelly: gives up some growth, eliminates ruin risk and the emotional cost of huge drawdowns.",
       },
       {
-        h: "What it doesn't tell you",
-        body: "Sharpe treats upside vol the same as downside vol. A strategy with huge upside surprises has the same Sharpe as a strategy with huge downside surprises if the magnitudes match. Sortino divides by downside volatility only — usually a better metric for tail-sensitive strategies.",
+        h: "Kelly is sensitive to your probability estimate",
+        body: "If you think p=0.55 and you're actually at p=0.50, Kelly says bet ~10% of bankroll — but the true bet is 0% (no edge). Kelly amplifies overconfidence. Rule of thumb: shrink your stated probability toward the market price by 20–30% before computing Kelly.",
       },
       {
-        h: "Common traps",
-        body: "1) Using monthly returns and forgetting to scale. 2) Computing on small samples — Sharpe from 20 trades is statistical noise. 3) Survivorship bias in the data (delisted tickers removed). 4) In-sample optimization — your Sharpe is for the period you tuned on, not the period you'll trade in.",
+        h: "Per-bet vs. portfolio Kelly",
+        body: "Single-bet Kelly assumes you bet your whole bankroll on one event. If you're holding 5 simultaneous positions, you can't actually put 25% on each — that's 125%. Cap your total exposure to ~50% of bankroll across all open bets.",
       },
     ],
   },
   {
-    id: "walk-forward",
-    title: "Walk-forward — the bias your backtest is hiding",
-    summary: "Why a strategy that 'works' on 10 years of data may not work tomorrow — and how to test it honestly.",
+    id: "calibration",
+    title: "Calibration — are your '70%' guesses actually 70%?",
+    summary: "A calibrated forecaster has 70% of their 70% predictions come true. Most retail bettors are dramatically overconfident — and don't know it.",
     minutes: 5,
     sections: [
       {
-        h: "The bias",
-        body: "When you tune parameters on a full dataset and then report results on that same dataset, you're describing how well your strategy fit the past — not how well it will work going forward. Every parameter you tune adds a degree of freedom; with enough degrees of freedom, almost any nonsense fits.",
+        h: "The test",
+        body: "Group all your forecasts by probability bucket (50–60%, 60–70%, ...). Within each bucket, compute the actual hit rate. Perfect calibration: every bucket hits at its average forecast. Real-world: most people's 70% predictions hit at 55% — they're overconfident by 15 percentage points.",
       },
       {
-        h: "Walk-forward analysis",
-        body: "Split your data into N consecutive folds. The honest version: optimize on each fold's first 70% (in-sample) and test on the last 30% (out-of-sample). Roll the window forward. Aggregate the OOS results. That's much closer to the truth.",
+        h: "Brier score: a single number",
+        body: "Brier = mean((forecast − outcome)²). Range 0–1, lower better. 0.25 is what you get from always saying 50% (no skill). Below 0.20: meaningfully calibrated. Below 0.15: rare, suggests real edge. Above 0.25: you're worse than coin-flip — usually from being confidently wrong.",
       },
       {
-        h: "This MVP's simpler version",
-        body: "We split into 5 equal folds and run the SAME parameters on each. We're not re-optimizing per fold — that comes in V2. But this simpler check still kills most overfit strategies: a real edge holds across most folds, an overfit strategy works in one or two.",
+        h: "ECE: where you're miscalibrated",
+        body: "Expected Calibration Error tells you the average gap between your forecast and reality. ECE < 5% = well-calibrated. ECE > 15% = systematic error somewhere. Look at the per-bucket table in the CALIBRATION view — usually one or two buckets dominate the error.",
       },
       {
-        h: "What to look for",
-        body: "Positive folds count: 4-of-5 or 5-of-5 is encouraging. 2-of-5 means your strategy depends on a regime. Stability: mean Sharpe divided by std-dev across folds — above 1.0 is reasonable. If stability is below 0.5, results are essentially regime-luck.",
+        h: "How long to get calibrated",
+        body: "20 bets is nothing. 100 bets give you a rough picture. 500+ bets let you actually trust your Brier score. The single most underrated practice for a serious bettor: keep a log, review monthly, learn where you're wrong.",
       },
     ],
   },
   {
-    id: "monte-carlo",
-    title: "Monte Carlo — what bootstrapping does and doesn't tell you",
-    summary: "Resampling trade returns to estimate the range of possible outcomes. Useful, but with caveats.",
-    minutes: 4,
-    sections: [
-      {
-        h: "What we're doing",
-        body: "Take your N trade P&Ls. Sample N with replacement, in random order. Sum to get a new equity curve. Repeat 1,000 times. The distribution of final P&Ls answers: 'given this trade distribution, what's the range of outcomes I could plausibly see?'",
-      },
-      {
-        h: "What you can read off it",
-        body: "Median end P&L tells you the typical outcome — not the lucky one. P5–P95 range gives a 90% confidence band. If your realized result is near P95, you got lucky. Profitable rate tells you the probability a randomly-ordered version of your trades ends profitable.",
-      },
-      {
-        h: "What it doesn't tell you",
-        body: "Bootstrap assumes trades are independent (IID). They aren't. In trending markets, winners cluster — bootstrap understates drawdown risk because it scatters them. In mean-reverting markets, it overstates the risk. Block bootstrap (resampling consecutive chunks instead of individual trades) is more honest but more complicated.",
-      },
-      {
-        h: "When MC is most useful",
-        body: "When you want to ask: 'is my sample size large enough to trust this?' If your P5–P95 range is huge, you don't have enough trades. If it's narrow, you have a stable estimate (whether or not the strategy actually works).",
-      },
-    ],
-  },
-  {
-    id: "overfitting",
-    title: "Overfitting — the trap every retail quant falls into",
-    summary: "How fitting to noise sneaks into your backtest, and the cheap ways to catch it.",
-    minutes: 4,
-    sections: [
-      {
-        h: "How it happens",
-        body: "You try SMA(20,50). Looks decent. You try SMA(15,50). Better. SMA(15,45). Better still. You arrive at SMA(13,47) which has Sharpe 2.5. You ship it. Reality: you've fit to the specific path of the historical data. None of those parameter tweaks identified a real signal — they identified noise that happened to align.",
-      },
-      {
-        h: "The cheap fixes",
-        body: "1) Use round numbers. SMA(20,50) is a sensible prior. SMA(13,47) is a confession. 2) Check parameter robustness — if SMA(20,50) works but SMA(22,52) fails, your edge is fragile. 3) Walk-forward (see other lesson). 4) Out-of-sample reserve: hold the last 20% of data and never look at it until the very end.",
-      },
-      {
-        h: "The smell test",
-        body: "Most overfit strategies share two traits: high in-sample Sharpe (> 2.5) on a single asset, and parameters that look random rather than thematic. If you can't explain WHY your parameters are what they are, they're probably curve-fit.",
-      },
-      {
-        h: "The honest workflow",
-        body: "Form a hypothesis BEFORE running the backtest. ('I think momentum works on broad-market ETFs over 6–12 month windows.') Test the hypothesis with default sensible parameters. If it works in walk-forward, you have something. If you have to tune the parameters to make it work, you don't.",
-      },
-    ],
-  },
-  {
-    id: "sample-size",
-    title: "Sample size — when is a result meaningful?",
-    summary: "A high Sharpe over 30 trades is noise. Over 500 trades, it's information. Where's the line?",
+    id: "basis",
+    title: "Basis Trades — when YES + NO ≠ $1",
+    summary: "On a clean binary market, YES + NO should equal $1.00. When they don't, there's a basis trade — but the spread usually eats it.",
     minutes: 3,
     sections: [
       {
-        h: "The standard error",
-        body: "The uncertainty in your Sharpe estimate scales roughly as 1/√N. With 30 trades, a Sharpe of 1.5 has a standard error around ±0.5 — so the true Sharpe could be anywhere from 0.5 to 2.5. With 500 trades, the same Sharpe has standard error around ±0.13 — much more trustworthy.",
+        h: "Why basis exists",
+        body: "Polymarket uses an AMM-backed CLOB. When one side gets thin (e.g. nobody wants NO on a heavily-favored YES), the AMM widens the spread. The displayed prices drift — YES + NO can be 0.97 or 1.04. On liquid markets the AMM usually keeps it within 1–2¢.",
       },
       {
-        h: "Practical thresholds",
-        body: "Under 30 trades: anything is possible, your data is noise. 30–100: you can spot patterns, but not measure them. 100–500: estimates are reasonable, especially for win rate and expectancy. 500+: the estimates are stable; remaining uncertainty is from regime change, not sample size.",
+        h: "The trade — in theory",
+        body: "If YES + NO = 0.97, buy both for 0.97 total and collect $1 on resolution = 3¢ profit. Risk-free, since one side definitely pays. If YES + NO = 1.04, sell both. Same risk-free logic.",
       },
       {
-        h: "Daily vs trade-level samples",
-        body: "A strategy that trades 5 times a year over 10 years has 50 trades — low confidence. A strategy that trades daily over 5 years has 1,260 daily observations — much higher confidence, even with the same total exposure. More frequent observations let you measure faster.",
+        h: "The trade — in practice",
+        body: "The mid is not your fill. To actually buy YES + NO at the displayed prices, you need to either (a) hit market orders at the offers (paying spread), or (b) leave limit orders and wait. Either way, the realized profit is usually much smaller than the displayed basis — and on contracts with thin books, the basis often disappears before you can execute.",
+      },
+      {
+        h: "Where it's real",
+        body: "Basis is most exploitable on medium-liquidity markets ($10k–$100k liquidity) with stale prices, often during low-traffic hours (e.g. weekends). On <$5k liquidity contracts the spread eats it; on >$500k contracts the AMM closes it fast.",
+      },
+    ],
+  },
+  {
+    id: "mechanics",
+    title: "Polymarket Mechanics — how the venue actually works",
+    summary: "Resolution, oracle disputes, USDC, on-chain. The stuff that bites you if you don't know it.",
+    minutes: 4,
+    sections: [
+      {
+        h: "Trading and settlement",
+        body: "Polymarket is on Polygon, settled in USDC. Each market has two ERC-1155 token IDs (YES and NO). When the market resolves, the winning token redeems 1:1 for USDC; the losing token goes to zero. The CLOB is on-chain orderbook + AMM hybrid; matched trades settle in seconds.",
+      },
+      {
+        h: "Resolution via UMA",
+        body: "Polymarket uses the UMA optimistic oracle. After the event, anyone can propose a resolution; if undisputed for ~2 hours, it's accepted. If disputed, UMA tokenholders vote (≥2 days). The vast majority of markets resolve cleanly; edge cases (vague questions, news interpretation) can drag on.",
+      },
+      {
+        h: "Disputes — the real risk",
+        body: "Ambiguous markets sometimes resolve unexpectedly. Example: 'Will X happen by date Y' where X partially happens at Y. Read the resolution source criteria BEFORE you trade. If the criteria are vague, avoid the market — UMA voters interpret literally and can resolve against the 'common sense' answer.",
+      },
+      {
+        h: "Fees and execution",
+        body: "Polymarket charges no protocol fees on the CLOB (just Polygon gas, ~pennies). The cost is spread: 1–3¢ on liquid markets, 5–10¢ on thin ones. For US users, Polymarket is geoblocked; trading requires a VPN and your own wallet. Kalshi is the regulated US alternative.",
       },
     ],
   },
